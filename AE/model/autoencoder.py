@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from model.CausalCNN import CausalCNNEncoder
+from AE.model.CausalCNN import CausalCNNEncoder
 
 class Autoencoder(nn.Module):
     """

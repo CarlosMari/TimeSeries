@@ -5,7 +5,7 @@ https://github.com/White-Link/UnsupervisedScalableRepresentationLearningTimeSeri
 
 import torch
 import torch.nn as nn
-from model.utils import Chomp, SqueezeChannels, get_activation_func
+from AE.model.utils import Chomp, SqueezeChannels, get_activation_func
 
 
 class CausalConvolutionBlock(nn.Module):
