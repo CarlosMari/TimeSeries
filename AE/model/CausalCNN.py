@@ -93,7 +93,6 @@ class CausalCNN(nn.Module):
 
         for i in range(depth):
             in_channels_block = in_channels if i == 0 else channels
-            print(f'{in_channels_block=}')
             layers += [CausalConvolutionBlock(
                 in_channels_block, channels, kernel_size, dilation_size
             )]
