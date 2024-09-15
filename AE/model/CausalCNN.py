@@ -44,8 +44,8 @@ class CausalConvolutionBlock(nn.Module):
         ))'''
 
         # torch.nn.utils.weight_norm
-        torch.nn.utils.parametrizations.weight_norm
-        conv2 = torch.nn.utils.weight_norm(nn.Conv1d(
+        
+        conv2 = torch.nn.utils.parametrizations.weight_norm(nn.Conv1d(
             out_channels, out_channels, kernel_size,
             padding= padding, dilation= dilation
         ))
