@@ -1,0 +1,1 @@
+Research on the use of Autoencoders and Diffusion models on time series forecasting. This research is based on https://github.com/yasab27/LSMGD 
