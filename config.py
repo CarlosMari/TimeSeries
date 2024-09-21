@@ -1,6 +1,6 @@
 hp = {
     "lr": 0.001, 
-    "epochs": 200,
+    "epochs": 2,
     "batch_size": 100, # Set to -1 to use the full dataset (maximum) batch size. 
     "weight_decay":0
 }
