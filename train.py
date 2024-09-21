@@ -11,6 +11,8 @@ DATA_TYPE = torch.float32
 DEVICE = 'mps'
 
 
+np.random.seed(hp['random_seed'])
+
 def load_data(data_route, batch_size):
     X = np.loadtxt(data_route, delimiter = ",")
 
@@ -33,7 +35,7 @@ def inference(model, data_route):
     X = torch.Tensor(X)
     X = X.reshape(( X.shape[0], 1, -1)).to(DATA_TYPE)
 
-    subset = X[np.random.randint(0,X.shape[0], size = 5), :,:].to(DEVICE)
+    subset = X[np.random.randint(0,X.shape[0], size = 7), :,:].to(DEVICE)
 
     # Generate embeddings and reconstructions
     embeddings_sub = model.encoder(subset)
