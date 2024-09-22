@@ -1,11 +1,12 @@
 import torch
 import wandb
 import numpy as np
-from config import hp
+from config import hp, model_config
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import get_cmap
+
 
 DATA_TYPE = torch.float32
 DEVICE = 'mps'
@@ -68,10 +69,10 @@ def inference(model, data_route):
 
 def train(model, data_route):
 
-
+    model_config.update(hp, inplace=False)
     wandb.init(
         project = 'Autoencoder VAEs',
-        config = hp,
+        config = model_config,
         job_type = 'train',
     )
     
