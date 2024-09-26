@@ -24,17 +24,17 @@ class Autoencoder(nn.Module):
             channels=config['channels'],
             depth=config['depth'],
             reduced_size=config['reduced_size'],
-            out_channels=config['out_channels'],
+            latent_dim=config['latent_dim'],
             kernel_size=config['kernel_size']
         )
         self.decoder = nn.Sequential(
-            nn.Linear(config['out_channels'], 25),
+            nn.Linear(config['latent_dim'], 25),
             nn.LeakyReLU(),
             nn.Linear(25, 50),
             nn.LeakyReLU(),
             nn.Linear(50,75),
             nn.LeakyReLU(), 
-            nn.Linear(75, config['window_length'])
+            nn.Linear(75, config['input_size'])
         )
     
 
@@ -46,7 +46,7 @@ class Autoencoder(nn.Module):
         z = z.squeeze()
 
         y = self.decoder(z)
-        y = y.view((-1,1, self.config['window_length']))
+        y = y.view((-1,1, self.config['input_size']))
 
         return y, z
     

@@ -115,7 +115,7 @@ class CausalCNN(nn.Module):
 
 
 class CausalCNNEncoder(nn.Module):
-    def __init__(self, in_channels, channels, depth, reduced_size, out_channels, kernel_size):
+    def __init__(self, in_channels, channels, depth, reduced_size, latent_dim, kernel_size):
         super().__init__()
 
         causalCNN = CausalCNN(
@@ -124,7 +124,7 @@ class CausalCNNEncoder(nn.Module):
 
         reduce_size = nn.AdaptiveAvgPool1d(1)
         squeeze = SqueezeChannels()
-        linear = nn.Linear(reduced_size, out_channels)
+        linear = nn.Linear(reduced_size, latent_dim)
 
         self.network = torch.nn.Sequential(
             causalCNN, reduce_size, squeeze, linear

@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import get_cmap
-
+import pickle
 
 DATA_TYPE = torch.float32
 DEVICE = 'mps'
@@ -15,7 +15,10 @@ DEVICE = 'mps'
 np.random.seed(hp['random_seed'])
 
 def load_data(data_route, batch_size):
-    X = np.loadtxt(data_route, delimiter = ",")
+
+    file = open(data_route,'rb')
+    X = pickle.load(file)
+    #X = np.loadtxt(data_route, delimiter = ",")
 
     # 0-1 Normalize the dataset
     X = (X - X.min())/(X.max() - X.min())
@@ -31,7 +34,9 @@ def load_data(data_route, batch_size):
 def inference(model, data_route):
 
     model = model.eval()
-    X = np.loadtxt(data_route, delimiter = ",")
+    file = open(data_route,'rb')
+    X = pickle.load(file)
+    #X = np.loadtxt(data_route, delimiter = ",")
     X = (X - X.min())/(X.max() - X.min())
     X = torch.Tensor(X)
     X = X.reshape(( X.shape[0], 1, -1)).to(DATA_TYPE)
