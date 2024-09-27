@@ -12,8 +12,6 @@ class CausalConvolutionBlock(nn.Module):
     """
     Causal Convolution block, composed of two causal convolutions
     """
-
-
     def __init__(self, in_channels, out_channels, kernel_size, dilation, final=False, activation_code=0):
         super().__init__()
 
@@ -23,13 +21,6 @@ class CausalConvolutionBlock(nn.Module):
         # for convolutions to be causal we need left padding, to avoid seeing the future
         padding = (kernel_size - 1) * dilation
         
-
-        # Weight normalization 
-        '''conv1 = nn.utils.parametrizations.weight_norm(nn.Conv1d(
-            in_channels, out_channels, kernel_size,
-            padding= padding, dilation= dilation
-        ))'''
-
         conv1 = torch.nn.utils.parametrizations.weight_norm(nn.Conv1d(
             in_channels, out_channels, kernel_size,
             padding= padding, dilation= dilation
@@ -38,13 +29,6 @@ class CausalConvolutionBlock(nn.Module):
         chomp1 = Chomp(padding)
         activation1 = activation_func
 
-        '''conv2 = nn.utils.parametrizations.weight_norm(nn.Conv1d(
-            out_channels, out_channels, kernel_size,
-            padding= padding, dilation= dilation
-        ))'''
-
-        # torch.nn.utils.weight_norm
-        
         conv2 = torch.nn.utils.parametrizations.weight_norm(nn.Conv1d(
             out_channels, out_channels, kernel_size,
             padding= padding, dilation= dilation
