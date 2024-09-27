@@ -172,3 +172,9 @@ wandb/
 Nice Pics/
 
 testing.ipynb
+
+data/
+
+*.csv
+
+*.pkl
