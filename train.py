@@ -31,6 +31,9 @@ def load_data(data_route, batch_size):
     return data_loader
 
 
+def save_model(model, route):
+    torch.save(model.state_dict(), route)
+
 def inference(model, data_route):
 
     model = model.eval()
@@ -116,4 +119,13 @@ def train(model, data_route):
 
     inference(model, data_route)
     wandb.finish()
+
+
+    if model_config['save']:
+        save_model(model, f'{model_config['save_route']}{model_config['name']}.pth')
+
     return model, running_losses
+
+
+
+
