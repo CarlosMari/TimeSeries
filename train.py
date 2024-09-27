@@ -10,6 +10,8 @@ import pickle
 
 DATA_TYPE = torch.float32
 DEVICE = 'mps'
+LOG = False
+
 
 
 np.random.seed(hp['random_seed'])
@@ -73,16 +75,18 @@ def inference(model, data_route):
     #axs[1].set_xlim([0, 50])
 
     plt.tight_layout()
-    wandb.log({"plot": wandb.Image(fig)})
+    if LOG:
+        wandb.log({"plot": wandb.Image(fig)})
 
 def train(model, data_route):
 
     model_config.update(hp, inplace=False)
-    wandb.init(
-        project = 'Autoencoder VAEs',
-        config = model_config,
-        job_type = 'train',
-    )
+    if LOG:
+        wandb.init(
+            project = 'Autoencoder VAEs',
+            config = model_config,
+            job_type = 'train',
+        )
     
     model = model.to(DATA_TYPE).to(DEVICE).train()
     epochs = hp['epochs']
@@ -110,15 +114,17 @@ def train(model, data_route):
             epoch_loss += batch_loss.item()
 
         # Log loss to wandb
-        wandb.log({
-            'Loss': epoch_loss
-        }, step = i)
+        if LOG:
+            wandb.log({
+                'Loss': epoch_loss
+            }, step = i)
 
         running_losses.append(epoch_loss)
 
 
     inference(model, data_route)
-    wandb.finish()
+    if LOG:
+        wandb.finish()
 
 
     if model_config['save']:
