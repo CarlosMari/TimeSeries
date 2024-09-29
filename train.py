@@ -10,7 +10,7 @@ import pickle
 
 DATA_TYPE = torch.float32
 DEVICE = 'mps'
-LOG = False
+LOG = True
 
 
 
@@ -78,6 +78,21 @@ def inference(model, data_route):
     if LOG:
         wandb.log({"plot": wandb.Image(fig)})
 
+def get_random_indices(model_config):
+
+    N = model_config["input_size"]
+    p = model_config["sampling"]
+
+    size = int(p * N)
+
+    # Generate random indices
+    indices = torch.randperm(N)[:size]
+
+    # Sort the indices to maintain order
+    indices, _ = torch.sort(indices)
+    return indices
+
+
 def train(model, data_route):
 
     model_config.update(hp, inplace=False)
@@ -101,13 +116,18 @@ def train(model, data_route):
     bar = tqdm(range(epochs))
     for i in bar:
         epoch_loss = 0 
-        for batch in data_loader:
-            batch = batch.to(DEVICE)
+        for complete_batch in data_loader:
+            complete_batch = complete_batch.to(DEVICE)
+
+            indices = get_random_indices(model_config).to(DEVICE)
+
+            batch = complete_batch[:, :, indices]
+            #batch = batch.to(DEVICE)
 
             optimizer.zero_grad()
             pred, code = model(batch)
 
-            batch_loss = criterion(pred,batch)
+            batch_loss = criterion(pred,complete_batch)
 
             batch_loss.backward()
             optimizer.step()
