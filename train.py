@@ -116,18 +116,18 @@ def train(model, data_route):
     bar = tqdm(range(epochs))
     for i in bar:
         epoch_loss = 0 
-        for complete_batch in data_loader:
-            complete_batch = complete_batch.to(DEVICE)
+        for batch in data_loader:
+            batch = batch.to(DEVICE)
 
-            indices = get_random_indices(model_config).to(DEVICE)
+            #indices = get_random_indices(model_config).to(DEVICE)
 
-            batch = complete_batch[:, :, indices]
-            #batch = batch.to(DEVICE)
+            #batch = complete_batch[:, :, indices]
+            #batch = complete_batch
 
             optimizer.zero_grad()
             pred, code = model(batch)
 
-            batch_loss = criterion(pred,complete_batch)
+            batch_loss = criterion(pred,batch)
 
             batch_loss.backward()
             optimizer.step()
