@@ -10,7 +10,7 @@ import pickle
 
 DATA_TYPE = torch.float32
 DEVICE = 'mps'
-LOG = True
+LOG = False
 
 
 
@@ -93,6 +93,26 @@ def get_random_indices(model_config):
     return indices
 
 
+def test(model, data_route, step):
+    model = model.eval()
+    criterion = torch.nn.MSELoss()
+    data_loader = load_data(data_route, hp['batch_size'])
+
+    epoch_loss = 0
+    for batch in data_loader:
+            batch = batch.to(DEVICE)
+            pred, code = model(batch)
+            batch_loss = criterion(pred,batch)
+            epoch_loss += batch_loss.item()
+
+    # Log loss to wandb
+    if LOG:
+        wandb.log({
+            'Eval_Loss': epoch_loss
+        }, step = step)
+
+
+
 def train(model, data_route):
 
     model_config.update(hp, inplace=False)
@@ -141,8 +161,13 @@ def train(model, data_route):
 
         running_losses.append(epoch_loss)
 
+        if i % 5 == 0:
+            model = model.eval()
+            test(model, './data/noisy_data_test.pkl', i)
+            model = model.train()
 
-    inference(model, data_route)
+
+    inference(model, './data/noisy_data_test.pkl')
     if LOG:
         wandb.finish()
 
