@@ -10,7 +10,7 @@ import pickle
 
 DATA_TYPE = torch.float32
 DEVICE = 'mps'
-LOG = False
+LOG = True
 
 
 
@@ -98,17 +98,23 @@ def test(model, data_route, step):
     criterion = torch.nn.MSELoss()
     data_loader = load_data(data_route, hp['batch_size'])
 
-    epoch_loss = 0
-    for batch in data_loader:
+
+    total_loss = 0
+    num_batches = 0
+
+    # If number of batches is different than train change the code
+    with torch.no_grad(): 
+        for batch in data_loader:
+            num_batches += 1
             batch = batch.to(DEVICE)
             pred, code = model(batch)
-            batch_loss = criterion(pred,batch)
-            epoch_loss += batch_loss.item()
-
+            batch_loss = criterion(pred, batch)
+            total_loss += batch_loss.item()
+    
     # Log loss to wandb
     if LOG:
         wandb.log({
-            'Eval_Loss': epoch_loss
+            'Eval_Loss': total_loss/num_batches
         }, step = step)
 
 
@@ -136,7 +142,9 @@ def train(model, data_route):
     bar = tqdm(range(epochs))
     for i in bar:
         epoch_loss = 0 
+        num_batches = 0
         for batch in data_loader:
+            num_batches += 1
             batch = batch.to(DEVICE)
 
             #indices = get_random_indices(model_config).to(DEVICE)
@@ -156,7 +164,7 @@ def train(model, data_route):
         # Log loss to wandb
         if LOG:
             wandb.log({
-                'Loss': epoch_loss
+                'Loss': epoch_loss/ num_batches
             }, step = i)
 
         running_losses.append(epoch_loss)
