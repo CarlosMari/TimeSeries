@@ -7,6 +7,7 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import get_cmap
 import pickle
+from sklearn.decomposition import PCA
 
 DATA_TYPE = torch.float32
 DEVICE = 'mps'
@@ -75,8 +76,26 @@ def inference(model, data_route):
     #axs[1].set_xlim([0, 50])
 
     plt.tight_layout()
+
+    encoder = model.encoder
+    embeddings = encoder(X.to(DEVICE)).cpu()
+    pca = PCA()
+    X_pca = pca.fit_transform(embeddings.detach().numpy())
+    variances = pca.explained_variance_ratio_
+
+    fig2, axs2 = plt.subplots(figsize=(4, 4))
+
+    axs2.bar([f"{x+1}" for x in range(variances.shape[0])], height=variances)
+    axs2.set_ylim(0, 1.0)
+    axs2.yaxis.set_major_locator(plt.MaxNLocator(nbins=3))
+    axs2.set_title("Variance Explained by Principal Component")
+
+
+
     if LOG:
-        wandb.log({"plot": wandb.Image(fig)})
+        wandb.log({"plot": wandb.Image(fig),
+                   "PCA": wandb.Image(fig2)})
+        
 
 def get_random_indices(model_config):
 
