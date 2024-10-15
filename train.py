@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 from matplotlib.pyplot import get_cmap
 import pickle
 from sklearn.decomposition import PCA
+from VAE.models.VAE import VAE
+
 
 DATA_TYPE = torch.float32
 DEVICE = 'mps'
@@ -49,12 +51,10 @@ def inference(model, data_route):
 
     subset = X[np.random.randint(0,X.shape[0], size = 7), :,:].to(DEVICE)
 
-    # Generate embeddings and reconstructions
-    embeddings_sub = model.encoder(subset)
-    recons = model.decoder(embeddings_sub).cpu().detach()
-
+    _, latents, _, _ = model(X.to(DEVICE))
+    recons, _, _, _ = model(subset)
+    recons = recons.cpu().detach()
     # Transfer to cpu and drop gradients to enable plotting
-    embeddings_sub = embeddings_sub.cpu().detach()
     subset = subset.cpu().detach()
 
     fig, axs = plt.subplots(1,2, figsize = (18,6))
@@ -77,24 +77,16 @@ def inference(model, data_route):
 
     plt.tight_layout()
 
-    encoder = model.encoder
-    embeddings = encoder(X.to(DEVICE)).cpu()
-    pca = PCA()
-    X_pca = pca.fit_transform(embeddings.detach().numpy())
-    variances = pca.explained_variance_ratio_
+    x_coord = latents[:, 0].cpu().detach().T
+    y_coord = latents[:, 1].cpu().detach().T
 
-    fig2, axs2 = plt.subplots(figsize=(4, 4))
-
-    axs2.bar([f"{x+1}" for x in range(variances.shape[0])], height=variances)
-    axs2.set_ylim(0, 1.0)
-    axs2.yaxis.set_major_locator(plt.MaxNLocator(nbins=3))
-    axs2.set_title("Variance Explained by Principal Component")
-
-
+    fig2, axs2 = plt.subplots()
+    axs2.scatter(x_coord, y_coord, s=50, c="w", edgecolor="b")
+    plt.title('Latent Dimension')
 
     if LOG:
         wandb.log({"plot": wandb.Image(fig),
-                   "PCA": wandb.Image(fig2)})
+                   "latent": wandb.Image(fig2)})
         
 
 def get_random_indices(model_config):
@@ -126,8 +118,8 @@ def test(model, data_route, step):
         for batch in data_loader:
             num_batches += 1
             batch = batch.to(DEVICE)
-            pred, code = model(batch)
-            batch_loss = criterion(pred, batch)
+            pred, code, mu, log_var = model(batch)
+            batch_loss = VAE.vae_loss(pred, batch, mu, log_var, hp["alpha"])
             total_loss += batch_loss.item()
     
     # Log loss to wandb
@@ -172,9 +164,13 @@ def train(model, data_route):
             #batch = complete_batch
 
             optimizer.zero_grad()
-            pred, code = model(batch)
+            #pred, code = model(batch)
+            pred, code, mu, log_var = model(batch)
 
-            batch_loss = criterion(pred,batch)
+            #batch_loss = #criterion(pred,batch)
+            batch_loss = VAE.vae_loss(pred, batch, mu, log_var, hp["alpha"])
+
+
 
             batch_loss.backward()
             optimizer.step()
@@ -190,11 +186,11 @@ def train(model, data_route):
 
         if i % 5 == 0:
             model = model.eval()
-            test(model, './data/noisy_data_test.pkl', i)
+            test(model, './data/VAE_129.pkl', i)
             model = model.train()
 
 
-    inference(model, './data/noisy_data_test.pkl')
+    inference(model, './data/VAE_129.pkl')
     if LOG:
         wandb.finish()
 
