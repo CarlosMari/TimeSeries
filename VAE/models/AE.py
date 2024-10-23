@@ -73,7 +73,7 @@ class AE(nn.Module):
     
 
     @staticmethod
-    def loss(x_hat, x, **kwargs):
+    def loss(x_hat, x, *args):
         "Compute the sum of BCE and KL loss for the distribution."
 
     
