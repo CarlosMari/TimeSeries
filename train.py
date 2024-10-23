@@ -13,7 +13,7 @@ from VAE.models.VAE import VAE
 
 DATA_TYPE = torch.float32
 DEVICE = 'mps'
-LOG = True
+LOG = False
 
 
 
@@ -119,7 +119,7 @@ def test(model, data_route, step):
             num_batches += 1
             batch = batch.to(DEVICE)
             pred, code, mu, log_var = model(batch)
-            batch_loss = VAE.vae_loss(pred, batch, mu, log_var, hp["alpha"])
+            batch_loss = model.loss(pred, batch, mu, log_var, hp["alpha"])
             total_loss += batch_loss.item()
     
     # Log loss to wandb
@@ -158,19 +158,10 @@ def train(model, data_route):
             num_batches += 1
             batch = batch.to(DEVICE)
 
-            #indices = get_random_indices(model_config).to(DEVICE)
-
-            #batch = complete_batch[:, :, indices]
-            #batch = complete_batch
-
             optimizer.zero_grad()
-            #pred, code = model(batch)
             pred, code, mu, log_var = model(batch)
 
-            #batch_loss = #criterion(pred,batch)
-            batch_loss = VAE.vae_loss(pred, batch, mu, log_var, hp["alpha"])
-
-
+            batch_loss = model.loss(pred, batch, mu, log_var, hp["alpha"])
 
             batch_loss.backward()
             optimizer.step()
