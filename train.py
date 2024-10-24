@@ -13,9 +13,9 @@ from VAE.models.VAE import VAE
 
 DATA_TYPE = torch.float32
 DEVICE = 'mps'
-LOG = False
+LOG = True
 
-
+TEST_ROUTE = 'data/VAE_129_channel.pkl'
 
 np.random.seed(hp['random_seed'])
 
@@ -30,8 +30,7 @@ def load_data(data_route, batch_size):
 
     # Transfer it to torch Tensor
     X = torch.Tensor(X)
-    X = X.reshape(( X.shape[0], 1, -1)).to(DATA_TYPE)
-
+    #X = X.reshape(( X.shape[0], 1, -1)).to(DATA_TYPE)
     data_loader = DataLoader(X, batch_size = hp["batch_size"], )
     return data_loader
 
@@ -47,9 +46,12 @@ def inference(model, data_route):
     #X = np.loadtxt(data_route, delimiter = ",")
     X = (X - X.min())/(X.max() - X.min())
     X = torch.Tensor(X)
-    X = X.reshape(( X.shape[0], 1, -1)).to(DATA_TYPE)
+    #X = X.reshape(( X.shape[0], 1, -1)).to(DATA_TYPE)
 
-    subset = X[np.random.randint(0,X.shape[0], size = 7), :,:].to(DEVICE)
+    #subset = X[np.random.randint(0,X.shape[0], size = 7), :,:].to(DEVICE)
+    subset = X[0].to(DEVICE).unsqueeze(0)
+
+    print(f'{subset.shape}')
 
     _, latents, _, _ = model(X.to(DEVICE))
     recons, _, _, _ = model(subset)
@@ -64,29 +66,35 @@ def inference(model, data_route):
     cmap = get_cmap('tab10')  # You can change 'tab10' to any other colormap
 
     # Plot originals
-    for i in range(subset.shape[0]):
+    '''for i in range(subset.shape[0]):
         axs[0].plot(subset[i].squeeze(), color=cmap(i))
-    axs[0].set_title("Originals")
+    axs[0].set_title("Originals")'''
+    for i in range(subset.shape[1]):  # iterate over 7 curves
+        axs[0].plot(subset[0,i,:], color=cmap(i))  # use [0,i,:] to get each curve
+        axs[0].set_title("Originals")
     #axs[0].set_xlim([0, 50])
 
     # Plot reconstructions
-    for i in range(recons.shape[0]):
-        axs[1].plot(recons[i].squeeze(), color=cmap(i))
-    axs[1].set_title("Reconstructions")
+
+    for i in range(recons.shape[0]):  # iterate over 7 curves
+        axs[1].plot(recons[i,:], color=cmap(i))  # use [0,i,:] to get each curve
+        axs[1].set_title("Reconstructions")
     #axs[1].set_xlim([0, 50])
 
     plt.tight_layout()
 
-    x_coord = latents[:, 0].cpu().detach().T
+    '''x_coord = latents[:, 0].cpu().detach().T
     y_coord = latents[:, 1].cpu().detach().T
 
     fig2, axs2 = plt.subplots()
     axs2.scatter(x_coord, y_coord, s=50, c="w", edgecolor="b")
-    plt.title('Latent Dimension')
+    plt.title('Latent Dimension')'''
 
     if LOG:
-        wandb.log({"plot": wandb.Image(fig),
-                   "latent": wandb.Image(fig2)})
+        print('I GET HERE TO LOG IMAGE')
+        wandb.log({"plot": wandb.Image(fig),})
+                   #"latent": wandb.Image(fig2)})
+    plt.close('all')
         
 
 def get_random_indices(model_config):
@@ -177,14 +185,15 @@ def train(model, data_route):
 
         if i % 5 == 0:
             model = model.eval()
-            test(model, './data/VAE_129.pkl', i)
+            test(model, TEST_ROUTE, i)
             model = model.train()
 
 
-    inference(model, './data/VAE_129.pkl')
+    inference(model, TEST_ROUTE)
     if LOG:
+        print('I GET HERE')
         wandb.finish()
-
+    print('HEREEEE')
 
     if model_config['save']:
         save_model(model, f'{model_config['save_route']}{model_config['name']}.pth')
