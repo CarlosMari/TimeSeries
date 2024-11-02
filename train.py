@@ -15,7 +15,7 @@ DATA_TYPE = torch.float32
 DEVICE = 'mps'
 LOG = True
 
-TEST_ROUTE = 'data/VAE_129_channel.pkl'
+TEST_ROUTE = 'data/VAE_129.pkl'
 
 np.random.seed(hp['random_seed'])
 
@@ -49,7 +49,7 @@ def inference(model, data_route):
     #X = X.reshape(( X.shape[0], 1, -1)).to(DATA_TYPE)
 
     #subset = X[np.random.randint(0,X.shape[0], size = 7), :,:].to(DEVICE)
-    subset = X[0].to(DEVICE).unsqueeze(0)
+    #subset = X[0].to(DEVICE).unsqueeze(0)
 
     print(f'{subset.shape}')
 
@@ -120,20 +120,22 @@ def test(model, data_route, step):
 
     total_loss = 0
     num_batches = 0
-
+    recon_loss = 0
     # If number of batches is different than train change the code
     with torch.no_grad(): 
         for batch in data_loader:
             num_batches += 1
             batch = batch.to(DEVICE)
             pred, code, mu, log_var = model(batch)
+            recon_loss += criterion(pred, batch).item()
             batch_loss = model.loss(pred, batch, mu, log_var, hp["alpha"])
             total_loss += batch_loss.item()
     
     # Log loss to wandb
     if LOG:
         wandb.log({
-            'Eval_Loss': total_loss/num_batches
+            'Eval_VAE_Loss': total_loss/num_batches,
+            'Recon Loss':  recon_loss/num_batches,
         }, step = step)
 
 
@@ -189,11 +191,9 @@ def train(model, data_route):
             model = model.train()
 
 
-    inference(model, TEST_ROUTE)
+    #inference(model, TEST_ROUTE)
     if LOG:
-        print('I GET HERE')
         wandb.finish()
-    print('HEREEEE')
 
     if model_config['save']:
         save_model(model, f'{model_config['save_route']}{model_config['name']}.pth')

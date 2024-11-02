@@ -19,31 +19,31 @@ class AE(nn.Module):
             nn.LeakyReLU(),
             nn.Conv1d(in_channels=8, out_channels=8, kernel_size=3, stride=2, padding=1),
             nn.LeakyReLU(),
-            nn.Conv1d(in_channels=8, out_channels=2, kernel_size=3, stride=1, padding=1),
+            nn.Conv1d(in_channels=8, out_channels=8, kernel_size=3, stride=1, padding=1),
             nn.LeakyReLU(),
         )
 
         # Mean mapping
 
         self.linear1 = torch.nn.Sequential(
-            torch.nn.Linear(18, 24),
+            torch.nn.Linear(18*4, config["latent_dim"]*12),
             torch.nn.LeakyReLU(),
-            torch.nn.Linear(24, 24),
+            torch.nn.Linear(config["latent_dim"]*12, config["latent_dim"]*12),
             torch.nn.LeakyReLU(),
-            torch.nn.Linear(24, config["latent_dim"])
+            torch.nn.Linear(config["latent_dim"]*12, config["latent_dim"])
         )
 
         self.linear2 = torch.nn.Sequential(
-            torch.nn.Linear(config["latent_dim"], 24),
+            torch.nn.Linear(config["latent_dim"], config["latent_dim"]*12),
             torch.nn.LeakyReLU(),
-            torch.nn.Linear(24, 24),
+            torch.nn.Linear(config["latent_dim"]*12, config["latent_dim"]*12),
             torch.nn.LeakyReLU(),
-            torch.nn.Linear(24, 18),
+            torch.nn.Linear(config["latent_dim"]*12, 18*4),
             torch.nn.LeakyReLU(),
         )
 
         self.decoder = torch.nn.Sequential(
-            torch.nn.ConvTranspose1d(in_channels = 2, out_channels = 8, kernel_size = 3, padding=1),
+            torch.nn.ConvTranspose1d(in_channels = 8, out_channels = 8, kernel_size = 3, padding=1),
             torch.nn.LeakyReLU(),
             torch.nn.ConvTranspose1d(in_channels = 8, out_channels = 8, kernel_size = 3, stride=2, padding=1),
             torch.nn.LeakyReLU(),
@@ -75,9 +75,6 @@ class AE(nn.Module):
     @staticmethod
     def loss(x_hat, x, *args):
         "Compute the sum of BCE and KL loss for the distribution."
-
-    
-        x_hat = x_hat.unsqueeze(1)
         BCE = F.mse_loss(x_hat, x)
 
         return BCE 

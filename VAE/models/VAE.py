@@ -81,7 +81,7 @@ class VAE(nn.Module):
         """Forward propogate through the model, return both the reconstruction and sampled mean and standard deviation
         for the system. 
         """
-        
+        X = X.unsqueeze(1)
         # Now pass the information through the convolutional feature extracto
         pre_code = self.encoder(X)
                 
@@ -105,9 +105,10 @@ class VAE(nn.Module):
         post_code = self.linear2(code)
         
         
-        X_hat = self.decoder( post_code.view(B, C, L)).squeeze()
+        X_hat = self.decoder( post_code.view(B, C, L))
                           
         #print(f'Getting X_hat shape: {X_hat.shape}')
+
         return X_hat, code, mu, log_var
     
 
@@ -116,7 +117,8 @@ class VAE(nn.Module):
         "Compute the sum of BCE and KL loss for the distribution."
 
         # Compute the reconstruction loss
-        x_hat = x_hat.unsqueeze(1)
+        x = x.unsqueeze(1)
+
         #print(f"x_hat: {x_hat.shape}, x: {x.shape}")
         BCE = F.mse_loss(x_hat, x)
 
