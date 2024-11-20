@@ -81,13 +81,12 @@ class VAE(nn.Module):
         """Forward propogate through the model, return both the reconstruction and sampled mean and standard deviation
         for the system. 
         """
-        X = X.unsqueeze(1)
+        
+        shape = X.shape
+        
         # Now pass the information through the convolutional feature extracto
         pre_code = self.encoder(X)
                 
-        # Get the dimensionf othe precode
-       
-        
         # Reshape the tensor dimension for latent space sampling
         
 
@@ -100,14 +99,11 @@ class VAE(nn.Module):
         
         code = self.sample(mu, log_var)
         
-        # Now pass the information through the decoder. Note we pass the last layer through a sigmoid
-        # for the BCS loss
         post_code = self.linear2(code)
         
         
-        X_hat = self.decoder( post_code.view(B, C, L))
+        X_hat = self.decoder( post_code.view(B,C,L)).view(shape)
                           
-        #print(f'Getting X_hat shape: {X_hat.shape}')
 
         return X_hat, code, mu, log_var
     
@@ -117,9 +113,8 @@ class VAE(nn.Module):
         "Compute the sum of BCE and KL loss for the distribution."
 
         # Compute the reconstruction loss
-        x = x.unsqueeze(1)
-
-        #print(f"x_hat: {x_hat.shape}, x: {x.shape}")
+        # print(f"x_hat: {x_hat.shape}, x: {x.shape}")
+        
         BCE = F.mse_loss(x_hat, x)
 
         # Compute the KL divergence of the distribution. 
@@ -127,7 +122,7 @@ class VAE(nn.Module):
 
         # Normalize by the number of points in the batch and the dimensionality
         KLD /= (x.shape[0]*x.shape[1])
-        
+
         SSL = F.mse_loss(x_hat[:,:,-1], x[:,:,-1])
         # ICL = F.mse_loss(x_hat[:,:,0], x[:,:,0])
 
