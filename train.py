@@ -13,9 +13,9 @@ from VAE.models.VAE import VAE
 
 DATA_TYPE = torch.float32
 DEVICE = 'mps'
-LOG = True
+LOG = True 
 
-TEST_ROUTE = 'data/VAE_129.pkl'
+TEST_ROUTE = 'data/test_paper.pkl'
 
 np.random.seed(hp['random_seed'])
 
@@ -29,8 +29,8 @@ def load_data(data_route, batch_size):
     X = (X - X.min())/(X.max() - X.min())
 
     # Transfer it to torch Tensor
-    X = torch.Tensor(X)
-    #X = X.reshape(( X.shape[0], 1, -1)).to(DATA_TYPE)
+
+    X = torch.Tensor(X).unsqueeze(1)
     data_loader = DataLoader(X, batch_size = hp["batch_size"], )
     return data_loader
 
@@ -43,18 +43,12 @@ def inference(model, data_route):
     model = model.eval()
     file = open(data_route,'rb')
     X = pickle.load(file)
-    #X = np.loadtxt(data_route, delimiter = ",")
     X = (X - X.min())/(X.max() - X.min())
-    X = torch.Tensor(X)
-    #X = X.reshape(( X.shape[0], 1, -1)).to(DATA_TYPE)
+    X = torch.Tensor(X).unsqueeze(1)
+    subset = X[7:14,:, :]
 
-    #subset = X[np.random.randint(0,X.shape[0], size = 7), :,:].to(DEVICE)
-    #subset = X[0].to(DEVICE).unsqueeze(0)
 
-    print(f'{subset.shape}')
-
-    _, latents, _, _ = model(X.to(DEVICE))
-    recons, _, _, _ = model(subset)
+    recons, _, _, _ = model(subset.to(DEVICE))
     recons = recons.cpu().detach()
     # Transfer to cpu and drop gradients to enable plotting
     subset = subset.cpu().detach()
@@ -62,38 +56,28 @@ def inference(model, data_route):
     fig, axs = plt.subplots(1,2, figsize = (18,6))
     axs = axs.flatten()
 
-
     cmap = get_cmap('tab10')  # You can change 'tab10' to any other colormap
 
     # Plot originals
-    '''for i in range(subset.shape[0]):
-        axs[0].plot(subset[i].squeeze(), color=cmap(i))
-    axs[0].set_title("Originals")'''
-    for i in range(subset.shape[1]):  # iterate over 7 curves
-        axs[0].plot(subset[0,i,:], color=cmap(i))  # use [0,i,:] to get each curve
+    subset = subset.squeeze(1)
+    for i in range(subset.shape[0]):  # iterate over 7 curves
+        axs[0].plot(subset[i,:], color=cmap(i))  # use [0,i,:] to get each curve
         axs[0].set_title("Originals")
-    #axs[0].set_xlim([0, 50])
 
     # Plot reconstructions
-
+    recons = recons.squeeze(1)
     for i in range(recons.shape[0]):  # iterate over 7 curves
         axs[1].plot(recons[i,:], color=cmap(i))  # use [0,i,:] to get each curve
         axs[1].set_title("Reconstructions")
-    #axs[1].set_xlim([0, 50])
 
     plt.tight_layout()
-
-    '''x_coord = latents[:, 0].cpu().detach().T
-    y_coord = latents[:, 1].cpu().detach().T
-
-    fig2, axs2 = plt.subplots()
-    axs2.scatter(x_coord, y_coord, s=50, c="w", edgecolor="b")
-    plt.title('Latent Dimension')'''
 
     if LOG:
         print('I GET HERE TO LOG IMAGE')
         wandb.log({"plot": wandb.Image(fig),})
                    #"latent": wandb.Image(fig2)})
+    else:
+        plt.show()
     plt.close('all')
         
 
@@ -127,7 +111,7 @@ def test(model, data_route, step):
             num_batches += 1
             batch = batch.to(DEVICE)
             pred, code, mu, log_var = model(batch)
-            recon_loss += criterion(pred, batch).item()
+            recon_loss += criterion(pred, batch)
             batch_loss = model.loss(pred, batch, mu, log_var, hp["alpha"])
             total_loss += batch_loss.item()
     
@@ -158,13 +142,13 @@ def train(model, data_route):
 
     running_losses = []
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay= hp["weight_decay"])
-    criterion = torch.nn.MSELoss()
 
     bar = tqdm(range(epochs))
     for i in bar:
         epoch_loss = 0 
         num_batches = 0
         for batch in data_loader:
+            #print(f'{batch.shape=}')
             num_batches += 1
             batch = batch.to(DEVICE)
 
@@ -191,7 +175,7 @@ def train(model, data_route):
             model = model.train()
 
 
-    #inference(model, TEST_ROUTE)
+    inference(model, TEST_ROUTE)
     if LOG:
         wandb.finish()
 
