@@ -217,11 +217,7 @@ def uniform_normal_matrix_opti(n=100, cor=0):
     B[np.triu_indices(n, 1)] = V(x, cor)
     return A+B.T
 
-# %%
-
 # Function associated with the Lotka-Volterra dynamics
-
-
 def f_LV(x, A):
     """
     Function used in the RK scheme to approximate the dynamics of the LV EDO.
@@ -241,6 +237,77 @@ def f_LV(x, A):
     N = len(A)
     x = np.dot(np.diag(x), (np.ones(N)-x-np.dot(A, x)))
     return x
+
+def custom_f_LV(x, A, r_k):
+    """
+    Function used in the RK scheme to approximate the dynamics of the LV EDO.
+
+    Parameters
+    ----------
+    x : numpy.ndarray(n),
+        x_k in the iterative scheme.
+    A : numpy.ndarray(n,n),
+        Non-normalized matrix of interactions.
+    r_k : numpy.ndarray(n),
+        Vector of intrinsic growth rates r_k for each species.
+    Returns
+    -------
+    x : numpy.ndarray(n).
+    """
+
+    N = len(A)
+    x = np.dot(np.diag(x), (r_k-x-np.dot(A, x)))
+    return x
+
+
+def custom_dynamics_LV(A, x_init, nbr_it, tau, r_k):
+    """
+    Runge-Kutta Scheme
+
+    Parameters
+    ----------
+    A : numpy.ndarray,
+        Normalized matrix of interactions.
+    x_init : numpy.ndarray,
+        Initial condition.
+    nbr_it : int,
+        Number of iterations.
+    tau : float,
+        Time step.
+    r_k : numpy.ndarray(n),
+        Vector of intrinsic growth rates r_k for each species.
+
+    Returns
+    -------
+    sol_dyn : numpy.ndarray,
+        Line i corresponds to the values of the dynamics of species i.
+
+    """
+    x = x_init
+
+    compt = 0
+
+    # Matrix of the solution:
+    sol_dyn = np.eye(len(A), nbr_it)
+
+    # RK scheme:
+    while compt < nbr_it:
+
+        f1 = custom_f_LV(x, A, r_k)
+        f2 = custom_f_LV(x+tau*0.5*f1, A, r_k)
+        f3 = custom_f_LV(x+tau*0.5*f2, A, r_k)
+        f4 = custom_f_LV(x+tau*f3, A, r_k)
+
+        x = x+tau*(f1+2*f2+2*f3+f4)/6
+
+        for i in range(len(A)):
+            sol_dyn[i, compt] = x[i]
+        compt = compt+1
+
+    #print("Convergence dynamique: \n", np.around(
+    #    sol_dyn[:, nbr_it-1], decimals=2))
+
+    return sol_dyn
 
 
 def dynamics_LV(A, x_init, nbr_it, tau):
@@ -286,7 +353,7 @@ def dynamics_LV(A, x_init, nbr_it, tau):
         compt = compt+1
 
     #print("Convergence dynamique: \n", np.around(
-    #    sol_dyn[:, nbr_it-1], decimals=2))åå
+    #    sol_dyn[:, nbr_it-1], decimals=2))
 
     return sol_dyn
 
@@ -549,8 +616,6 @@ def res_function(mu, alpha, rho):
 
     return(v, m, sigma, phi)
 
-
-# %%
 
 # Functions associated the the empirical resolution of the solution
 # of the fixed point problem with vanishing species.
