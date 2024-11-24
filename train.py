@@ -15,8 +15,9 @@ DATA_TYPE = torch.float32
 DEVICE = 'mps'
 LOG = True 
 
-TEST_ROUTE = 'data/test_paper.pkl'
+TEST_ROUTE = 'data/test_paper_C.pkl'
 
+#TEST_ROUTE = 'data/VAE_129_TRAIN.pkl'
 np.random.seed(hp['random_seed'])
 
 def load_data(data_route, batch_size):
@@ -30,7 +31,7 @@ def load_data(data_route, batch_size):
 
     # Transfer it to torch Tensor
 
-    X = torch.Tensor(X).unsqueeze(1)
+    X = torch.Tensor(X)
     data_loader = DataLoader(X, batch_size = hp["batch_size"], )
     return data_loader
 
@@ -44,8 +45,8 @@ def inference(model, data_route):
     file = open(data_route,'rb')
     X = pickle.load(file)
     X = (X - X.min())/(X.max() - X.min())
-    X = torch.Tensor(X).unsqueeze(1)
-    subset = X[7:14,:, :]
+    X = torch.Tensor(X)
+    subset = X[20:30,:, :]
 
 
     recons, _, _, _ = model(subset.to(DEVICE))
@@ -73,11 +74,10 @@ def inference(model, data_route):
     plt.tight_layout()
 
     if LOG:
-        print('I GET HERE TO LOG IMAGE')
         wandb.log({"plot": wandb.Image(fig),})
                    #"latent": wandb.Image(fig2)})
-    else:
-        plt.show()
+    
+    plt.show()
     plt.close('all')
         
 
