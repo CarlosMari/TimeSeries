@@ -9,7 +9,7 @@ import argparse
 parser = argparse.ArgumentParser(description="CLI inputs for distirbution of generated data")
 parser.add_argument('--file',
                     type=str,
-                    default='data/TRAIN.pkl',
+                    default='data/TRAIN_NEG.pkl',
                     help='Route to the dataset')
 
 parser.add_argument('--name',
@@ -80,6 +80,9 @@ def plot_analysis(results, sample_curves=None):
                         np.searchsorted(y_centers, results['max_minus_end'])-1],
                      cmap='viridis',
                      alpha=0.6)
+    ax1.set_xlabel('Máximo - Inicio')
+    ax1.set_ylabel('Máximo - Final')
+
     plt.colorbar(scatter, ax=ax1, label='Point Density')
     # Histograms
     ax2 = fig.add_subplot(gs[1, 0])
@@ -122,8 +125,9 @@ if __name__ == "__main__":
     X = pickle.load(file)
     file.close()
     X = (X - X.min())/(X.max() - X.min())
-    X = X.reshape(( X.shape[0], 1, -1))
-
+    
+    X = X.reshape(( -1, 1, X.shape[2]))
+    print(X.shape) 
     results = analyze_curves(X)
         
     # Create visualization
