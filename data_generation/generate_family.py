@@ -16,7 +16,7 @@ def generate_data(num_curves, seed, name='TRAIN'):
     np.random.seed(seed)
     sim_lists = []
     for i in trange(num_curves):
-        RHO = np.random.rand() # correlation
+        RHO = (np.random.rand()*2)-1 # correlation
         ALPHA = np.random.rand()*5 # interaction strength
 
         A = elliptic_normal_matrix(N, RHO) / \
@@ -68,6 +68,5 @@ def generate_data(num_curves, seed, name='TRAIN'):
 
 
 if __name__ == "__main__":
-    print('HELLOOOO')
-    generate_data(8000, TRAIN_SEED, 'TRAIN')
-    generate_data(1000, TEST_SEED, 'TEST')
+    generate_data(70000, TRAIN_SEED, 'TRAIN_NEG')
+    generate_data(5000, TEST_SEED, 'TEST_NEG')
