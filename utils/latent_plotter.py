@@ -34,7 +34,7 @@ def visualize_vae_multiple_samples(model, X, n_curves=7, n_samples=100, alpha=0.
     assert n_curves == 7, f'{n_curves=}'
 
     indices = np.arange(n_curves)
-    subsets = X[23].to(device)
+    subsets = X[30].to(device)
 
     originals = [subset.cpu().numpy() for subset in subsets]
 
