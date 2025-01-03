@@ -41,9 +41,15 @@ def generate_data(num_curves, seed, name='TRAIN'):
         if np.isnan(sol).any() or sol[sol > 2.0].any():
             continue
 
+
+        def has_overshoot(curve):
+            steady_state = np.mean(curve[-10:])
+            return np.any(curve > 1.2 * steady_state)
+
+        overshoot_count = sum(has_overshoot(curve) for curve in sol)
+
         # Check how many curves end at their maximum
-        ends_at_max_count = sum(np.isclose(sol[:, -1], sol.max(axis=1)))
-        if ends_at_max_count > 2:  # Ignore families where >50% curves end at their max
+        if overshoot_count < 3:  # Ignore families where >50% curves end at their max
             continue
 
         sim_lists.append(sol)
