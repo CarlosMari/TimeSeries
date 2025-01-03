@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import odeint
-from tqdm.notebook import trange
+from tqdm import tqdm
 import pickle
 from glv_functions import *
 import random
@@ -14,7 +14,10 @@ SIGMA = 0.01 # Lognormal noise variance
 def generate_data(num_curves, seed, name='TRAIN'):
     np.random.seed(seed)
     sim_lists = []
-    for i in trange(num_curves):
+    num_sols = 0 
+    pbar = tqdm(range(num_curves), desc='Finding Correct Solutions')
+
+    for i in pbar:
         RHO = (np.random.rand()) # correlation
         ALPHA = np.random.rand() * 5 # interaction strength
 
@@ -23,7 +26,7 @@ def generate_data(num_curves, seed, name='TRAIN'):
         # Parameters of the dynamics:
         NBR_IT = 129  # Number of iterations
         TAU = 0.093  # Time step
-        x_init = np.random.uniform(0.05, 0.2, N)  # Initial condition
+        x_init = np.random.uniform(0.02, 0.1, N)  # Initial condition
         r = np.random.uniform(0.2, 1, N)
 
         # Compute the dynamics:
@@ -46,12 +49,22 @@ def generate_data(num_curves, seed, name='TRAIN'):
             steady_state = np.mean(curve[-10:])
             return np.any(curve > 1.2 * steady_state)
 
-        overshoot_count = sum(has_overshoot(curve) for curve in sol)
+        def has_extinction(curve):
+            steady_state = np.mean(curve[-10:])
+            return steady_state <= curve[0]
+        
+        overshoot_count = 0
+        extinct_count = 0
+        for curve in sol:
+            extinct_count += has_extinction(curve)
+            overshoot_count += has_overshoot(curve)
 
-        # Check how many curves end at their maximum
-        if overshoot_count < 3:  # Ignore families where >50% curves end at their max
+        # Check how many curves end at their maximum // how many go extinct
+        if overshoot_count < 3 or extinct_count > 0:  # Ignore families 
             continue
 
+        num_sols += 1
+        pbar.set_postfix({'Correct Solutions': num_sols})
         sim_lists.append(sol)
 
     sols = np.array(sim_lists)
@@ -67,12 +80,14 @@ def generate_data(num_curves, seed, name='TRAIN'):
             axs[i].plot(A[i][z])
         axs[i].axis("off")
 
-    plt.savefig(f'./generation_comparison/{name}.png')
 
+
+    plt.savefig(f'./generation_comparison/{name}.png')
+    print(f'Generated data {sols.shape}')
     # Save the filtered data
     with open(f'./data/{name}.pkl', 'wb') as output:
         pickle.dump(sols, output)
 
 if __name__ == "__main__":
-    generate_data(70000, TRAIN_SEED, 'TRAIN')
+    generate_data(700000, TRAIN_SEED, 'TRAIN')
     generate_data(5000, TEST_SEED, 'TEST')
