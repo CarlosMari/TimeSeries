@@ -67,7 +67,7 @@ def generate_data(num_curves, seed, name='TRAIN'):
             axs[i].plot(A[i][z])
         axs[i].axis("off")
 
-    plt.savefig(f'./data/{name}.png')
+    plt.savefig(f'./generation_comparison/{name}.png')
 
     # Save the filtered data
     with open(f'./data/{name}.pkl', 'wb') as output:

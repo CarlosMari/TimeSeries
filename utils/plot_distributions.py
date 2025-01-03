@@ -131,6 +131,6 @@ if __name__ == "__main__":
         
     # Create visualization
     fig = plot_analysis(results)
-    plt.savefig(f'./data/{args.name}.png')
+    plt.savefig(f'./generation_comparison/{args.name}.png')
     if args.show:
         plt.show()
