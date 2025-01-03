@@ -23,7 +23,7 @@ def generate_data(num_curves, seed, name='TRAIN'):
         # Parameters of the dynamics:
         NBR_IT = 129  # Number of iterations
         TAU = 0.093  # Time step
-        x_init = np.random.random(N) * 0.1  # Initial condition
+        x_init = np.random.uniform(0.05, 0.2, N)  # Initial condition
         r = np.random.uniform(0.2, 1, N)
 
         # Compute the dynamics:
