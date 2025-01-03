@@ -9,12 +9,12 @@ import argparse
 parser = argparse.ArgumentParser(description="CLI inputs for distirbution of generated data")
 parser.add_argument('--file',
                     type=str,
-                    default='data/TRAIN_NEG.pkl',
+                    default='data/TRAIN.pkl',
                     help='Route to the dataset')
 
 parser.add_argument('--name',
                     type=str,
-                    default='TRAIN',
+                    default='TRAIN_DIST',
                     help='Name of the output file')
 
 parser.add_argument('--show',
@@ -127,7 +127,6 @@ if __name__ == "__main__":
     X = (X - X.min())/(X.max() - X.min())
     
     X = X.reshape(( -1, 1, X.shape[2]))
-    print(X.shape) 
     results = analyze_curves(X)
         
     # Create visualization
