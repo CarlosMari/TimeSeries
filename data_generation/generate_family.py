@@ -16,6 +16,7 @@ def generate_data(num_curves, seed, name='TRAIN'):
     sim_lists = []
     num_sols = 0 
     pbar = tqdm(range(num_curves), desc='Finding Correct Solutions')
+    scaling_factor = float(np.exp(SIGMA**2 / 2))
 
     for i in pbar:
         RHO = (np.random.rand()) # correlation
@@ -36,7 +37,6 @@ def generate_data(num_curves, seed, name='TRAIN'):
         noise = np.random.lognormal(mean=0, sigma=SIGMA, size=shape)  # (7, 129)
 
         # Center the noise around 1
-        scaling_factor = float(np.exp(SIGMA**2 / 2))
         centered_noise = noise / scaling_factor
         sol = sol * centered_noise
 
@@ -44,23 +44,15 @@ def generate_data(num_curves, seed, name='TRAIN'):
         if np.isnan(sol).any() or sol[sol > 2.0].any():
             continue
 
+        steady_states = np.mean(sol[:, -10:], axis=1)
+        overshoot_flags = np.max(sol, axis=1) > 1.2 * steady_states
+        extinction_flags = steady_states <= sol[:, 0]
 
-        def has_overshoot(curve):
-            steady_state = np.mean(curve[-10:])
-            return np.any(curve > 1.2 * steady_state)
-
-        def has_extinction(curve):
-            steady_state = np.mean(curve[-10:])
-            return steady_state <= curve[0]
-        
-        overshoot_count = 0
-        extinct_count = 0
-        for curve in sol:
-            extinct_count += has_extinction(curve)
-            overshoot_count += has_overshoot(curve)
+        overshoot_count = np.sum(overshoot_flags)
+        extinct_count = np.sum(extinction_flags)
 
         # Check how many curves end at their maximum // how many go extinct
-        if overshoot_count < 3 or extinct_count > 0:  # Ignore families 
+        if overshoot_count < 3 or extinct_count > 1:  # Ignore families 
             continue
 
         num_sols += 1
@@ -80,8 +72,6 @@ def generate_data(num_curves, seed, name='TRAIN'):
             axs[i].plot(A[i][z])
         axs[i].axis("off")
 
-
-
     plt.savefig(f'./generation_comparison/{name}.png')
     print(f'Generated data {sols.shape}')
     # Save the filtered data
@@ -89,5 +79,5 @@ def generate_data(num_curves, seed, name='TRAIN'):
         pickle.dump(sols, output)
 
 if __name__ == "__main__":
-    generate_data(700000, TRAIN_SEED, 'TRAIN')
-    generate_data(5000, TEST_SEED, 'TEST')
+    generate_data(2500000, TRAIN_SEED, 'TRAIN')
+    generate_data(50000, TEST_SEED, 'TEST')
