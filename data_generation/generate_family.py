@@ -47,12 +47,15 @@ def generate_data(num_curves, seed, name='TRAIN'):
         steady_states = np.mean(sol[:, -10:], axis=1)
         overshoot_flags = np.max(sol, axis=1) > 1.2 * steady_states
         extinction_flags = steady_states <= sol[:, 0]
+        min_values = np.max(sol, axis=1) < 0.1
+
 
         overshoot_count = np.sum(overshoot_flags)
         extinct_count = np.sum(extinction_flags)
+        min_count = np.sum(min_values)
 
         # Check how many curves end at their maximum // how many go extinct
-        if overshoot_count < 3 or extinct_count > 1:  # Ignore families 
+        if overshoot_count < 3 or extinct_count > 1 or min_count > 0:  # Ignore families 
             continue
 
         num_sols += 1
@@ -79,5 +82,5 @@ def generate_data(num_curves, seed, name='TRAIN'):
         pickle.dump(sols, output)
 
 if __name__ == "__main__":
-    generate_data(2500000, TRAIN_SEED, 'TRAIN')
+    generate_data(1000000, TRAIN_SEED, 'TRAIN')
     generate_data(50000, TEST_SEED, 'TEST')
