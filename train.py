@@ -143,6 +143,7 @@ def train(model, data_route):
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay= hp["weight_decay"])
 
     bar = tqdm(range(epochs))
+    num_families = 0
     for i in bar:
         epoch_loss = 0 
         num_batches = 0
@@ -161,9 +162,11 @@ def train(model, data_route):
             epoch_loss += batch_loss.item()
 
         # Log loss to wandb
+        num_families += len(data_loader.dataset)
         if LOG:
             wandb.log({
-                'Loss': epoch_loss/ num_batches
+                'Loss': epoch_loss/ num_batches,
+                'Num Families': num_families,
             }, step = i)
 
         running_losses.append(epoch_loss)
