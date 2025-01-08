@@ -175,6 +175,8 @@ def train(model, data_route):
         if i % 100 == 0:
             inference(model, TEST_ROUTE, i)
 
+
+    inference(model, TEST_ROUTE, epochs)
     if LOG:
         wandb.finish()
 
