@@ -15,7 +15,7 @@ DATA_TYPE = torch.float32
 DEVICE = 'mps'
 LOG = True 
 
-TEST_ROUTE = 'data/test_paper_C.pkl'
+TEST_ROUTE = 'data/TEST_EXP.pkl'
 
 #TEST_ROUTE = 'data/VAE_129_TRAIN.pkl'
 np.random.seed(hp['random_seed'])
@@ -39,17 +39,17 @@ def load_data(data_route, batch_size):
 def save_model(model, route):
     torch.save(model.state_dict(), route)
 
-def inference(model, data_route):
+def inference(model, data_route, step):
 
     model = model.eval()
     file = open(data_route,'rb')
     X = pickle.load(file)
     X = (X - X.min())/(X.max() - X.min())
     X = torch.Tensor(X)
-    subset = X[20:30,:, :]
+    subset = X[0]
 
 
-    recons, _, _, _ = model(subset.to(DEVICE))
+    recons, _, _, _ = model(subset.to(DEVICE).reshape(1,7,129))
     recons = recons.cpu().detach()
     # Transfer to cpu and drop gradients to enable plotting
     subset = subset.cpu().detach()
@@ -60,21 +60,20 @@ def inference(model, data_route):
     cmap = get_cmap('tab10')  # You can change 'tab10' to any other colormap
 
     # Plot originals
-    subset = subset.squeeze(1)
     for i in range(subset.shape[0]):  # iterate over 7 curves
-        axs[0].plot(subset[i,:], color=cmap(i))  # use [0,i,:] to get each curve
-        axs[0].set_title("Originals")
+            axs[0].plot(subset[i,:], color=cmap(i))  # use [0,i,:] to get each curve
+            axs[0].set_title("Originals")
 
     # Plot reconstructions
-    recons = recons.squeeze(1)
-    for i in range(recons.shape[0]):  # iterate over 7 curves
-        axs[1].plot(recons[i,:], color=cmap(i))  # use [0,i,:] to get each curve
+    for i in range(recons[0].shape[0]):  # iterate over 7 curves
+        axs[1].plot(recons[0][i,:], color=cmap(i))  # use [0,i,:] to get each curve
         axs[1].set_title("Reconstructions")
 
     plt.tight_layout()
 
     if LOG:
-        wandb.log({"plot": wandb.Image(fig),})
+        wandb.log({"plot": wandb.Image(fig),},
+                  step=step)
                    #"latent": wandb.Image(fig2)})
     
     plt.show()
@@ -173,9 +172,9 @@ def train(model, data_route):
             model = model.eval()
             test(model, TEST_ROUTE, i)
             model = model.train()
+        if i % 100 == 0:
+            inference(model, TEST_ROUTE, i)
 
-
-    inference(model, TEST_ROUTE)
     if LOG:
         wandb.finish()
 
