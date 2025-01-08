@@ -3,9 +3,11 @@ import matplotlib.pyplot as plt
 from scipy.integrate import odeint
 from tqdm import tqdm
 import pickle
-from glv_functions import *
+#from glv_functions import *
 import random
+from custom_glv import generate_curves
 
+LOG = False
 
 TRAIN_SEED = 74
 TEST_SEED =  73
@@ -19,19 +21,9 @@ def generate_data(num_curves, seed, name='TRAIN'):
     scaling_factor = float(np.exp(SIGMA**2 / 2))
 
     for i in pbar:
-        RHO = (np.random.rand()) # correlation
-        ALPHA = np.random.rand() * 5 # interaction strength
-
-        A = elliptic_normal_matrix(N, RHO) / (np.sqrt(N) * ALPHA)  # Matrix of interactions
-
-        # Parameters of the dynamics:
-        NBR_IT = 129  # Number of iterations
-        TAU = 0.093  # Time step
-        x_init = np.random.uniform(0.02, 0.1, N)  # Initial condition
-        r = np.random.uniform(0.2, 1, N)
 
         # Compute the dynamics:
-        sol = custom_dynamics_LV(A, x_init, nbr_it=NBR_IT, tau=TAU, r_k=r)  # y-axis
+        sol = generate_curves() 
 
         shape = sol.shape
         noise = np.random.lognormal(mean=0, sigma=SIGMA, size=shape)  # (7, 129)
@@ -40,23 +32,22 @@ def generate_data(num_curves, seed, name='TRAIN'):
         centered_noise = noise / scaling_factor
         sol = sol * centered_noise
 
-        # Check for NaN or extreme values
-        if np.isnan(sol).any() or sol[sol > 2.0].any():
-            continue
 
         steady_states = np.mean(sol[:, -10:], axis=1)
         overshoot_flags = np.max(sol, axis=1) > 1.2 * steady_states
-        extinction_flags = steady_states <= sol[:, 0]
-        min_values = np.max(sol, axis=1) < 0.1
-
-
         overshoot_count = np.sum(overshoot_flags)
-        extinct_count = np.sum(extinction_flags)
-        min_count = np.sum(min_values)
 
-        # Check how many curves end at their maximum // how many go extinct
-        if overshoot_count < 3 or extinct_count > 1 or min_count > 0:  # Ignore families 
+        # Check for NaN or extreme values
+        if np.isnan(sol).any() or sol[sol > 1.0].any() or np.any(np.max(sol, axis=1) < 0.1) or overshoot_count < 3:
             continue
+
+        if LOG:
+            print('=================================')
+            print(f'Correct Family {i}')
+            for curve in sol:
+                print(f'Max {np.max(curve)}')
+        
+            print('=================================')
 
         num_sols += 1
         pbar.set_postfix({'Correct Solutions': num_sols})
@@ -82,5 +73,5 @@ def generate_data(num_curves, seed, name='TRAIN'):
         pickle.dump(sols, output)
 
 if __name__ == "__main__":
-    generate_data(1000000, TRAIN_SEED, 'TRAIN')
-    generate_data(50000, TEST_SEED, 'TEST')
+    generate_data(1000000, TRAIN_SEED, 'TRAIN_EXP')
+    generate_data(100000, TEST_SEED, 'TEST_EXP')
