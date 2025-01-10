@@ -16,7 +16,7 @@ def gLV(t,x_t, r, A, K):
     return x_t * (r * (1 - x_t / K) + A @ x_t)
 
 
-def generate_parameters(N=7, x0_min =-0.05, x0_max = 0.2, A_min = -0.2, A_max =1):
+def generate_parameters(N=7, x0_min =0.05, x0_max = 0.2, A_min = -0.2, A_max =1):
     N = 7
 
     A = -np.random.uniform(A_min, A_max, (N, N))
