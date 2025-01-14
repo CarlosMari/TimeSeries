@@ -88,7 +88,7 @@ class CHVAE(nn.Module):
         """
         
         shape = X.shape
-        
+        #X_0 = X[:,:,0]
         # Now pass the information through the convolutional feature extracto
         pre_code = self.encoder(X)
         # Reshape the tensor dimension for latent space sampling
@@ -102,10 +102,12 @@ class CHVAE(nn.Module):
         
         code = self.sample(mu, log_var)
         
+        # We add the x_0 values to aid reconstruction
+        #code = torch.cat([code, X_0], dim=1)
+
         post_code = self.linear2(code)
 
         X_hat = self.decoder( post_code.view(B,C,L))
-
 
         X_hat = X_hat.view(shape)
 
@@ -129,5 +131,6 @@ class CHVAE(nn.Module):
 
         SSL = F.mse_loss(x_hat[:,:,-1], x[:,:,-1])
         # ICL = F.mse_loss(x_hat[:,:,0], x[:,:,0])
-
+    
         return BCE + alpha*KLD + gamma*SSL
+        #return BCE * (1 + DIFERENCIA) + alpha*KLD + gamma*SSL
