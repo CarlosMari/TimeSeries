@@ -14,7 +14,7 @@ from VAE.models.VAE import VAE
 DATA_TYPE = torch.float32
 LOG = True 
 
-TEST_ROUTE = 'data/TEST_EXP_2.pkl'
+TEST_ROUTE = 'data/TEST_EXP.pkl'
 
 #TEST_ROUTE = 'data/VAE_129_TRAIN.pkl'
 np.random.seed(hp['random_seed'])
@@ -75,7 +75,7 @@ def inference(model, data_route, step):
                   step=step)
                    #"latent": wandb.Image(fig2)})
     
-    plt.show()
+    #plt.show()
     plt.close('all')
         
 
