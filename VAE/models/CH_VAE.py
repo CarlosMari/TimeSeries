@@ -10,6 +10,15 @@ class CHVAE(nn.Module):
 
         self.config = config
 
+        def init_weights(m):
+            if isinstance(m, (nn.Conv1d, nn.ConvTranspose1d, nn.Linear)):
+                # Initialize weights normally
+                nn.init.xavier_normal_(m.weight)
+                # Initialize bias with higher variance
+                if m.bias is not None:
+                    nn.init.normal_(m.bias, mean=0.0, std=1.0)
+
+
         self.encoder = nn.Sequential(
             nn.Conv1d(in_channels=config['in_channels'], out_channels=16, kernel_size=7, stride=2, padding=3),
             ACTIVATION,
@@ -23,11 +32,14 @@ class CHVAE(nn.Module):
             ACTIVATION,
         )
 
+        self.encoder.apply(init_weights)
+
         self.corr = torch.nn.Sequential(
             torch.nn.Linear(36*2, 2*config['latent_dim']),
             ACTIVATION,
         )
 
+        self.corr.apply(init_weights)
 
         self.mean_map = torch.nn.Sequential(
             torch.nn.Linear(2*config['latent_dim'], 40),
@@ -37,6 +49,8 @@ class CHVAE(nn.Module):
             torch.nn.Linear(40, config["latent_dim"])
         )
 
+        self.mean_map.apply(init_weights)
+
         self.std_map = torch.nn.Sequential(
             torch.nn.Linear(2*config['latent_dim'], 40),
             ACTIVATION,
@@ -44,6 +58,8 @@ class CHVAE(nn.Module):
             ACTIVATION,
             torch.nn.Linear(40, config["latent_dim"])
         )
+
+        self.std_map.apply(init_weights)
 
         self.linear2 = torch.nn.Sequential(
             torch.nn.Linear(config["latent_dim"], config["latent_dim"]),
@@ -53,6 +69,8 @@ class CHVAE(nn.Module):
             torch.nn.Linear(config["latent_dim"]*2, 36*2),
             ACTIVATION,
         )
+
+        self.linear2.apply(init_weights)
 
         self.decoder = torch.nn.Sequential(
             torch.nn.ConvTranspose1d(in_channels = 8, out_channels = 8, kernel_size = 3, padding=1),
@@ -66,6 +84,7 @@ class CHVAE(nn.Module):
             torch.nn.ConvTranspose1d(in_channels = 16, out_channels = config["in_channels"], kernel_size=7, stride=2, padding=3),
         )
 
+        self.decoder.apply(init_weights)
 
     def sample(self, mean, log_var):
         """Sample a given N(0,1) normal distribution given a mean and log of variance."""
