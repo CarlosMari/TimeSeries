@@ -1,7 +1,7 @@
 import torch
 import wandb
 import numpy as np
-from config import hp, model_config
+from config import hp, model_config, DEVICE
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 import matplotlib.pyplot as plt
@@ -12,10 +12,9 @@ from VAE.models.VAE import VAE
 
 
 DATA_TYPE = torch.float32
-DEVICE = 'mps'
 LOG = True 
 
-TEST_ROUTE = 'data/TEST_EXP.pkl'
+TEST_ROUTE = 'data/TEST_EXP_2.pkl'
 
 #TEST_ROUTE = 'data/VAE_129_TRAIN.pkl'
 np.random.seed(hp['random_seed'])
