@@ -11,12 +11,13 @@ class CHVAE(nn.Module):
         self.config = config
 
         def init_weights(m):
+            pass
             if isinstance(m, (nn.Conv1d, nn.ConvTranspose1d, nn.Linear)):
                 # Initialize weights normally
                 nn.init.xavier_normal_(m.weight)
                 # Initialize bias with higher variance
                 if m.bias is not None:
-                    nn.init.normal_(m.bias, mean=0.0, std=1.0)
+                    nn.init.normal_(m.bias, mean=0.0, std=0.01)
 
 
         self.encoder = nn.Sequential(
@@ -134,22 +135,35 @@ class CHVAE(nn.Module):
     
 
     @staticmethod
-    def loss(x_hat, x, mu, log_var, alpha, gamma = 0):
+    def loss(x_hat, x, mu, log_var, a_weight, gamma = 0, alpha = 0.5):
         "Compute the sum of BCE and KL loss for the distribution."
 
-        # Compute the reconstruction loss
-        # print(f"x_hat: {x_hat.shape}, x: {x.shape}")
-        
         BCE = F.mse_loss(x_hat, x)
+        # Compute alpha divergence
+        exp_var = torch.exp(log_var)
 
-        # Compute the KL divergence of the distribution. 
-        KLD = -0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp())
+        # Compute terms for alpha divergence
+        if alpha == 1.0:
+            # Revert to standard KL divergence for alpha=1
+            alpha_div = -0.5 * torch.sum(1 + log_var - mu.pow(2) - exp_var)
+        else:
+            term1 = (1 - alpha) * 0.5 * log_var
+            term2 = alpha * 0.5 * (mu.pow(2) + exp_var)
+            term3 = -0.5  # Per dimension
+            
+            # Combine terms element-wise
+            log_terms = term1 + term2 + term3
+            
+            # Use log-sum-exp trick for numerical stability
+            max_val = torch.max(log_terms)
+            stable_exp = torch.exp(log_terms - max_val)
+            alpha_div = 1 / (alpha * (1 - alpha)) * (torch.exp(max_val) * stable_exp.sum() - 1)
 
-        # Normalize by the number of points in the batch and the dimensionality
-        KLD /= (x.shape[0]*x.shape[1])
+        # Normalize by batch size
+        alpha_div /= x.shape[0]
 
-        SSL = F.mse_loss(x_hat[:,:,-1], x[:,:,-1])
-        # ICL = F.mse_loss(x_hat[:,:,0], x[:,:,0])
-    
-        return BCE + alpha*KLD + gamma*SSL
-        #return BCE * (1 + DIFERENCIA) + alpha*KLD + gamma*SSL
+        # Compute SSL loss
+        SSL = F.mse_loss(x_hat[:, :, -1], x[:, :, -1]) if gamma > 0 else 0
+
+        # Combine losses
+        return BCE + a_weight * alpha_div + gamma * SSL
