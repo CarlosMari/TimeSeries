@@ -166,7 +166,7 @@ cython_debug/
 
 weights/
 IIT/
-
+TimeSeries/
 wandb/
 
 Nice Pics/
