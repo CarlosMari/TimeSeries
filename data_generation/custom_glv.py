@@ -16,15 +16,18 @@ def gLV(t,x_t, r, A, K):
     return x_t * (r * (1 - x_t / K) + A @ x_t)
 
 
-def generate_parameters(N=7, x0_min =0.05, x0_max = 0.2, A_min = -0.2, A_max =1):
+def generate_parameters(N=7, x0_min =0.05, x0_max = 0.1, A_min = -1, A_max =1):
     N = 7
 
-    A = -np.random.uniform(A_min, A_max, (N, N))
+    A = -np.random.uniform(A_min, A_max, (N, N)) # normal 0, std = 1
 
     # Modify diagonal elements
-    np.fill_diagonal(A, np.diag(A) - np.sqrt(2))
+    #np.fill_diagonal(A, np.diag(A) - np.sqrt(2)) # Multiplicar 1.1
+    np.fill_diagonal(A, np.diag(A) * 1.1) # Multiplicar 1.1
 
-    r = np.random.uniform(0,1,N) + 0.5
+
+    #r = np.random.uniform(0,1,N) + 0.5 # lognormal mean/mode = mu 0, sigma 0.5
+    r = np.random.lognormal(0, 0.5)
 
     K = np.ones(N)*1000
     x0 = np.random.uniform(x0_min, x0_max, N)
