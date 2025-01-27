@@ -38,7 +38,7 @@ def generate_data(num_curves, seed, name='TRAIN'):
         overshoot_count = np.sum(overshoot_flags)
 
         # Check for NaN or extreme values
-        if np.isnan(sol).any(): #or sol[sol > 1.0].any() or np.any(np.max(sol, axis=1) < 0.1) or overshoot_count < 3:
+        if np.isnan(sol).any() or sol[sol > 1.0].any() or np.any(np.max(sol, axis=1) < 0.1) or overshoot_count < 3:
             continue
 
         if LOG:
