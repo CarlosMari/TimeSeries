@@ -24,8 +24,7 @@ def generate_parameters(N=7, x0_min =0.05, x0_max = 0.2, A_min = -0.2, A_max =1)
     # Modify diagonal elements
     np.fill_diagonal(A, np.diag(A) - np.sqrt(2))
 
-    r = np.random.uniform(0,1,N) + 0.5
-
+    r = np.random.lognormal(0, 0.5, N)
     K = np.ones(N)*1000
     x0 = np.random.uniform(x0_min, x0_max, N)
 
