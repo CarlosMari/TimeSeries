@@ -38,7 +38,7 @@ def generate_data(num_curves, seed, name='TRAIN'):
         overshoot_count = np.sum(overshoot_flags)
 
         # Check for NaN or extreme values
-        if np.isnan(sol).any() or sol[sol > 1.0].any() or np.any(np.max(sol, axis=1) < 0.1) or overshoot_count < 3:
+        if np.isnan(sol).any(): #or sol[sol > 1.0].any() or np.any(np.max(sol, axis=1) < 0.1) or overshoot_count < 3:
             continue
 
         if LOG:
@@ -73,5 +73,5 @@ def generate_data(num_curves, seed, name='TRAIN'):
         pickle.dump(sols, output)
 
 if __name__ == "__main__":
-    generate_data(1000000, TRAIN_SEED, 'TRAIN_EXP')
-    generate_data(100000, TEST_SEED, 'TEST_EXP')
+    generate_data(100000, TRAIN_SEED, 'TRAIN_NEW_DIST')
+    generate_data(10000, TEST_SEED, 'TEST_NEW_DIST')
