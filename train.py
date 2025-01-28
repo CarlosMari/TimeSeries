@@ -38,7 +38,7 @@ def load_data(data_route, batch_size):
 def save_model(model, route):
     torch.save(model.state_dict(), route)
 
-def inference(model, data_route, step):
+def inference(model, data_route, step, iters=10):
 
     model = model.eval()
     file = open(data_route,'rb')
@@ -48,25 +48,32 @@ def inference(model, data_route, step):
     subset = X[0]
 
 
-    recons, _, _, _ = model(subset.to(DEVICE).reshape(1,7,129))
-    recons = recons.cpu().detach()
-    # Transfer to cpu and drop gradients to enable plotting
-    subset = subset.cpu().detach()
-
     fig, axs = plt.subplots(1,2, figsize = (18,6))
     axs = axs.flatten()
+    cmap = get_cmap('tab10')
 
-    cmap = get_cmap('tab10')  # You can change 'tab10' to any other colormap
+    reconstructions = []
+    for z in range(iters):
+        recons, _, _, log_var = model(subset.to(DEVICE).reshape(1,7,129))
+        recons = recons.cpu().detach()
+        subset = subset.cpu().detach()
+        reconstructions.append(recons)
 
+    stacked = torch.stack(reconstructions, dim=0)  # Shape: [10, 1, 7, 129]
+    # Remove the batch dimension and transpose to get curves first
+    reconstructions = stacked.squeeze(1).permute(1, 0, 2)
     # Plot originals
-    for i in range(subset.shape[0]):  # iterate over 7 curves
-            axs[0].plot(subset[i,:], color=cmap(i))  # use [0,i,:] to get each curve
-            axs[0].set_title("Originals")
+    for i in range(subset.shape[0]):
+        color = cmap(i / (subset.shape[0] - 1))
+        axs[0].plot(subset[i,:], color=color)
+        
+        for z in range(iters):
+            axs[1].plot(reconstructions[i,z,:], color=color, alpha=0.1)
+        mean_recon = torch.mean(reconstructions[i], dim=0)  # Average over iterations
+        axs[1].plot(mean_recon, color=color, linestyle='--')
 
-    # Plot reconstructions
-    for i in range(recons[0].shape[0]):  # iterate over 7 curves
-        axs[1].plot(recons[0][i,:], color=cmap(i))  # use [0,i,:] to get each curve
-        axs[1].set_title("Reconstructions")
+    axs[0].set_title("Originals")
+    axs[1].set_title("Reconstructions")
 
     plt.tight_layout()
 
