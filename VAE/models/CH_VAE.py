@@ -135,9 +135,8 @@ class CHVAE(nn.Module):
     
 
     @staticmethod
-    def loss(x_hat, x, mu, log_var, a_weight, gamma = 0, alpha = 0.5):
+    def loss(x_hat, x, mu, log_var, a_weight, alpha = 0.5):
         "Compute the sum of BCE and KL loss for the distribution."
-
         BCE = F.mse_loss(x_hat, x)
         # Compute alpha divergence
         exp_var = torch.exp(log_var)
@@ -162,8 +161,5 @@ class CHVAE(nn.Module):
         # Normalize by batch size
         alpha_div /= x.shape[0]
 
-        # Compute SSL loss
-        SSL = F.mse_loss(x_hat[:, :, -1], x[:, :, -1]) if gamma > 0 else 0
-
         # Combine losses
-        return BCE + a_weight * alpha_div + gamma * SSL
+        return BCE + a_weight * alpha_div
