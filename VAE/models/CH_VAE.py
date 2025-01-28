@@ -122,9 +122,6 @@ class CHVAE(nn.Module):
         
         code = self.sample(mu, log_var)
         
-        # We add the x_0 values to aid reconstruction
-        #code = torch.cat([code, X_0], dim=1)
-
         post_code = self.linear2(code)
 
         X_hat = self.decoder( post_code.view(B,C,L))
@@ -135,7 +132,7 @@ class CHVAE(nn.Module):
     
 
     @staticmethod
-    def loss(x_hat, x, mu, log_var, a_weight, alpha = 0.5):
+    def loss(x_hat, x, mu, log_var, a_weight, alpha = 1):
         "Compute the sum of BCE and KL loss for the distribution."
         BCE = F.mse_loss(x_hat, x)
         # Compute alpha divergence
