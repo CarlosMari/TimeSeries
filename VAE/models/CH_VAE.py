@@ -91,7 +91,7 @@ class CHVAE(nn.Module):
         """Sample a given N(0,1) normal distribution given a mean and log of variance."""
         
         # First compute the variance from the log variance. 
-        var = torch.exp(0.5*log_var)
+        var = torch.clamp(torch.exp(0.5*log_var),min=1e-4)
         
         # Compute a scaled distribution
         eps = torch.randn_like(var)
@@ -132,7 +132,7 @@ class CHVAE(nn.Module):
     
 
     @staticmethod
-    def loss(x_hat, x, mu, log_var, a_weight, alpha = 1):
+    def loss(x_hat, x, mu, log_var, a_weight, alpha = 0.5):
         "Compute the sum of BCE and KL loss for the distribution."
         BCE = F.mse_loss(x_hat, x)
         # Compute alpha divergence
@@ -155,8 +155,21 @@ class CHVAE(nn.Module):
             stable_exp = torch.exp(log_terms - max_val)
             alpha_div = 1 / (alpha * (1 - alpha)) * (torch.exp(max_val) * stable_exp.sum() - 1)
 
+            #if alpha == 0.5:
+            #    alpha_div = -0.1 * torch.sum(log_var)  # Reinforce variance
         # Normalize by batch size
+
+
+
         alpha_div /= x.shape[0]
 
+
+        # Variance Reg 1
+        #reg_loss = torch.mean(log_var**2)
+
+
+        # Variance Reg 2
+        reg_loss = torch.mean(torch.exp(-log_var))  # Penalizes very small variance
+
         # Combine losses
-        return BCE + a_weight * alpha_div
+        return BCE + a_weight * alpha_div * 0.005 * reg_loss
