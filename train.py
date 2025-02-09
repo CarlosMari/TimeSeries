@@ -117,7 +117,7 @@ def test(model, data_route, step):
             batch = batch.to(DEVICE)
             pred, code, mu, log_var = model(batch)
             recon_loss += criterion(pred, batch)
-            batch_loss = model.loss(pred, batch, mu, log_var, hp["alpha"])
+            batch_loss = model.loss(pred, batch, mu, log_var, code, hp["alpha"])
             total_loss += batch_loss.item()
     
     # Log loss to wandb
@@ -161,7 +161,7 @@ def train(model, data_route):
             optimizer.zero_grad()
             pred, code, mu, log_var = model(batch)
 
-            batch_loss = model.loss(pred, batch, mu, log_var, hp["alpha"])
+            batch_loss = model.loss(pred, batch, mu, log_var, code, hp["alpha"])
 
             batch_loss.backward()
             optimizer.step()

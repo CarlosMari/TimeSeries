@@ -131,45 +131,22 @@ class CHVAE(nn.Module):
         return X_hat, code, mu, log_var
     
 
+    @staticmethodq
+    def black_box_alpha_divergence(q_samples, log_p_xz, log_qz, alpha):
+        log_w = log_p_xz - log_qz
+        w_term = torch.exp((1 - alpha) * log_w)
+        loss = (1 / (alpha * (alpha -1))) * (torch.mean(w_term) - 1)
+
+        return loss
+
     @staticmethod
-    def loss(x_hat, x, mu, log_var, a_weight, alpha = 0.5):
+    def loss(x_hat, x, mu, log_var, z, a_weight, alpha = 0.5):
         "Compute the sum of BCE and KL loss for the distribution."
-        BCE = F.mse_loss(x_hat, x)
+        BCE = F.mse_loss(x_hat, x, reduction='sum')
         # Compute alpha divergence
-        exp_var = torch.exp(log_var)
+        log_qz = -0.5 * torch.sum(log_var + ((z - mu) ** 2) / torch.exp(log_var), dim=1)
+        log_p_xz = -torch.sum(z**2, dim=1)
 
-        # Compute terms for alpha divergence
-        if alpha == 1.0:
-            # Revert to standard KL divergence for alpha=1
-            alpha_div = -0.5 * torch.sum(1 + log_var - mu.pow(2) - exp_var)
-        else:
-            term1 = (1 - alpha) * 0.5 * log_var
-            term2 = alpha * 0.5 * (mu.pow(2) + exp_var)
-            term3 = -0.5  # Per dimension
-            
-            # Combine terms element-wise
-            log_terms = term1 + term2 + term3
-            
-            # Use log-sum-exp trick for numerical stability
-            max_val = torch.max(log_terms)
-            stable_exp = torch.exp(log_terms - max_val)
-            alpha_div = 1 / (alpha * (1 - alpha)) * (torch.exp(max_val) * stable_exp.sum() - 1)
+        alpha_div_loss = black_box_alpha_divergence(z, log_p_xz, log_qz, alpha)
 
-            #if alpha == 0.5:
-            #    alpha_div = -0.1 * torch.sum(log_var)  # Reinforce variance
-        # Normalize by batch size
-
-
-
-        alpha_div /= x.shape[0]
-
-
-        # Variance Reg 1
-        #reg_loss = torch.mean(log_var**2)
-
-
-        # Variance Reg 2
-        reg_loss = torch.mean(torch.exp(-log_var))  # Penalizes very small variance
-
-        # Combine losses
-        return BCE + a_weight * alpha_div * 0.005 * reg_loss
+        return BCE + a_weight * alpha_div_loss
