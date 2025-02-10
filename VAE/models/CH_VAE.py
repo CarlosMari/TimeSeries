@@ -131,22 +131,20 @@ class CHVAE(nn.Module):
         return X_hat, code, mu, log_var
     
 
-    @staticmethodq
-    def black_box_alpha_divergence(q_samples, log_p_xz, log_qz, alpha):
-        log_w = log_p_xz - log_qz
-        w_term = torch.exp((1 - alpha) * log_w)
-        loss = (1 / (alpha * (alpha -1))) * (torch.mean(w_term) - 1)
-
-        return loss
-
     @staticmethod
     def loss(x_hat, x, mu, log_var, z, a_weight, alpha = 0.5):
         "Compute the sum of BCE and KL loss for the distribution."
-        BCE = F.mse_loss(x_hat, x, reduction='sum')
-        # Compute alpha divergence
-        log_qz = -0.5 * torch.sum(log_var + ((z - mu) ** 2) / torch.exp(log_var), dim=1)
-        log_p_xz = -torch.sum(z**2, dim=1)
+        # x_hat -> BATCH, 7, 129
+        #MSE = F.mse_loss(x_hat, x)
+        
+        MSE = torch.sum((x_hat - x) ** 2, dim=-1) # (BATCH_SIZE, 7)
+        exp_mse = torch.exp(-alpha * 0.5 * MSE)
+        s_i = torch.mean(exp_mse, dim = 1) # (BATCH_SIZE)
+        L_i = (1/alpha) * torch.log(s_i + 1e-10)
 
-        alpha_div_loss = black_box_alpha_divergence(z, log_p_xz, log_qz, alpha)
+        recon_loss = -torch.sum(L_i)
+        kl_divergence = -0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp())
 
-        return BCE + a_weight * alpha_div_loss
+        total_loss = recon_loss + 0.01 * kl_divergence
+
+        return total_loss, recon_loss, kl_divergence
