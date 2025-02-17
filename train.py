@@ -117,7 +117,7 @@ def test(model, data_route, step):
             batch = batch.to(DEVICE)
             pred, code, mu, log_var = model(batch)
             recon_loss += criterion(pred, batch)
-            batch_loss, _, _ = model.loss(pred, batch, mu, log_var, code, hp["alpha"])
+            batch_loss, _, _ = model.loss(pred, batch, mu, log_var, code, hp["alpha"], len_dataset=len(data_loader.dataset))
             total_loss += batch_loss.item()
     
     # Log loss to wandb
@@ -150,6 +150,8 @@ def train(model, data_route):
 
     bar = tqdm(range(epochs))
     num_families = 0
+    beta = 0
+    beta_increment = 1 / (0.9 * epochs)
     for i in bar:
         epoch_loss = 0 
         recon_losses = 0
@@ -163,7 +165,7 @@ def train(model, data_route):
             optimizer.zero_grad()
             pred, code, mu, log_var = model(batch)
 
-            batch_loss, recon_loss, kl_loss = model.loss(pred, batch, mu, log_var, code, hp["alpha"])
+            batch_loss, recon_loss, kl_loss = model.loss(pred, batch, mu, log_var, code, hp["alpha"], len_dataset=len(data_loader.dataset), beta=beta)
 
             batch_loss.backward()
             optimizer.step()
@@ -178,7 +180,8 @@ def train(model, data_route):
                 'Loss': epoch_loss/ num_batches,
                 'Num Families': num_families,
                 'KL Loss': kl_losses/ num_batches,
-                'MSE Loss': recon_loss / num_batches
+                'MSE Loss': recon_loss / num_batches,
+                'Beta': beta,
 
             }, step = i)
 
@@ -190,6 +193,10 @@ def train(model, data_route):
             model = model.train()
         if i % 100 == 0:
             inference(model, TEST_ROUTE, i)
+
+        if i >= int(0.1 * epochs):
+            beta += beta_increment
+
 
 
     inference(model, TEST_ROUTE, epochs)

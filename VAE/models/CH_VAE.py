@@ -132,12 +132,17 @@ class CHVAE(nn.Module):
     
 
     @staticmethod
-    def loss(x_hat, x, mu, log_var, z, a_weight, alpha = 0.5):
+    def loss(x_hat, x, mu, log_var, z, a_weight, alpha = 1, len_dataset= 10, beta = 1):
         "Compute the sum of BCE and KL loss for the distribution."
         # x_hat -> BATCH, 7, 129
         #MSE = F.mse_loss(x_hat, x)
         
+
+
         MSE = torch.sum((x_hat - x) ** 2, dim=-1) # (BATCH_SIZE, 7)
+
+        batch_size = MSE.shape[0]
+
         exp_mse = torch.exp(-alpha * 0.5 * MSE)
         s_i = torch.mean(exp_mse, dim = 1) # (BATCH_SIZE)
         L_i = (1/alpha) * torch.log(s_i + 1e-10)
@@ -145,6 +150,6 @@ class CHVAE(nn.Module):
         recon_loss = -torch.sum(L_i)
         kl_divergence = -0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp())
 
-        total_loss = recon_loss + 0.01 * kl_divergence
+        total_loss = (len_dataset/batch_size) * recon_loss + beta * kl_divergence
 
         return total_loss, recon_loss, kl_divergence
