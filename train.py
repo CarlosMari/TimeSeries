@@ -151,7 +151,7 @@ def train(model, data_route):
     bar = tqdm(range(epochs))
     num_families = 0
     beta = 0
-    beta_increment = 1 / (0.9 * epochs)
+    beta_increment = 1 / (0.3 * epochs)
     for i in bar:
         epoch_loss = 0 
         recon_losses = 0
@@ -194,7 +194,7 @@ def train(model, data_route):
         if i % 100 == 0:
             inference(model, TEST_ROUTE, i)
 
-        if i >= int(0.1 * epochs):
+        if i <= int(0.3 * epochs):
             beta += beta_increment
 
 

@@ -45,8 +45,8 @@ class CHVAE(nn.Module):
         self.mean_map = torch.nn.Sequential(
             torch.nn.Linear(2*config['latent_dim'], 40),
             ACTIVATION,
-            torch.nn.Linear(40, 40),
-            ACTIVATION,
+            #torch.nn.Linear(40, 40),
+            #ACTIVATION,
             torch.nn.Linear(40, config["latent_dim"])
         )
 
@@ -55,8 +55,8 @@ class CHVAE(nn.Module):
         self.std_map = torch.nn.Sequential(
             torch.nn.Linear(2*config['latent_dim'], 40),
             ACTIVATION,
-            torch.nn.Linear(40, 40),
-            ACTIVATION,
+            #torch.nn.Linear(40, 40),
+            #ACTIVATION,
             torch.nn.Linear(40, config["latent_dim"])
         )
 
@@ -91,7 +91,7 @@ class CHVAE(nn.Module):
         """Sample a given N(0,1) normal distribution given a mean and log of variance."""
         
         # First compute the variance from the log variance. 
-        var = torch.clamp(torch.exp(0.5*log_var),min=1e-4)
+        var = torch.exp(0.5*log_var)
         
         # Compute a scaled distribution
         eps = torch.randn_like(var)
@@ -136,13 +136,9 @@ class CHVAE(nn.Module):
         "Compute the sum of BCE and KL loss for the distribution."
         # x_hat -> BATCH, 7, 129
         #MSE = F.mse_loss(x_hat, x)
-        
-
-
         MSE = torch.sum((x_hat - x) ** 2, dim=-1) # (BATCH_SIZE, 7)
 
         batch_size = MSE.shape[0]
-
         exp_mse = torch.exp(-alpha * 0.5 * MSE)
         s_i = torch.mean(exp_mse, dim = 1) # (BATCH_SIZE)
         L_i = (1/alpha) * torch.log(s_i + 1e-10)
