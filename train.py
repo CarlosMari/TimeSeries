@@ -9,7 +9,7 @@ from matplotlib.pyplot import get_cmap
 import pickle
 from sklearn.decomposition import PCA
 from VAE.models.VAE import VAE
-
+import torch.optim as optim
 
 DATA_TYPE = torch.float32
 LOG = True 
@@ -148,10 +148,19 @@ def train(model, data_route):
     running_losses = []
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay= hp["weight_decay"])
 
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 
+                                                 mode='min', 
+                                                 factor=0.95, 
+                                                 patience=10, 
+                                                 threshold=1e-4, 
+                                                 min_lr=1e-6, 
+                                                 cooldown = 10,)
+
+
     bar = tqdm(range(epochs))
     num_families = 0
     beta = 0
-    beta_increment = 1 / (0.3 * epochs)
+    beta_increment = 1 / (0.3 * (epochs-1))
     for i in bar:
         epoch_loss = 0 
         recon_losses = 0
@@ -180,8 +189,9 @@ def train(model, data_route):
                 'Loss': epoch_loss/ num_batches,
                 'Num Families': num_families,
                 'KL Loss': kl_losses/ num_batches,
-                'MSE Loss': recon_loss / num_batches,
+                'MSE Loss': recon_losses / num_batches,
                 'Beta': beta,
+                'lr': optimizer.param_groups[0]['lr'],
 
             }, step = i)
 
@@ -197,6 +207,8 @@ def train(model, data_route):
         if i <= int(0.3 * epochs):
             beta += beta_increment
 
+        else:
+            scheduler.step(recon_losses)
 
 
     inference(model, TEST_ROUTE, epochs)
