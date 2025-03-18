@@ -247,7 +247,7 @@ if __name__ == '__main__':
         X = X.unsqueeze(1)  # Add channel dimension -> [samples, 1, sequence_length]
     
     # Select a small batch for visualization (e.g., 10 samples)
-    sample_batch = X[23:33].to(DEVICE)
+    sample_batch = X[23:63].to(DEVICE)
     
     print(f"Input data shape: {sample_batch.shape}")
     

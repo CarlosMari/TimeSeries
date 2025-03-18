@@ -207,8 +207,8 @@ def train(model, data_route):
         if i <= int(0.3 * epochs):
             beta += beta_increment
 
-        else:
-            scheduler.step(recon_losses)
+        #else:
+            #scheduler.step(recon_losses)
 
 
     inference(model, TEST_ROUTE, epochs)

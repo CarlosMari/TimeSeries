@@ -20,11 +20,11 @@ class CHVAE(nn.Module):
 
         # Encoder remains the same as before
         self.encoder = nn.Sequential(
-            nn.Conv1d(in_channels=config['in_channels'], out_channels=10, kernel_size=49, stride=4, padding=4), # out 23
+            nn.Conv1d(in_channels=config['in_channels'], out_channels=7, kernel_size=5, stride=1, padding=2), # out 45 x 10
             ACTIVATION,
-            nn.Conv1d(in_channels=10, out_channels=20, kernel_size=5, stride=2, padding=2),
+            nn.Conv1d(in_channels=7, out_channels=10, kernel_size=5, stride=1, padding=2), # out 22 x 15
             ACTIVATION,
-            nn.Conv1d(in_channels=20, out_channels=20, kernel_size=6, stride=2, padding=2),
+            nn.Conv1d(in_channels=10, out_channels=10, kernel_size=4, stride=1, padding=2), # 11 x 15
             ACTIVATION,
         )
         self.encoder.apply(init_weights)
@@ -32,6 +32,7 @@ class CHVAE(nn.Module):
         # Calculate the actual flattened size after encoder
         dummy_input = torch.zeros(1, config['in_channels'], 129)
         dummy_output = self.encoder(dummy_input)
+        print(f'{dummy_output.shape=}')
         self.flattened_size = dummy_output.size(1) * dummy_output.size(2)
         
         # Store encoder dimensions for decoder reshaping
@@ -47,24 +48,24 @@ class CHVAE(nn.Module):
         self.corr.apply(init_weights)
         
         self.mean_map = torch.nn.Sequential(
-            torch.nn.Linear(2*config['latent_dim'], 40),
-            ACTIVATION,
-            torch.nn.Linear(40, config["latent_dim"])
+            torch.nn.Linear(2*config['latent_dim'], config['latent_dim']),
+            #ACTIVATION,
+            #torch.nn.Linear(15, config["latent_dim"])
         )
         self.mean_map.apply(init_weights)
         
         self.std_map = torch.nn.Sequential(
-            torch.nn.Linear(2*config['latent_dim'], 40),
-            ACTIVATION,
-            torch.nn.Linear(40, config["latent_dim"])
+            torch.nn.Linear(2*config['latent_dim'], config['latent_dim']),
+            #ACTIVATION,
+            #torch.nn.Linear(15, config["latent_dim"])
         )
         self.std_map.apply(init_weights)
         
         self.linear2 = torch.nn.Sequential(
-            torch.nn.Linear(config["latent_dim"], config["latent_dim"]),
-            ACTIVATION,
             torch.nn.Linear(config["latent_dim"], self.flattened_size),
             ACTIVATION,
+            #torch.nn.Linear(config["latent_dim"], self.flattened_size),
+            #ACTIVATION,
         )
         self.linear2.apply(init_weights)
 
@@ -78,29 +79,29 @@ class CHVAE(nn.Module):
 
             self.decoder = torch.nn.Sequential(
                 torch.nn.ConvTranspose1d(
-                    in_channels=20, 
-                    out_channels=20, 
-                    kernel_size=6,
-                    stride=2,
+                    in_channels=10, 
+                    out_channels=10, 
+                    kernel_size=4,
+                    stride=1,
                     padding=2, 
                     output_padding=0
                 ),
                 ACTIVATION,
                 torch.nn.ConvTranspose1d(
-                    in_channels=20, 
-                    out_channels=10, 
+                    in_channels=10, 
+                    out_channels=7, 
                     kernel_size=5,
-                    stride=2,
+                    stride=1,
                     padding=2,  # Adjusted padding
                     output_padding=0  # Added output padding
                 ),
                 ACTIVATION,
                 torch.nn.ConvTranspose1d(
-                    in_channels=10, 
+                    in_channels=7, 
                     out_channels=config["in_channels"], 
-                    kernel_size=49,
-                    stride=4,
-                    padding=4,  # Adjusted padding
+                    kernel_size=5,
+                    stride=1,
+                    padding=2,  # Adjusted padding
                     output_padding=0  # Added output padding
                 ),
             )
@@ -164,6 +165,6 @@ class CHVAE(nn.Module):
         recon_loss = -torch.sum(L_i)
         kl_divergence = -0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp())
 
-        total_loss = 2*(len_dataset/batch_size) * recon_loss + beta * kl_divergence
+        total_loss = 2*(len_dataset/batch_size) * recon_loss #+ beta * 0.1 * kl_divergence
 
         return total_loss, (len_dataset/batch_size) * recon_loss, kl_divergence
