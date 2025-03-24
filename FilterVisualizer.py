@@ -2,9 +2,12 @@ import torch
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import find_peaks
-
 from VAE.models.CH_VAE import CHVAE
 from config import model_config
+import pickle
+
+
+DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 def visualize_vae_filters(model, sample_data, top_n=10):
     """
@@ -15,17 +18,19 @@ def visualize_vae_filters(model, sample_data, top_n=10):
         sample_data: Sample time series data (batch_size, in_channels, seq_length)
         top_n: Number of top filters to visualize
     """
+
     # Make sure model is in eval mode
     model.eval()
     
     # Dictionary to store activations
     activations = {}
     
-    # Function to hook activations
+    # Sacamos las activations = outputs de cada capa
     def get_activation(name):
         def hook(module, input, output):
             activations[name] = output.detach()
         return hook
+
     
     # Register hooks for the first convolutional layer
     target_layer = "encoder.0"
@@ -64,7 +69,7 @@ def visualize_vae_filters(model, sample_data, top_n=10):
         plt.subplot(top_n, 2, i * 2 + 1)  # 2 columns per row
         plt.plot(weights[filter_idx, 0, :], label='Weights')  # Assuming 1 input channel
         plt.title(f'Filter {filter_idx} Weights')
-        plt.xlabel('Lag')
+        plt.xlabel('Índice')
 
         # Highlight key peaks
         filter_data = weights[filter_idx, 0, :]
@@ -77,7 +82,7 @@ def visualize_vae_filters(model, sample_data, top_n=10):
         # 2. Plot the filter's activation
         plt.subplot(top_n, 2, i * 2 + 2)
         plt.plot(feature_maps[filter_idx, :], label='Activation', color='blue')
-        plt.title(f'Filter {filter_idx} Activation')
+        plt.title(f'Filter {filter_idx} Output')
         plt.xlabel('Time Step')
 
         plt.legend()
@@ -179,10 +184,9 @@ def time_domain_filter_response(model, sample_data, filter_indices, window_lengt
         # Get the filter weights
         filter_weights = weights[filter_idx, 0, :]
         
-        # Compute the convolution manually to get a response at each time step
-        # (essentially a sliding window operation)
+        # Hacemos la convolución de manera manual
         response = np.zeros_like(time_series)
-        pad_size = (len(filter_weights) - 1) // 2
+        pad_size = 2
         padded_series = np.pad(time_series, (pad_size, pad_size), 'constant')
         
         for t in range(len(time_series)):
@@ -207,21 +211,9 @@ def time_domain_filter_response(model, sample_data, filter_indices, window_lengt
     plt.savefig('filters/TimeResponses.png')
     plt.show()
 
-# Example usage:
-# Assuming 'model' is your trained CHVAE instance and 'sample_data' is your dataset
-# sample_data = torch.randn(10, 1, 129)  # Batch of 10 samples, 1 channel, 129 time steps
-# top_filters = visualize_vae_filters(model, sample_data, top_n=5)
-# visualize_latent_activations(model, sample_data)
-# time_domain_filter_response(model, sample_data[0:1], top_filters['top_filters'][:3])
 
 if __name__ == '__main__':
-    import pickle
-    import torch
-    import numpy as np
-    import matplotlib.pyplot as plt
-    
     # Set device and load data
-    DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
     
     with open('data/TEST_NEW_DIST.pkl', 'rb') as file:
         X = pickle.load(file)
@@ -230,15 +222,10 @@ if __name__ == '__main__':
     X = (X - X.min())/(X.max() - X.min())
     X = torch.from_numpy(X).to(torch.float32)
     
-    # Define model config (make sure this matches your saved model)
-    model_config = {
-        'in_channels': 7,  # Update based on your data
-        'latent_dim': 10   # Update based on your model
-    }
     
     # Load model
     model = CHVAE(model_config).to(DEVICE)
-    model.load_state_dict(torch.load('model_ckpts/model_new_arch.pth', map_location=torch.device('cpu')))
+    model.load_state_dict(torch.load(f'{model_config['save_route']}{model_config['name']}.pth', map_location=torch.device('cpu')))
     model.eval()  # Set model to evaluation mode
     
     # Prepare data for visualization
@@ -246,21 +233,20 @@ if __name__ == '__main__':
     if len(X.shape) == 2:  # If data is [samples, sequence_length]
         X = X.unsqueeze(1)  # Add channel dimension -> [samples, 1, sequence_length]
     
-    # Select a small batch for visualization (e.g., 10 samples)
+    # Select a small batch for visualization 
     sample_batch = X[23:63].to(DEVICE)
     
     print(f"Input data shape: {sample_batch.shape}")
     
-    # 1. Visualize the top filters
+    # 1. Sacamos los outputs de las convoluciones de la primera capa
     top_filter_info = visualize_vae_filters(model, sample_batch, top_n=5)
     print(f"Top filters by activation: {top_filter_info['top_filters']}")
     print(f"Importance scores: {top_filter_info['filter_importance']}")
     
-    # 2. Visualize latent space activations
+    # 2. Visualizar dimensiones de la capa latente
     visualize_latent_activations(model, sample_batch)
     
-    # 3. Visualize how filters respond to specific time series
-    # Choose a single example (first from batch)
+    # 3. Ver las salidas para cada output
     single_example = sample_batch[0:1]
     
     # Visualize response of top 3 filters

@@ -18,7 +18,6 @@ class CHVAE(nn.Module):
                 if m.bias is not None:
                     nn.init.normal_(m.bias, mean=0.0, std=0.01)
 
-        # Encoder remains the same as before
         self.encoder = nn.Sequential(
             nn.Conv1d(in_channels=config['in_channels'], out_channels=7, kernel_size=5, stride=1, padding=2), # out 45 x 10
             ACTIVATION,
@@ -68,9 +67,6 @@ class CHVAE(nn.Module):
             #ACTIVATION,
         )
         self.linear2.apply(init_weights)
-
-        # We need to precisely calculate the padding and output_padding for each layer
-        # to ensure our final output has exactly 129 length
         
         # Create dummy encoded data for testing decoder
         with torch.no_grad():
@@ -92,8 +88,8 @@ class CHVAE(nn.Module):
                     out_channels=7, 
                     kernel_size=5,
                     stride=1,
-                    padding=2,  # Adjusted padding
-                    output_padding=0  # Added output padding
+                    padding=2,  
+                    output_padding=0  
                 ),
                 ACTIVATION,
                 torch.nn.ConvTranspose1d(
@@ -101,8 +97,8 @@ class CHVAE(nn.Module):
                     out_channels=config["in_channels"], 
                     kernel_size=5,
                     stride=1,
-                    padding=2,  # Adjusted padding
-                    output_padding=0  # Added output padding
+                    padding=2,  
+                    output_padding=0  
                 ),
             )
             self.decoder.apply(init_weights)
