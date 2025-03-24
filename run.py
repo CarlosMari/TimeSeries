@@ -5,6 +5,7 @@ from AE.model.autoencoder import Autoencoder
 from train import train
 from VAE.models.VAE import VAE
 from VAE.models.CH_VAE import CHVAE
+from VAE.models.MLP_VAE import MLPVAE
 from VAE.models.AE import AE
 import torch
 

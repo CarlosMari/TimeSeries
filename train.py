@@ -9,7 +9,7 @@ from matplotlib.pyplot import get_cmap
 import pickle
 from sklearn.decomposition import PCA
 from VAE.models.VAE import VAE
-
+import torch.optim as optim
 
 DATA_TYPE = torch.float32
 LOG = True 
@@ -117,14 +117,14 @@ def test(model, data_route, step):
             batch = batch.to(DEVICE)
             pred, code, mu, log_var = model(batch)
             recon_loss += criterion(pred, batch)
-            batch_loss = model.loss(pred, batch, mu, log_var, hp["alpha"])
+            batch_loss, _, _ = model.loss(pred, batch, mu, log_var, code, hp["alpha"], len_dataset=len(data_loader.dataset))
             total_loss += batch_loss.item()
     
     # Log loss to wandb
     if LOG:
         wandb.log({
             'Eval_VAE_Loss': total_loss/num_batches,
-            'Recon Loss':  recon_loss/num_batches,
+            'Eval Recon Loss':  recon_loss/num_batches,
         }, step = step)
 
 
@@ -148,10 +148,23 @@ def train(model, data_route):
     running_losses = []
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay= hp["weight_decay"])
 
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 
+                                                 mode='min', 
+                                                 factor=0.95, 
+                                                 patience=10, 
+                                                 threshold=1e-4, 
+                                                 min_lr=1e-6, 
+                                                 cooldown = 10,)
+
+
     bar = tqdm(range(epochs))
     num_families = 0
+    beta = 0
+    beta_increment = 1 / (0.3 * (epochs-1))
     for i in bar:
         epoch_loss = 0 
+        recon_losses = 0
+        kl_losses = 0
         num_batches = 0
         for batch in data_loader:
             #print(f'{batch.shape=}')
@@ -161,11 +174,13 @@ def train(model, data_route):
             optimizer.zero_grad()
             pred, code, mu, log_var = model(batch)
 
-            batch_loss = model.loss(pred, batch, mu, log_var, hp["alpha"])
+            batch_loss, recon_loss, kl_loss = model.loss(pred, batch, mu, log_var, code, hp["alpha"], len_dataset=len(data_loader.dataset), beta=beta)
 
             batch_loss.backward()
             optimizer.step()
             epoch_loss += batch_loss.item()
+            recon_losses += recon_loss.item()
+            kl_losses += kl_loss.item()
 
         # Log loss to wandb
         num_families += len(data_loader.dataset)
@@ -173,6 +188,11 @@ def train(model, data_route):
             wandb.log({
                 'Loss': epoch_loss/ num_batches,
                 'Num Families': num_families,
+                'KL Loss': kl_losses/ num_batches,
+                'MSE Loss': recon_losses / num_batches,
+                'Beta': beta,
+                'lr': optimizer.param_groups[0]['lr'],
+
             }, step = i)
 
         running_losses.append(epoch_loss)
@@ -183,6 +203,12 @@ def train(model, data_route):
             model = model.train()
         if i % 100 == 0:
             inference(model, TEST_ROUTE, i)
+
+        if i <= int(0.3 * epochs):
+            beta += beta_increment
+
+        #else:
+            #scheduler.step(recon_losses)
 
 
     inference(model, TEST_ROUTE, epochs)

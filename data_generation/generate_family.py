@@ -73,5 +73,5 @@ def generate_data(num_curves, seed, name='TRAIN'):
         pickle.dump(sols, output)
 
 if __name__ == "__main__":
-    generate_data(1000000, TRAIN_SEED, 'TRAIN_NEW_DIST')
-    generate_data(100000, TEST_SEED, 'TEST_NEW_DIST')
+    generate_data(5000000, TRAIN_SEED, 'TRAIN_NEw')
+    generate_data(400000, TEST_SEED, 'TEST_NEW')
