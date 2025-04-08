@@ -94,7 +94,7 @@ if __name__ == '__main__':
     X = torch.from_numpy(X).to(torch.float32)
     # Load model
     model = CHVAE(model_config).to(DEVICE)
-    model.load_state_dict(torch.load('model_ckpts/model_alpha_weight.pth', map_location=torch.device('cpu')))
+    model.load_state_dict(torch.load('model_ckpts/model_new_arch.pth', map_location=torch.device('cpu')))
 
     # Run visualization with desired number of curves
     n_curves = 7  # Change this to compare different number of curves

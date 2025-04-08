@@ -33,7 +33,7 @@ def visualize_vae_filters(model, sample_data, top_n=10):
 
     
     # Register hooks for the first convolutional layer
-    target_layer = "encoder.0"
+    target_layer = "encoder.4"
     for name, module in model.named_modules():
         if name == target_layer:
             module.register_forward_hook(get_activation(target_layer))
@@ -88,6 +88,7 @@ def visualize_vae_filters(model, sample_data, top_n=10):
         plt.legend()
     
     plt.tight_layout()
+    print('Saving vaefilters')
     plt.savefig('./filters/vaefilters.png')
     plt.show()
     

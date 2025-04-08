@@ -1,6 +1,6 @@
 hp = {
     "lr": 0.005, 
-    "epochs": 500,
+    "epochs": 3000,
     "batch_size": 1000, # Set to -1 to use the full dataset (maximum) batch size. 
     "weight_decay":0,
     "random_seed": 73,

@@ -19,11 +19,11 @@ class CHVAE(nn.Module):
                     nn.init.normal_(m.bias, mean=0.0, std=0.01)
 
         self.encoder = nn.Sequential(
-            nn.Conv1d(in_channels=config['in_channels'], out_channels=7, kernel_size=5, stride=1, padding=2), # out 45 x 10
+            nn.Conv1d(in_channels=config['in_channels'], out_channels=7, kernel_size=5, stride=2, padding=2, groups=1, padding_mode = 'replicate'), # out 65 x 7
             ACTIVATION,
-            nn.Conv1d(in_channels=7, out_channels=10, kernel_size=5, stride=1, padding=2), # out 22 x 15
+            nn.Conv1d(in_channels=7, out_channels=7, kernel_size=5, stride=2, padding=2, groups=1, padding_mode = 'replicate'), # out 32 x 7
             ACTIVATION,
-            nn.Conv1d(in_channels=10, out_channels=10, kernel_size=4, stride=1, padding=2), # 11 x 15
+            nn.Conv1d(in_channels=7, out_channels=10, kernel_size=4, stride=3, padding=2, padding_mode = 'replicate'), # 12 x 10
             ACTIVATION,
         )
         self.encoder.apply(init_weights)
@@ -48,23 +48,17 @@ class CHVAE(nn.Module):
         
         self.mean_map = torch.nn.Sequential(
             torch.nn.Linear(2*config['latent_dim'], config['latent_dim']),
-            #ACTIVATION,
-            #torch.nn.Linear(15, config["latent_dim"])
         )
         self.mean_map.apply(init_weights)
         
         self.std_map = torch.nn.Sequential(
             torch.nn.Linear(2*config['latent_dim'], config['latent_dim']),
-            #ACTIVATION,
-            #torch.nn.Linear(15, config["latent_dim"])
         )
         self.std_map.apply(init_weights)
         
         self.linear2 = torch.nn.Sequential(
             torch.nn.Linear(config["latent_dim"], self.flattened_size),
             ACTIVATION,
-            #torch.nn.Linear(config["latent_dim"], self.flattened_size),
-            #ACTIVATION,
         )
         self.linear2.apply(init_weights)
         
@@ -74,20 +68,21 @@ class CHVAE(nn.Module):
             B, C, L = test_encoded.shape
 
             self.decoder = torch.nn.Sequential(
+                #pad((2,2), replicate)
                 torch.nn.ConvTranspose1d(
                     in_channels=10, 
-                    out_channels=10, 
+                    out_channels=7, 
                     kernel_size=4,
-                    stride=1,
+                    stride=3,
                     padding=2, 
                     output_padding=0
                 ),
                 ACTIVATION,
                 torch.nn.ConvTranspose1d(
-                    in_channels=10, 
+                    in_channels=7, 
                     out_channels=7, 
                     kernel_size=5,
-                    stride=1,
+                    stride=2,
                     padding=2,  
                     output_padding=0  
                 ),
@@ -96,7 +91,7 @@ class CHVAE(nn.Module):
                     in_channels=7, 
                     out_channels=config["in_channels"], 
                     kernel_size=5,
-                    stride=1,
+                    stride=2,
                     padding=2,  
                     output_padding=0  
                 ),
@@ -161,6 +156,6 @@ class CHVAE(nn.Module):
         recon_loss = -torch.sum(L_i)
         kl_divergence = -0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp())
 
-        total_loss = 2*(len_dataset/batch_size) * recon_loss #+ beta * 0.1 * kl_divergence
+        total_loss = 2*(len_dataset/batch_size) * recon_loss + beta * 0.1 * kl_divergence
 
         return total_loss, (len_dataset/batch_size) * recon_loss, kl_divergence
