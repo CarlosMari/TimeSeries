@@ -5,7 +5,7 @@ from tqdm import tqdm
 import pickle
 #from glv_functions import *
 import random
-from custom_glv import generate_curves
+from custom_glv import generate_curves, generate_curves_Mario
 
 LOG = False
 
@@ -23,7 +23,7 @@ def generate_data(num_curves, seed, name='TRAIN'):
     for i in pbar:
 
         # Compute the dynamics:
-        sol = generate_curves() 
+        sol = generate_curves_Mario(myseed=0, noise_level=0.01, species=7, tmax=20, n_points=129, plot_this=False) 
 
         shape = sol.shape
         noise = np.random.lognormal(mean=0, sigma=SIGMA, size=shape)  # (7, 129)
@@ -38,7 +38,7 @@ def generate_data(num_curves, seed, name='TRAIN'):
         overshoot_count = np.sum(overshoot_flags)
 
         # Check for NaN or extreme values
-        if np.isnan(sol).any() or sol[sol > 1.0].any() or np.any(np.max(sol, axis=1) < 0.1) or overshoot_count < 3:
+        if np.isnan(sol).any() or sol[sol > 3.0].any() or np.any(np.max(sol, axis=1) < 0.1) or overshoot_count < 3:
             continue
 
         if LOG:
@@ -73,5 +73,5 @@ def generate_data(num_curves, seed, name='TRAIN'):
         pickle.dump(sols, output)
 
 if __name__ == "__main__":
-    generate_data(5000000, TRAIN_SEED, 'TRAIN_NEw')
-    generate_data(400000, TEST_SEED, 'TEST_NEW')
+    generate_data(250000, TRAIN_SEED, 'TRAIN_DIVERSE_2')
+    generate_data(50000, TEST_SEED, 'TEST_DIVERSE_2')

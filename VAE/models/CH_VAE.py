@@ -4,6 +4,24 @@ from torch.nn import functional as F
 
 ACTIVATION = nn.GELU()
 
+
+class Crop1d(nn.Module):
+    def __init__(self, crop_left, crop_right):
+        super().__init__()
+        self.crop_left = crop_left
+        self.crop_right = crop_right
+
+    def forward(self, x):
+        if self.crop_left == 0 and self.crop_right == 0:
+            return x
+        elif self.crop_right == 0:
+            return x[:, :, self.crop_left:]
+        else:
+             # Ensure tensor has enough length before cropping
+            if x.size(2) < self.crop_left + self.crop_right:
+                 raise ValueError(f"Tensor length {x.size(2)} is smaller than total crop amount {self.crop_left + self.crop_right}")
+            return x[:, :, self.crop_left:-self.crop_right]
+
 class CHVAE(nn.Module):
     def __init__(self, config) -> None:
         super().__init__()
@@ -67,35 +85,36 @@ class CHVAE(nn.Module):
             test_encoded = dummy_output
             B, C, L = test_encoded.shape
 
-            self.decoder = torch.nn.Sequential(
-                #pad((2,2), replicate)
-                torch.nn.ConvTranspose1d(
-                    in_channels=10, 
-                    out_channels=7, 
-                    kernel_size=4,
-                    stride=3,
-                    padding=2, 
-                    output_padding=0
-                ),
+            self.decoder = nn.Sequential(
+                # Layer 1: Target 33 from input 12 (reverse of Conv3 k=4, s=3)
+                nn.Upsample(scale_factor=3, mode='nearest'), # 12 -> 36
+                # Conv1d: L_in=36, k=4. Need L_out=33. Formula: L_out = L_in + 2p - k + 1
+                # 33 = 36 + 2p - 4 + 1 => 33 = 33 + 2p => p=0.
+                nn.Conv1d(in_channels=10, out_channels=7, kernel_size=4, stride=1, padding=0, padding_mode='replicate'), # 36 -> 33
                 ACTIVATION,
-                torch.nn.ConvTranspose1d(
-                    in_channels=7, 
-                    out_channels=7, 
-                    kernel_size=5,
-                    stride=2,
-                    padding=2,  
-                    output_padding=0  
-                ),
+
+                # Layer 2: Target 65 from input 33 (reverse of Conv2 k=5, s=2)
+                nn.Upsample(scale_factor=2, mode='nearest'), # 33 -> 66
+                # Conv1d: L_in=66, k=5. Need L_out=65. Formula: L_out = L_in + 2p - k + 1
+                # 65 = 66 + 2p - 5 + 1 => 65 = 62 + 2p => 2p = 3. Not integer.
+                # Let's use symmetric padding p=(k-1)//2 = (5-1)//2 = 2
+                # L_out = 66 + 2*2 - 5 + 1 = 66 + 4 - 5 + 1 = 66. Need 65.
+                nn.Conv1d(in_channels=7, out_channels=7, kernel_size=5, stride=1, padding=2, padding_mode='replicate'), # 66 -> 66
+                Crop1d(0, 1), # Crop 1 element from the right: 66 -> 65
                 ACTIVATION,
-                torch.nn.ConvTranspose1d(
-                    in_channels=7, 
-                    out_channels=config["in_channels"], 
-                    kernel_size=5,
-                    stride=2,
-                    padding=2,  
-                    output_padding=0  
-                ),
+
+                # Layer 3: Target 129 from input 65 (reverse of Conv1 k=5, s=2)
+                nn.Upsample(scale_factor=2, mode='nearest'), # 65 -> 130
+                # Conv1d: L_in=130, k=5. Need L_out=129. Formula: L_out = L_in + 2p - k + 1
+                # 129 = 130 + 2p - 5 + 1 => 129 = 126 + 2p => 2p = 3. Not integer.
+                # Let's use symmetric padding p=(k-1)//2 = (5-1)//2 = 2
+                # L_out = 130 + 2*2 - 5 + 1 = 130 + 4 - 5 + 1 = 130. Need 129.
+                nn.Conv1d(in_channels=7, out_channels=config["in_channels"], kernel_size=5, stride=1, padding=2, padding_mode='replicate'), # 130 -> 130
+                Crop1d(0, 1), # Crop 1 element from the right: 130 -> 129
+                # No final activation usually needed if output is e.g. raw signal/image
             )
+
+            
             self.decoder.apply(init_weights)
             
             # Verify the dimensions
@@ -156,6 +175,6 @@ class CHVAE(nn.Module):
         recon_loss = -torch.sum(L_i)
         kl_divergence = -0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp())
 
-        total_loss = 2*(len_dataset/batch_size) * recon_loss + beta * 0.1 * kl_divergence
+        total_loss = 2*(len_dataset/batch_size) * recon_loss #+ beta * 0.1 * kl_divergence
 
         return total_loss, (len_dataset/batch_size) * recon_loss, kl_divergence
