@@ -14,7 +14,7 @@ import torch.optim as optim
 DATA_TYPE = torch.float32
 LOG = True 
 
-TEST_ROUTE = 'data/TEST_NEW_DIST.pkl'
+TEST_ROUTE = 'data/MARIO_ORDERED_MAX_TEST.pkl'
 
 #TEST_ROUTE = 'data/VAE_129_TRAIN.pkl'
 np.random.seed(hp['random_seed'])
@@ -72,6 +72,8 @@ def inference(model, data_route, step, iters=10):
         mean_recon = torch.mean(reconstructions[i], dim=0)  # Average over iterations
         axs[1].plot(mean_recon, color=color, linestyle='--')
 
+    axs[0].set_ylim([-0.1,1])
+    axs[1].set_ylim([-0.1,1])
     axs[0].set_title("Originals")
     axs[1].set_title("Reconstructions")
 

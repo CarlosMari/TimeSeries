@@ -16,4 +16,4 @@ torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
 model = CHVAE(model_config)
-trained_model, loss = train(model, 'data/TRAIN_NEW_DIST.pkl')
+trained_model, loss = train(model, 'data/MARIO_ORDERED_MAX_TRAIN.pkl')
