@@ -38,54 +38,60 @@ def load_data(data_route, batch_size):
 def save_model(model, route):
     torch.save(model.state_dict(), route)
 
+
 def inference(model, data_route, step, iters=10):
 
     model = model.eval()
-    file = open(data_route,'rb')
-    X = pickle.load(file)
-    X = (X - X.min())/(X.max() - X.min())
+    with open(data_route, 'rb') as file:
+        X = pickle.load(file)
+
+    X = (X - X.min()) / (X.max() - X.min())
     X = torch.Tensor(X)
-    subset = X[0]
+    subset = X[0]  # shape: (7, 129)
 
-
-    fig, axs = plt.subplots(1,2, figsize = (18,6))
+    fig, axs = plt.subplots(1, 2, figsize=(18, 6))
     axs = axs.flatten()
     cmap = get_cmap('tab10')
 
     reconstructions = []
-    for z in range(iters):
-        recons, _, _, log_var = model(subset.to(DEVICE).reshape(1,7,129))
-        recons = recons.cpu().detach()
-        subset = subset.cpu().detach()
-        reconstructions.append(recons)
+    for _ in range(iters):
+        recons, _, _, log_var = model(subset.to(DEVICE).reshape(1, 7, 129))
+        reconstructions.append(recons.cpu().detach())
 
     stacked = torch.stack(reconstructions, dim=0)  # Shape: [10, 1, 7, 129]
-    # Remove the batch dimension and transpose to get curves first
-    reconstructions = stacked.squeeze(1).permute(1, 0, 2)
+    reconstructions = stacked.squeeze(1).permute(1, 0, 2)  # Shape: [7, 10, 129]
+
     # Plot originals
     for i in range(subset.shape[0]):
         color = cmap(i / (subset.shape[0] - 1))
-        axs[0].plot(subset[i,:], color=color)
-        
-        for z in range(iters):
-            axs[1].plot(reconstructions[i,z,:], color=color, alpha=0.1)
-        mean_recon = torch.mean(reconstructions[i], dim=0)  # Average over iterations
-        axs[1].plot(mean_recon, color=color, linestyle='--')
+        axs[0].plot(subset[i, :], color=color)
 
-    axs[0].set_ylim([-0.1,1])
-    axs[1].set_ylim([-0.1,1])
+        # Mean and std across samples
+        mean_recon = torch.mean(reconstructions[i], dim=0)     # [129]
+        std_recon = torch.std(reconstructions[i], dim=0)       # [129]
+        x_vals = np.arange(mean_recon.shape[0])
+
+        # Plot mean
+        axs[1].plot(mean_recon, color=color, linestyle='--')
+        # Plot ±1 std area
+        axs[1].fill_between(x_vals,
+                            mean_recon - 2*std_recon,
+                            mean_recon + 2*std_recon,
+                            color=color,
+                            alpha=0.2)
+
+    axs[0].set_ylim([-0.1, 1])
+    axs[1].set_ylim([-0.1, 1])
     axs[0].set_title("Originals")
-    axs[1].set_title("Reconstructions")
+    axs[1].set_title("Reconstructions ±2 std")
 
     plt.tight_layout()
 
     if LOG:
-        wandb.log({"plot": wandb.Image(fig),},
-                  step=step)
-                   #"latent": wandb.Image(fig2)})
-    
-    #plt.show()
+        wandb.log({"plot": wandb.Image(fig)}, step=step)
+
     plt.close('all')
+
         
 
 def get_random_indices(model_config):
