@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from torch.nn import functional as F
 
-ACTIVATION = nn.GELU()
+ACTIVATION = nn.SiLU()
 
 
 class Crop1d(nn.Module):
@@ -154,7 +154,7 @@ class CHVAE(nn.Module):
         post_code = self.linear2(code)
         reshaped = post_code.view(B, C, L)
         X_hat = self.decoder(reshaped)
-        
+        X_hat = torch.clamp(X_hat, min=0) 
         # Final verification of output dimensions
         if X_hat.shape != original_shape:
             print(f"Warning: Output shape {X_hat.shape} doesn't match input shape {original_shape}")
@@ -175,6 +175,6 @@ class CHVAE(nn.Module):
         recon_loss = -torch.sum(L_i)
         kl_divergence = -0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp())
 
-        total_loss = 2*(len_dataset/batch_size) * recon_loss #+ beta * 0.1 * kl_divergence
+        total_loss = 2*(len_dataset/batch_size) * recon_loss + beta * 0.1 * kl_divergence
 
         return total_loss, (len_dataset/batch_size) * recon_loss, kl_divergence

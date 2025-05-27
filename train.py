@@ -27,6 +27,7 @@ def load_data(data_route, batch_size):
 
     # 0-1 Normalize the dataset
     X = (X - X.min())/(X.max() - X.min())
+    #X = (X - X.min())/(3.0 - X.min())
 
     # Transfer it to torch Tensor
 
@@ -46,11 +47,11 @@ def inference(model, data_route, step, iters=10):
         X = pickle.load(file)
 
     X = (X - X.min()) / (X.max() - X.min())
+    #X = (X - X.min()) / (3.0 - X.min())
     X = torch.Tensor(X)
     subset = X[0]  # shape: (7, 129)
 
-    fig, axs = plt.subplots(1, 2, figsize=(18, 6))
-    axs = axs.flatten()
+    fig, ax = plt.subplots(figsize=(12, 6))
     cmap = get_cmap('tab10')
 
     reconstructions = []
@@ -58,32 +59,30 @@ def inference(model, data_route, step, iters=10):
         recons, _, _, log_var = model(subset.to(DEVICE).reshape(1, 7, 129))
         reconstructions.append(recons.cpu().detach())
 
-    stacked = torch.stack(reconstructions, dim=0)  # Shape: [10, 1, 7, 129]
-    reconstructions = stacked.squeeze(1).permute(1, 0, 2)  # Shape: [7, 10, 129]
+    stacked = torch.stack(reconstructions, dim=0)  # [10, 1, 7, 129]
+    reconstructions = stacked.squeeze(1).permute(1, 0, 2)  # [7, 10, 129]
 
-    # Plot originals
     for i in range(subset.shape[0]):
         color = cmap(i / (subset.shape[0] - 1))
-        axs[0].plot(subset[i, :], color=color)
+        x_vals = np.arange(subset.shape[1])
 
-        # Mean and std across samples
-        mean_recon = torch.mean(reconstructions[i], dim=0)     # [129]
-        std_recon = torch.std(reconstructions[i], dim=0)       # [129]
-        x_vals = np.arange(mean_recon.shape[0])
+        # Original
+        ax.plot(subset[i, :], color=color, label=f"Original {i}")
 
-        # Plot mean
-        axs[1].plot(mean_recon, color=color, linestyle='--')
-        # Plot ±1 std area
-        axs[1].fill_between(x_vals,
-                            mean_recon - 2*std_recon,
-                            mean_recon + 2*std_recon,
-                            color=color,
-                            alpha=0.2)
+        # Mean & Std
+        mean_recon = torch.mean(reconstructions[i], dim=0)
+        std_recon = torch.std(reconstructions[i], dim=0)
 
-    axs[0].set_ylim([-0.1, 1])
-    axs[1].set_ylim([-0.1, 1])
-    axs[0].set_title("Originals")
-    axs[1].set_title("Reconstructions ±2 std")
+        ax.plot(mean_recon, color=color, linestyle='--', label=f"Recon {i}")
+        ax.fill_between(x_vals,
+                        mean_recon - 2 * std_recon,
+                        mean_recon + 2 * std_recon,
+                        color=color,
+                        alpha=0.2)
+
+    ax.set_ylim([-0.1, 1])
+    ax.set_title("Originals, Reconstructions (Mean ± 2σ)")
+    ax.legend(loc='upper right', bbox_to_anchor=(1.15, 1))
 
     plt.tight_layout()
 
@@ -91,6 +90,7 @@ def inference(model, data_route, step, iters=10):
         wandb.log({"plot": wandb.Image(fig)}, step=step)
 
     plt.close('all')
+
 
         
 
@@ -109,31 +109,61 @@ def get_random_indices(model_config):
     return indices
 
 
-def test(model, data_route, step):
+def test(model, data_route, step, num_samples=10):
     model = model.eval()
     criterion = torch.nn.MSELoss()
     data_loader = load_data(data_route, hp['batch_size'])
 
-
     total_loss = 0
-    num_batches = 0
     recon_loss = 0
-    # If number of batches is different than train change the code
+    num_batches = 0
+    total_in_interval = 0
+    total_points = 0
+
     with torch.no_grad(): 
         for batch in data_loader:
             num_batches += 1
             batch = batch.to(DEVICE)
-            pred, code, mu, log_var = model(batch)
+
+            # 1. Generate N reconstructions per input
+            all_preds = []
+            for _ in range(num_samples):
+                pred, code, mu, log_var = model(batch)
+                all_preds.append(pred.unsqueeze(0))  # shape: (1, X, 7, 129)
+
+            preds_stack = torch.cat(all_preds, dim=0)  # shape: (N, X, 7, 129)
+
+            # 2. Compute mean and std over the N samples
+            mean_preds = preds_stack.mean(dim=0)  # (X, 7, 129)
+            std_preds = preds_stack.std(dim=0)    # (X, 7, 129)
+
+            # 3. Compute coverage: how often the original batch lies within mean ± 2σ
+            lower = mean_preds - 2 * std_preds
+            upper = mean_preds + 2 * std_preds
+            in_interval = (batch >= lower) & (batch <= upper)  # (X, 7, 129)
+
+            num_in_interval = in_interval.sum().item()
+            num_total = batch.numel()
+            total_in_interval += num_in_interval
+            total_points += num_total
+
+            # 4. Use one of the predictions to compute standard VAE loss (e.g., the first)
+            pred = preds_stack[0]
             recon_loss += criterion(pred, batch)
             batch_loss, _, _ = model.loss(pred, batch, mu, log_var, code, hp["alpha"], len_dataset=len(data_loader.dataset))
             total_loss += batch_loss.item()
-    
-    # Log loss to wandb
+
+    # Compute final metrics
+    coverage = total_in_interval / total_points
+
+    # Log to wandb
     if LOG:
         wandb.log({
-            'Eval_VAE_Loss': total_loss/num_batches,
-            'Eval Recon Loss':  recon_loss/num_batches,
-        }, step = step)
+            'Eval_VAE_Loss': total_loss / num_batches,
+            'Eval Recon Loss': recon_loss / num_batches,
+            'Eval Coverage (mean±2σ)': coverage,
+        }, step=step)
+
 
 
 
