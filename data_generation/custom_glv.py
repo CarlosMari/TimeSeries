@@ -53,7 +53,8 @@ def generate_curves(Num_points=129):
 
 def generate_curves_Mario(myseed=0, noise_level=0.01, species=3, tmax=0, n_points=25,
                folder=".", plot_this=True, parameters={}):
-    
+    tc = 0
+    np.random.seed(myseed)
     def lotka_volterra(t, x, params):
         K = len(x)
         r = params[:K]
@@ -78,7 +79,10 @@ def generate_curves_Mario(myseed=0, noise_level=0.01, species=3, tmax=0, n_point
                 var_names.append(f"a{i}{j}")
 
         flag = False
+        c = 0
         while not flag:
+            if c >= 500:
+                np.random.seed(tc)
             r0 = np.random.exponential(scale=2.0, size=species)  # rexp(rate=0.5)
             a0 = np.random.randn(species, species)
             for i in range(species):
@@ -90,6 +94,8 @@ def generate_curves_Mario(myseed=0, noise_level=0.01, species=3, tmax=0, n_point
             eigenvalues = np.real(np.linalg.eigvals(d0 @ a0))
 
             flag = np.all(eigenvalues <= 0) and np.all(xss > 0)
+            c+=1
+            tc += 1
             #print(flag)
 
         #print("xss =", xss)

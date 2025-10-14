@@ -48,13 +48,28 @@ class TimeSeriesDataset(Dataset):
 
 # --- 2. NEW: Loss function for the new model ---
 def vae_loss(x_hat, x, mu, log_var, max_vals_pred, max_vals_true, beta, lambda_max_val):
-    """Calculates the loss for the VAE with a parallel max value predictor."""
+    """Calculates the loss for the VAE with a parallel max value predictor.
+
+    Args:
+        max_vals_pred: Predicted max values in ORIGINAL space (after inverse transform) - Shape: (N, 7)
+        max_vals_true: Ground truth max values in original space - Shape: (N, 7)
+
+    Note: Loss is computed in ORIGINAL space for better reconstruction quality.
+          The model internally predicts in transformed space (log), but we
+          convert back to original space before computing loss.
+
+          Curve 0's max is always 1.0 (normalization artifact), so we only
+          compute loss on curves 1-6 to avoid wasted computation.
+    """
     recon_loss = nn.functional.mse_loss(x_hat, x, reduction='mean')
     kl_divergence = -0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp(), dim=1).mean()
-    max_val_loss = nn.functional.mse_loss(max_vals_pred, max_vals_true, reduction='mean')
-    
+
+    # Compute loss ONLY on curves 1-6 (curve 0 is always 1.0)
+    # This saves computation and avoids adding a constant zero term
+    max_val_loss = nn.functional.mse_loss(max_vals_pred[:, 1:], max_vals_true[:, 1:], reduction='mean')
+
     total_loss = recon_loss + (beta * kl_divergence) + (lambda_max_val * max_val_loss)
-    
+
     return total_loss, recon_loss, kl_divergence, max_val_loss
 
 # --- 3. UPDATED: Inference and Plotting Functions ---
@@ -73,13 +88,13 @@ def inference_reconstruction(model, test_dataset, step, device=DEVICE, iters=5):
             single_X_gpu = X_cpu.to(device).unsqueeze(0)
             
             batched_X_gpu = single_X_gpu.expand(iters, -1, -1)
-            recons_norm_gpu, _, _, max_vals_pred_gpu = model(batched_X_gpu, teacher_forcing_ratio=0)
+            recons_norm_gpu, _, _, max_vals_pred_gpu,_ = model(batched_X_gpu, teacher_forcing_ratio=0)
             
             original_denorm_cpu = X_cpu * max_vals_cpu.unsqueeze(-1)
             
-            # --- THIS IS THE CORRECTED LINE ---
-            # Move max_vals_cpu to the correct device before multiplying
-            recons_denorm_gpu = recons_norm_gpu * max_vals_cpu.to(device).unsqueeze(0).unsqueeze(-1)
+            # --- FIXED: Use PREDICTED scale, not true scale ---
+            # This shows what the model actually reconstructed using its predicted max values
+            recons_denorm_gpu = recons_norm_gpu * max_vals_pred_gpu.unsqueeze(-1)
             # ------------------------------------
 
             # --- Top Row: Normalized Plot ---
@@ -178,7 +193,7 @@ def evaluate(model, test_loader, beta, lambda_max_val, device, num_samples=10):
             for _ in range(num_samples):
                 # We only need the reconstructed curve for coverage.
                 # The other outputs (mu, log_var, max_vals_pred) are captured once outside the loop for efficiency.
-                pred_sample, _, _, _ = model(batch_X, teacher_forcing_ratio=0)
+                pred_sample, _, _, _, _ = model(batch_X, teacher_forcing_ratio=0)
                 all_preds.append(pred_sample.unsqueeze(0))
 
             # Stack predictions along a new dimension: (num_samples, N, C, L)
@@ -190,7 +205,7 @@ def evaluate(model, test_loader, beta, lambda_max_val, device, num_samples=10):
 
             # --- Calculate Loss using the mean prediction for stability ---
             # We still need mu, log_var, etc. from a single forward pass
-            _, mu, log_var, max_vals_pred = model(batch_X, teacher_forcing_ratio=0)
+            _, mu, log_var, max_vals_pred, _  = model(batch_X, teacher_forcing_ratio=0)
             
             loss, recon, kl, max_val = vae_loss(
                 mean_preds, batch_X, mu, log_var, max_vals_pred, batch_max_vals, beta, lambda_max_val
@@ -247,7 +262,14 @@ def evaluate(model, test_loader, beta, lambda_max_val, device, num_samples=10):
 
 def train(model):
     if LOG:
-        wandb.init(project='Conditional_LV_VAE', config=model.config, job_type='train')
+        # Check if wandb is already initialized (e.g., from sweep script)
+        if wandb.run is None:
+            # Properly combine hyperparameters and model config
+            wandb.init(
+                project='Conditional_LV_VAE',
+                config={**hp, **model_config},
+                job_type='train'
+            )
     
     model = model.to(DEVICE)
     epochs = hp['epochs']
@@ -291,7 +313,7 @@ def train(model):
             optimizer.zero_grad(set_to_none=True)
 
             with torch.cuda.amp.autocast():
-                pred, mu, log_var, max_vals_pred = model(batch_X, teacher_forcing_ratio=teacher_forcing_ratio)
+                pred, mu, log_var, max_vals_pred, max_vals_pred_transform = model(batch_X, teacher_forcing_ratio=teacher_forcing_ratio)
                 loss, recon, kl, max_val = vae_loss(
                     pred, batch_X, mu, log_var, max_vals_pred, batch_max_vals, beta, lambda_max_val
                 )
@@ -307,10 +329,21 @@ def train(model):
         
         # --- Logging ---
         num_batches = len(train_loader)
+        avg_loss = epoch_loss / num_batches
+        avg_recon = epoch_recon / num_batches
+
+        # Update progress bar with current metrics
+        bar.set_postfix({
+            'loss': f'{avg_loss:.4f}',
+            'recon': f'{avg_recon:.4f}',
+            'beta': f'{beta:.2e}',
+            'tf': f'{teacher_forcing_ratio:.3f}'
+        })
+
         if LOG:
             wandb.log({
-                'Train Loss': epoch_loss / num_batches,
-                'Train Recon Loss': epoch_recon / num_batches,
+                'Train Loss': avg_loss,
+                'Train Recon Loss': avg_recon,
                 'Train KL Loss': epoch_kl / num_batches,
                 'Train Max Val Loss': epoch_max_val / num_batches,
                 'Beta': beta,

@@ -18,16 +18,21 @@ class LSTM_VAE(nn.Module):
     def __init__(self, config: dict) -> None:
         super().__init__()
         self.config = config
-        
+
         # --- Core model parameters from config ---
         self.n_curves = config.get('n_curves', 7)
         self.seq_len = config.get('seq_len', 65)
         self.latent_dim = config['latent_dim']
-        # The number of max values we want to predict (one for each curve)
-        self.max_value_dim = self.n_curves
-        
+        # The number of max values we want to predict
+        # NOTE: Curve 0's max is always 1.0 (normalization artifact), so we only predict curves 1-6
+        self.max_value_dim = self.n_curves - 1  # Predict 6 values instead of 7
+
+        # Scale prediction mode: 'linear', 'log', or 'exp'
+        self.scale_prediction_mode = config.get('scale_prediction_mode', 'linear')
+
         print(f"VAE Parameters: Latent Dim={self.latent_dim}, Num Curves={self.n_curves}")
-        
+        print(f"Scale Prediction Mode: {self.scale_prediction_mode}")
+
         # Hyperparameters for the LSTMs
         self.rnn_hidden_size = config.get('rnn_hidden_size', 256)
         self.rnn_num_layers = config.get('rnn_num_layers', 3)
@@ -50,14 +55,12 @@ class LSTM_VAE(nn.Module):
         self.fc_log_var = nn.Linear(encoder_output_dim, self.latent_dim)
         
         # --- NEW: MLP to predict max values from the latent space ---
+        # Note: Output is in transformed space (log or exp) depending on scale_prediction_mode
         self.max_value_predictor = nn.Sequential(
-            nn.Linear(self.latent_dim, 30),
+            nn.Linear(self.latent_dim, self.latent_dim//2),
             nn.Dropout(0.2),
             ACTIVATION,
-            nn.Linear(30, 30),
-            nn.Dropout(0.2),
-            ACTIVATION,
-            nn.Linear(30, self.max_value_dim)
+            nn.Linear(self.latent_dim//2, self.max_value_dim)
         )
 
         # --- 3. Decoder ---
@@ -76,9 +79,28 @@ class LSTM_VAE(nn.Module):
             num_layers=self.rnn_num_layers,
             batch_first=True
         )
-        
+
         # Final layer to map decoder's hidden state to the curve values
         self.output_map = nn.Linear(self.rnn_hidden_size, self.n_curves)
+
+    def transform_max_values(self, max_vals):
+        """Transform max values from original space to prediction space."""
+        if self.scale_prediction_mode == 'log':
+            # Add small epsilon to avoid log(0)
+            return torch.log(max_vals + 1e-8)
+        elif self.scale_prediction_mode == 'exp':
+            return torch.exp(max_vals)
+        else:  # 'linear'
+            return max_vals
+
+    def inverse_transform_max_values(self, transformed_vals):
+        """Transform predicted values back to original max value space."""
+        if self.scale_prediction_mode == 'log':
+            return torch.exp(transformed_vals)
+        elif self.scale_prediction_mode == 'exp':
+            return torch.log(torch.clamp(transformed_vals, min=1e-8))
+        else:  # 'linear'
+            return transformed_vals
 
     def sample(self, mu: torch.Tensor, log_var: torch.Tensor) -> torch.Tensor:
         """Reparameterization trick to sample from the latent space."""
@@ -93,11 +115,11 @@ class LSTM_VAE(nn.Module):
             teacher_forcing_ratio (float): The probability of using teacher forcing.
 
         Returns:
-            tuple: A tuple containing:
+            tuple: (X_hat, mu, log_var, max_vals_pred)
                 - X_hat (torch.Tensor): The reconstructed time series.
                 - mu (torch.Tensor): The latent mean.
                 - log_var (torch.Tensor): The latent log variance.
-                - max_vals_pred (torch.Tensor): The predicted max values for each curve.
+                - max_vals_pred (torch.Tensor): The predicted max values (original scale).
         """
         batch_size = X.size(0)
         # Permute X to (N, L, C) for LSTM compatibility
@@ -116,8 +138,19 @@ class LSTM_VAE(nn.Module):
         z = self.sample(mu, log_var)
         
         # --- Parallel Prediction Head ---
-        # Predict max values from the sampled latent vector z
-        max_vals_pred = self.max_value_predictor(z)
+        # Predict max values from the sampled latent vector z (in transformed space)
+        # Only predicts curves 1-6; curve 0 is always 1.0
+        max_vals_pred_transformed_partial = self.max_value_predictor(z)  # Shape: (N, 6)
+        # Convert back to original scale
+        max_vals_pred_partial = self.inverse_transform_max_values(max_vals_pred_transformed_partial)  # Shape: (N, 6)
+
+        # Prepend curve 0's max value (always 1.0)
+        ones = torch.ones(batch_size, 1, device=z.device)
+        max_vals_pred = torch.cat([ones, max_vals_pred_partial], dim=1)  # Shape: (N, 7)
+
+        # For transformed space (used in loss computation)
+        ones_transformed = self.transform_max_values(ones)
+        max_vals_pred_transformed = torch.cat([ones_transformed, max_vals_pred_transformed_partial], dim=1)
         
         # --- Decoding ---
         # 1. Initialize Decoder State from latent vector z
@@ -152,7 +185,7 @@ class LSTM_VAE(nn.Module):
         X_hat = X_hat_rnn.permute(0, 2, 1)
         X_hat = torch.clamp(X_hat, min=0, max=1) # Clamp to [0,1] since input is normalized
 
-        return X_hat, mu, log_var, max_vals_pred
+        return X_hat, mu, log_var, max_vals_pred, max_vals_pred_transformed
 
     def generate(self, num_samples: int, device: torch.device) -> tuple:
         """
@@ -167,14 +200,19 @@ class LSTM_VAE(nn.Module):
                 - generated_sequences (torch.Tensor): The new time series.
                 - predicted_max_vals (torch.Tensor): The predicted max values for the generated curves.
         """
-        self.eval() 
+        self.eval()
 
         with torch.no_grad():
             # Sample latent vectors from a standard normal distribution
             z = torch.randn(num_samples, self.latent_dim).to(device)
 
-            # Predict the corresponding max values for these new samples
-            predicted_max_vals = self.max_value_predictor(z)
+            # Predict max values for curves 1-6 (curve 0 is always 1.0)
+            predicted_max_vals_transformed_partial = self.max_value_predictor(z)  # Shape: (N, 6)
+            predicted_max_vals_partial = self.inverse_transform_max_values(predicted_max_vals_transformed_partial)
+
+            # Prepend curve 0's max value (always 1.0)
+            ones = torch.ones(num_samples, 1, device=device)
+            predicted_max_vals = torch.cat([ones, predicted_max_vals_partial], dim=1)  # Shape: (N, 7)
 
             # --- Initialize Decoder State from z ---
             h_0 = self.latent_to_hidden(z).view(self.rnn_num_layers, num_samples, self.rnn_hidden_size).contiguous()
@@ -199,6 +237,55 @@ class LSTM_VAE(nn.Module):
 
             generated_sequences_rnn = torch.cat(generated_steps, dim=1)
             # Permute back to (N, C, L)
+            generated_sequences = generated_sequences_rnn.permute(0, 2, 1)
+            generated_sequences = torch.clamp(generated_sequences, min=0, max=1)
+
+            return generated_sequences, predicted_max_vals
+        
+
+    def decode(self, z: torch.Tensor) -> tuple:
+        """
+        Decodes a specific latent vector `z` into a time series.
+
+        Args:
+            z (torch.Tensor): The latent vector(s) to decode. Shape: (N, latent_dim).
+
+        Returns:
+            tuple: A tuple containing:
+                - generated_sequences (torch.Tensor): The new time series.
+                - predicted_max_vals (torch.Tensor): The predicted max values.
+        """
+        self.eval()
+        num_samples = z.size(0)
+        device = z.device
+
+        with torch.no_grad():
+            # Predict max values for curves 1-6 (curve 0 is always 1.0)
+            predicted_max_vals_transformed_partial = self.max_value_predictor(z)  # Shape: (N, 6)
+            predicted_max_vals_partial = self.inverse_transform_max_values(predicted_max_vals_transformed_partial)
+
+            # Prepend curve 0's max value (always 1.0)
+            ones = torch.ones(num_samples, 1, device=device)
+            predicted_max_vals = torch.cat([ones, predicted_max_vals_partial], dim=1)  # Shape: (N, 7)
+
+            # --- Initialize Decoder State from z ---
+            h_0 = self.latent_to_hidden(z).view(self.rnn_num_layers, num_samples, self.rnn_hidden_size).contiguous()
+            c_0 = self.latent_to_cell(z).view(self.rnn_num_layers, num_samples, self.rnn_hidden_size).contiguous()
+            hidden_state = (h_0, c_0)
+            
+            # --- Autoregressive Loop ---
+            current_curve_input = torch.zeros(num_samples, 1, self.n_curves).to(device)
+            z_step_input = z.unsqueeze(1)
+            
+            generated_steps = []
+            for _ in range(self.seq_len):
+                step_input = torch.cat([current_curve_input, z_step_input], dim=-1)
+                output, hidden_state = self.decoder_rnn(step_input, hidden_state)
+                output = self.output_map(output)
+                current_curve_input = output
+                generated_steps.append(output)
+
+            generated_sequences_rnn = torch.cat(generated_steps, dim=1)
             generated_sequences = generated_sequences_rnn.permute(0, 2, 1)
             generated_sequences = torch.clamp(generated_sequences, min=0, max=1)
 
