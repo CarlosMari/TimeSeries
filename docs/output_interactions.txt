@@ -1,0 +1,196 @@
+============================================================
+Latent Space - Interaction Matrix Mapping Analysis
+============================================================
+
+Generating 2000 GLV systems with interaction matrices...
+Successfully generated 989 samples
+Saved dataset to data/interaction_mapping_dataset.pkl
+
+Loading trained model from model_ckpts/model_new_arch.pth...
+VAE Parameters: Latent Dim=25, Num Curves=7
+Scale Prediction Mode: log
+LSTM Parameters: Hidden Size=256, Num Layers=2
+Model loaded successfully
+
+Encoding curves to latent space...
+Latent codes shape: (989, 25)
+
+============================================================
+Creating visualizations...
+============================================================
+Computing UMAP projection...
+Saved visualization to latent_space_interaction_mapping_umap.png
+Computing PCA projection...
+PCA explained variance: [0.08184413 0.07475317]
+Saved visualization to latent_space_interaction_mapping_pca.png
+Saved interaction type clustering to latent_space_interaction_types.png
+
+============================================================
+Interaction Type Distribution:
+============================================================
+Mixed interactions: 605 samples (61.2%)
+Mutualism-dominated: 1 samples (0.1%)
+Strong self-regulation: 366 samples (37.0%)
+Weak self-regulation: 17 samples (1.7%)
+
+============================================================
+Analyzing Specific Interaction Matrix Types
+============================================================
+
+Most stable (sample 327):
+Interaction matrix:
+[[-1.61243258  0.68392271  0.90206098  1.15153346 -1.54774168 -0.66907863
+   1.04104871]
+ [ 0.28141797 -0.89308794  0.65254746  0.856087    0.14968919 -0.2440427
+  -0.41691176]
+ [-0.33778299 -1.91360902 -4.48588    -0.69603607 -0.57876504 -0.04215361
+   1.08069812]
+ [-0.33539491 -0.47754113  1.19058237 -1.96803482  0.49434659  0.93912886
+  -0.97257112]
+ [ 1.13165529  0.50962824 -1.16794532  0.48429563 -2.92745658  0.11884467
+   0.97194975]
+ [ 0.42502182  0.35855493  0.22365898 -1.13569255 -0.2028832  -2.05006904
+   0.61871   ]
+ [-1.58490797  2.33203431  0.70022617  0.2594251  -1.3964239  -0.05810022
+  -1.76474579]]
+Latent position: [ 8.828564 11.463428]
+
+Least stable (sample 954):
+Interaction matrix:
+[[-3.73646505 -0.29849826  0.78310841 -0.42676356 -0.6762314  -1.13499957
+  -0.36130753]
+ [ 1.13657132 -1.19208598 -0.02087307 -1.13562289  0.84290819  0.82765937
+  -0.29023727]
+ [-1.67748084  0.7760786  -3.68884211  0.88892344 -0.45757687 -0.74719069
+   0.05851172]
+ [-0.34644838  1.61591291  0.6046723  -0.62088721  0.49223645 -1.97194926
+  -0.32150896]
+ [-0.54424818 -1.05440323  0.44673302  1.45169047 -5.24929643 -1.28431443
+   0.16591158]
+ [ 0.01224211 -1.08106739  0.01775807  0.90640833 -1.7800153  -1.44635232
+   0.02752341]
+ [ 0.8323856   0.31285333 -2.28326425 -0.23744036  0.18499668 -0.33989646
+  -3.26430117]]
+Latent position: [9.950289  8.6481085]
+
+Strongest interactions (sample 427):
+Interaction matrix:
+[[-0.14902922 -1.20354118  1.73873876 -2.15137828 -1.49936283 -0.52385438
+   2.56043455]
+ [ 0.87412718 -1.88805143  1.58467715 -2.88432981 -0.09119088  0.04269055
+  -0.00669654]
+ [-0.67941613  0.79800705 -0.03130071  0.48689886 -1.70238159 -1.23498367
+   2.04698181]
+ [ 0.2552735   1.25557702  1.2920105  -0.07207203 -1.38936922 -0.76474954
+   0.44853625]
+ [ 0.7816698   2.21313496 -0.29183852  0.83881538 -5.14834637  2.03034509
+   0.48980221]
+ [-0.34506505 -1.01327246  3.33616897  0.92991293 -0.46364272 -1.52172109
+   0.90554612]
+ [-2.619143   -0.9200821   1.08106735  0.30967446  1.47511035 -0.51746609
+  -1.30527288]]
+Latent position: [ 7.3382106 10.837741 ]
+
+Weakest interactions (sample 637):
+Interaction matrix:
+[[-3.82318559e+00 -8.44454854e-01 -2.67895431e-01 -1.52186199e+00
+  -8.18348007e-01  6.12350461e-01  3.86171393e-02]
+ [-8.95834434e-02 -3.00777820e+00  3.26342719e-01 -1.40462126e-01
+  -6.28892006e-02 -1.92616362e-01  1.14952825e-01]
+ [-2.27025729e-01 -4.02634136e-02 -2.03849601e+00 -1.28584444e+00
+  -6.18091173e-01 -4.77158497e-01  7.33873840e-01]
+ [ 1.84211808e-01  5.50433623e-01  2.72439803e-01 -8.19031550e+00
+  -2.35509092e-01  9.40138010e-01 -4.78237119e-01]
+ [-5.04878986e-01 -1.51495484e-01 -6.99986481e-01 -5.48377852e-01
+  -7.30344607e+00 -4.27777704e-01 -2.86749271e-01]
+ [-1.68029080e+00  3.49965389e-01 -4.22879155e-01 -9.53409012e-01
+   5.85309165e-01 -1.84288267e+00  6.40025380e-01]
+ [-1.02649444e+00 -1.00173386e+00 -2.86300146e-01  9.65810654e-02
+   7.37837567e-01  7.20511721e-03 -1.43345581e+00]]
+Latent position: [ 8.99588  11.278321]
+
+Strongest self-regulation (sample 475):
+Interaction matrix:
+[[ -4.89900055  -0.1072547    1.53425946   0.48456775   1.90976937
+   -2.36126552  -0.19606219]
+ [ -1.21315267  -0.46465306   0.13447503   0.49973509   0.18132573
+    0.13525259   0.03686077]
+ [ -0.40392586   1.66292085  -8.73168849  -2.2494837   -0.6161779
+    1.33734468   1.0467188 ]
+ [ -0.63359715  -0.48881138  -0.36958105 -10.05442765   0.28829809
+    0.51078622   1.51759324]
+ [ -1.50074619  -0.53403513  -0.64716644   0.33792392  -1.03796439
+   -0.18144033   2.36256965]
+ [ -2.00919005  -1.212984    -0.19666178   1.67742039   1.19785594
+   -6.25131486   1.25472588]
+ [ -0.26212733   0.71731742   0.24671727   0.29101798  -1.54602978
+    0.88252452  -7.82127658]]
+Latent position: [9.174205 9.032733]
+
+Weakest self-regulation (sample 181):
+Interaction matrix:
+[[-1.31545863  0.87918327 -1.72637393 -0.75152031  0.01075852  1.06651415
+   0.84939586]
+ [ 0.83563554 -2.71646853 -1.02179711 -1.44132891 -0.77389739 -2.22312417
+   0.62971225]
+ [-0.55145107 -0.51407726 -1.24982359 -0.22759321  0.2829486  -0.59268169
+   1.94973784]
+ [ 0.20901562  0.40007604 -1.57607049 -0.27911565  0.0630931  -0.44048593
+  -1.03989501]
+ [-0.12540663  0.29383321 -0.06064783  0.99493647 -0.68857542 -1.055361
+  -1.38336469]
+ [-0.38543124  0.15296851  2.49857818  0.96828866 -1.0318974  -0.56472102
+   1.25395404]
+ [-1.48201237  0.34336568 -0.47095403  0.48966426  1.52171842  0.06883968
+  -0.92362827]]
+Latent position: [10.424116  9.65021 ]
+
+Saved specific matrix locations to latent_space_specific_matrices.png
+
+============================================================
+Distance Matrix Correlation Analysis
+============================================================
+
+Spearman correlation between latent distances and interaction matrix distances:
+  Correlation: 0.0529
+  P-value: 2.1269e-299
+  → Weak correlation. Latent space may prioritize dynamics over interaction structure.
+Saved distance correlation plot to latent_interaction_distance_correlation.png
+
+============================================================
+Correlation between latent dimensions and interaction properties
+============================================================
+
+max_eigenvalue:
+  Latent dim 19: correlation = 0.272
+  Latent dim 13: correlation = 0.259
+  Latent dim 21: correlation = -0.238
+
+mean_interaction:
+  Latent dim 12: correlation = -0.178
+  Latent dim 24: correlation = 0.083
+  Latent dim 21: correlation = -0.080
+
+diagonal_strength:
+  Latent dim 17: correlation = 0.248
+  Latent dim 19: correlation = -0.210
+  Latent dim 12: correlation = 0.191
+
+stability:
+  Latent dim 19: correlation = -0.272
+  Latent dim 13: correlation = -0.259
+  Latent dim 21: correlation = 0.238
+
+Saved analysis results to latent_interaction_results.pkl
+
+============================================================
+Analysis complete!
+============================================================
+
+Generated outputs:
+  1. latent_space_interaction_mapping_umap.png - Continuous properties
+  2. latent_space_interaction_mapping_pca.png - PCA projection
+  3. latent_space_interaction_types.png - Discrete interaction types
+  4. latent_space_specific_matrices.png - Extreme cases highlighted
+  5. latent_interaction_distance_correlation.png - Distance preservation
+  6. latent_interaction_results.pkl - All numerical results

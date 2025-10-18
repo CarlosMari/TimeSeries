@@ -1,0 +1,87 @@
+============================================================
+Dynamical Features Analysis
+============================================================
+
+Loading previously generated data...
+Loaded 989 samples
+
+Extracting dynamical features from time series...
+
+Creating visualizations...
+Saved dynamical features visualization to latent_space_dynamical_features.png
+
+============================================================
+Correlation between Latent Space and Dynamical Features
+============================================================
+
+peak_times:
+  Latent dim 4: correlation = 0.341
+  Latent dim 19: correlation = 0.326
+  Latent dim 12: correlation = 0.274
+
+steady_state_mean:
+  Latent dim 12: correlation = 0.533
+  Latent dim 19: correlation = -0.446
+  Latent dim 21: correlation = 0.353
+
+steady_state_std:
+  Latent dim 21: correlation = -0.312
+  Latent dim 13: correlation = 0.308
+  Latent dim 2: correlation = 0.192
+
+initial_growth_mean:
+  Latent dim 19: correlation = -0.494
+  Latent dim 24: correlation = 0.217
+  Latent dim 17: correlation = 0.142
+
+initial_growth_std:
+  Latent dim 19: correlation = -0.349
+  Latent dim 17: correlation = 0.184
+  Latent dim 13: correlation = 0.140
+
+num_survivors:
+  Latent dim 21: correlation = 0.260
+  Latent dim 13: correlation = -0.238
+  Latent dim 19: correlation = -0.181
+
+temporal_variance:
+  Latent dim 19: correlation = 0.713
+  Latent dim 17: correlation = -0.302
+  Latent dim 4: correlation = 0.217
+
+species_correlation:
+  Latent dim 12: correlation = 0.357
+  Latent dim 9: correlation = -0.200
+  Latent dim 24: correlation = -0.183
+
+============================================================
+Latent Space Structure Analysis
+============================================================
+
+Top 10 dimensions by variance:
+  Dim 0: variance = 1.1493
+  Dim 3: variance = 1.0886
+  Dim 17: variance = 1.0542
+  Dim 2: variance = 1.0491
+  Dim 1: variance = 1.0441
+  Dim 12: variance = 1.0373
+  Dim 9: variance = 0.9928
+  Dim 10: variance = 0.8971
+  Dim 15: variance = 0.8915
+  Dim 14: variance = 0.8772
+
+Effective dimensionality:
+  90% variance captured by: 22 dimensions
+  95% variance captured by: 23 dimensions
+
+Mean absolute correlation between latent dimensions: 0.060
+  → Latent dimensions are largely independent (good disentanglement)
+
+============================================================
+Analysis complete!
+============================================================
+
+Key insight: Your VAE encodes DYNAMICS (peaks, growth, steady states)
+not the underlying interaction matrix parameters.
+
+This is expected behavior for a time series VAE!
