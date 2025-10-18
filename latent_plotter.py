@@ -86,7 +86,7 @@ def visualize_vae_multiple_samples(model, X, n_curves=7, n_samples=100, alpha=0.
 if __name__ == '__main__':
     # Your data loading code
     DEVICE = 'cuda'
-    with open('data/TEST_NEW_DIST.pkl', 'rb') as file:
+    with open('data/TEST_DIVERSE_2.pkl', 'rb') as file:
         X = pickle.load(file)
 
     file.close()

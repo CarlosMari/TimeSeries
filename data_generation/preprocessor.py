@@ -3,8 +3,8 @@ import pickle
 
 # --- Configuration ---
 # Change these paths for your TRAIN and TEST sets
-INPUT_FILE_PATH = 'data/TEST_ORDERED_DOWNSAMPLED.pkl'  # <-- Your original data
-OUTPUT_FILE_PATH = 'data/TEST_PREPROCESSED_DS.pkl' # <-- The final file for the training loop
+INPUT_FILE_PATH = 'data/TEST_FINAL.pkl'  # <-- Your original data
+OUTPUT_FILE_PATH = 'data/TEST_FINAL_PROCESSED.pkl' # <-- The final file for the training loop
 
 # --- Main Execution ---
 if __name__ == "__main__":

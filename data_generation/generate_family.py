@@ -10,7 +10,7 @@ from custom_glv import generate_curves, generate_curves_Mario
 LOG = False
 
 TRAIN_SEED = 74
-TEST_SEED =  73
+TEST_SEED =  42
 N = 7 # How many curves are there in a family
 SIGMA = 0.01 # Lognormal noise variance
 def generate_data(num_curves, seed, name='TRAIN'):
@@ -22,8 +22,14 @@ def generate_data(num_curves, seed, name='TRAIN'):
 
     for i in pbar:
 
-        # Compute the dynamics:
-        sol = generate_curves_Mario(myseed=0, noise_level=0.01, species=7, tmax=20, n_points=129, plot_this=False) 
+        # Compute the dynamics with error handling
+        try:
+            sol = generate_curves_Mario(myseed=seed*i, noise_level=0.01, species=7, tmax=20, n_points=129, plot_this=False)
+        except RuntimeError as e:
+            # Skip this sample if parameter generation failed
+            if LOG:
+                print(f"Skipping iteration {i}: {e}")
+            continue
 
         shape = sol.shape
         noise = np.random.lognormal(mean=0, sigma=SIGMA, size=shape)  # (7, 129)
@@ -73,5 +79,5 @@ def generate_data(num_curves, seed, name='TRAIN'):
         pickle.dump(sols, output)
 
 if __name__ == "__main__":
-    generate_data(250000, TRAIN_SEED, 'TRAIN_DIVERSE_2')
-    generate_data(50000, TEST_SEED, 'TEST_DIVERSE_2')
+    generate_data(500000, TRAIN_SEED, 'TRAIN_FINAL')
+    generate_data(100000, TEST_SEED, 'TEST_FINAL')

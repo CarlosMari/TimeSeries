@@ -80,7 +80,8 @@ def generate_curves_Mario(myseed=0, noise_level=0.01, species=3, tmax=0, n_point
 
         flag = False
         c = 0
-        while not flag:
+        MAX_ITERATIONS = 10000  # Add hard limit to prevent infinite loops
+        while not flag and c < MAX_ITERATIONS:
             if c >= 500:
                 np.random.seed(tc)
             r0 = np.random.exponential(scale=2.0, size=species)  # rexp(rate=0.5)
@@ -97,6 +98,10 @@ def generate_curves_Mario(myseed=0, noise_level=0.01, species=3, tmax=0, n_point
             c+=1
             tc += 1
             #print(flag)
+
+        # If we hit max iterations without finding valid parameters, raise exception
+        if not flag:
+            raise RuntimeError(f"Failed to generate stable GLV parameters after {MAX_ITERATIONS} attempts (seed={myseed})")
 
         #print("xss =", xss)
         #print("eig =", eigenvalues)
