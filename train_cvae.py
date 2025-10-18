@@ -10,10 +10,10 @@ import matplotlib.pyplot as plt
 from matplotlib.pyplot import get_cmap
 
 # --- Configuration ---
-from config import hp, model_config, DEVICE
+from src.utils.config import hp, model_config, DEVICE
 # --- MODIFIED: Import the new LSTM_VAE model ---
-# Make sure your new model file is accessible, e.g., in VAE/models/lstm_vae.py
-from VAE.models.cvae import LSTM_VAE 
+# Make sure your new model file is accessible, e.g., in src/models/cvae.py
+from src.models.cvae import LSTM_VAE 
 
 DATA_TYPE = torch.float32
 LOG = True

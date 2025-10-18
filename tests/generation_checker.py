@@ -9,8 +9,8 @@ import os
 import warnings
 
 # The only change needed: import the class from your models.py file
-from VAE.models.cvae import LSTM_VAE
-from config import model_config
+from src.models.cvae import LSTM_VAE
+from src.utils.config import model_config
 # --- CONFIGURATION ---
 # (This section remains exactly the same)
 MODEL_SAVE_ROUTE = './model_ckpts/'
