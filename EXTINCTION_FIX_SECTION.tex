@@ -1,0 +1,16 @@
+% Post-processing: Extinction Threshold Correction
+% Short section for paper describing the extinction fix
+
+\subsection{Post-Processing: Extinction Threshold Correction}
+
+During validation, we observed an ecologically implausible phenomenon in a subset of generated samples: species populations would decline to near-zero before subsequently recovering---a ``resurrection'' effect inconsistent with ecological dynamics. To address this, we implemented an irreversible extinction threshold as a post-processing step. If a species population $x_i(t)$ falls below threshold $\theta$ at time $t^*$, it is clamped to a low extinction value $\varepsilon = 0.0005$ for all subsequent timesteps:
+
+\begin{equation}
+x_i(t) =
+\begin{cases}
+x_i(t) & \text{if } x_i(t') \geq \theta \text{ for all } t' < t \\
+\varepsilon & \text{if } \exists t^*: x_i(t^*) < \theta \text{ and } t \geq t^*
+\end{cases}
+\end{equation}
+
+We performed a systematic parameter sweep over $\theta \in [0.0001, 0.1]$ on 2,000 test samples. The optimal threshold $\theta = 0.005$ improved mean Lotka-Volterra adherence ($R^2$) from 0.9571 to 0.9640 and increased high-quality samples ($R^2 > 0.90$) from 85.2\% to 90.0\%. Higher thresholds ($\theta > 0.01$) proved too aggressive, suppressing valid low-density dynamics. This correction ensures generated time series respect the ecological constraint that extinct species cannot spontaneously recover, improving both physical realism and quantitative fidelity.

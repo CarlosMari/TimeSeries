@@ -139,11 +139,8 @@ if __name__ == "__main__":
 
     # Check actual data files
     files_to_check = [
-        'data/TRAIN_FINAL.pkl',
-        'data/TEST_FINAL.pkl',
-        'data/TRAIN_PREPROCESSED_DS.pkl',
-        'data/TEST_PREPROCESSED_DS.pkl',
-        'data/interaction_mapping_dataset.pkl',
+        'data/TRAIN_FINAL_FIXED.pkl',
+        'data/TEST_FINAL_FIXED.pkl',
     ]
 
     for filepath in files_to_check:

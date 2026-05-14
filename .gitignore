@@ -129,8 +129,26 @@ AE/
 
 # Old directory structure (being phased out)
 VAE/
-utils/
 paper_figures/
 sota_analysis/
 deep_analysis/
+deep_analysis_30/
+sota_analysis_30/
 results/
+reunion/
+TimeSeries/
+
+# LaTeX intermediates at repo root (figure_architecture*, etc.)
+*.aux
+*.log
+*.synctex.gz
+*.toc
+*.bbl
+*.blg
+*.fls
+*.fdb_latexmk
+
+# Ad-hoc PNG/PKL artifacts at repo root (per-run figure dumps)
+/*.png
+/*.pkl
+!requirements.txt

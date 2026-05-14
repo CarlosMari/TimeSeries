@@ -19,8 +19,8 @@ DATA_TYPE = torch.float32
 LOG = True
 
 # --- Set file paths ---
-TRAIN_ROUTE = 'data/TRAIN_PREPROCESSED_DS.pkl'
-TEST_ROUTE = 'data/TEST_PREPROCESSED_DS.pkl'
+TRAIN_ROUTE = 'data/TRAIN_FINAL_PROCESSED.pkl'
+TEST_ROUTE = 'data/TEST_FINAL_PROCESSED.pkl'
 
 np.random.seed(hp['random_seed'])
 
@@ -88,7 +88,8 @@ def inference_reconstruction(model, test_dataset, step, device=DEVICE, iters=5):
             single_X_gpu = X_cpu.to(device).unsqueeze(0)
             
             batched_X_gpu = single_X_gpu.expand(iters, -1, -1)
-            recons_norm_gpu, _, _, max_vals_pred_gpu,_ = model(batched_X_gpu, teacher_forcing_ratio=0)
+            batched_max_vals_gpu = max_vals_cpu.to(device).unsqueeze(0).expand(iters, -1)
+            recons_norm_gpu, _, _, max_vals_pred_gpu,_ = model(batched_X_gpu, batched_max_vals_gpu, teacher_forcing_ratio=0)
             
             original_denorm_cpu = X_cpu * max_vals_cpu.unsqueeze(-1)
             
@@ -193,7 +194,7 @@ def evaluate(model, test_loader, beta, lambda_max_val, device, num_samples=10):
             for _ in range(num_samples):
                 # We only need the reconstructed curve for coverage.
                 # The other outputs (mu, log_var, max_vals_pred) are captured once outside the loop for efficiency.
-                pred_sample, _, _, _, _ = model(batch_X, teacher_forcing_ratio=0)
+                pred_sample, _, _, _, _ = model(batch_X, batch_max_vals, teacher_forcing_ratio=0)
                 all_preds.append(pred_sample.unsqueeze(0))
 
             # Stack predictions along a new dimension: (num_samples, N, C, L)
@@ -205,7 +206,7 @@ def evaluate(model, test_loader, beta, lambda_max_val, device, num_samples=10):
 
             # --- Calculate Loss using the mean prediction for stability ---
             # We still need mu, log_var, etc. from a single forward pass
-            _, mu, log_var, max_vals_pred, _  = model(batch_X, teacher_forcing_ratio=0)
+            _, mu, log_var, max_vals_pred, _  = model(batch_X, batch_max_vals, teacher_forcing_ratio=0)
             
             loss, recon, kl, max_val = vae_loss(
                 mean_preds, batch_X, mu, log_var, max_vals_pred, batch_max_vals, beta, lambda_max_val
@@ -288,8 +289,8 @@ def train(model):
     scaler = torch.cuda.amp.GradScaler()
 
     bar = tqdm(range(epochs))
-    #beta, beta_max = 0, hp['beta_max']
-    beta, beta_max = hp['beta_max'], hp['beta_max']
+    beta_max = hp['beta_max']
+    beta = 0.0  # warmup starts at 0; updated each epoch from the schedule below
     initial_tf_ratio, final_tf_ratio = 1.0, 0.025
     tf_decay_epochs = int(epochs * 0.4)
     warmup_epochs = hp.get('warmup_epochs', int(0.3 * epochs))
@@ -313,7 +314,7 @@ def train(model):
             optimizer.zero_grad(set_to_none=True)
 
             with torch.cuda.amp.autocast():
-                pred, mu, log_var, max_vals_pred, max_vals_pred_transform = model(batch_X, teacher_forcing_ratio=teacher_forcing_ratio)
+                pred, mu, log_var, max_vals_pred, max_vals_pred_transform = model(batch_X, batch_max_vals, teacher_forcing_ratio=teacher_forcing_ratio)
                 loss, recon, kl, max_val = vae_loss(
                     pred, batch_X, mu, log_var, max_vals_pred, batch_max_vals, beta, lambda_max_val
                 )

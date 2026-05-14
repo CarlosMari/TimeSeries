@@ -1,0 +1,10 @@
+% Figure caption for the scale-conditioned CVAE architecture
+% For Chaos, Solitons and Fractals
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figure_architecture_conditioned.pdf}
+    \caption{\textbf{Architecture of the scale-conditioned Conditional Variational Autoencoder (CVAE).}
+    The model consists of two parallel encoding pathways: a \textit{shape encoder} (blue) that processes the normalized time series $\mathbf{X} \in \mathbb{R}^{N \times 7 \times 65}$ through a bidirectional LSTM to extract temporal dynamics, producing latent representation $\mathbf{z}_{\text{sh}} \in \mathbb{R}^{N \times 50}$; and a \textit{scale encoder} (purple) that encodes the maximum values $\mathbf{m} \in \mathbb{R}^{N \times 7}$ via a multilayer perceptron (MLP) to produce scale representation $\mathbf{z}_{\text{sc}} \in \mathbb{R}^{N \times 50}$. These representations are concatenated ($\oplus$) and processed through the variational bottleneck to obtain the posterior distribution parameters $\bm{\mu}$ and $\bm{\sigma}$. The latent code $\mathbf{z} \in \mathbb{R}^{N \times 50}$ is sampled via the reparameterization trick: $\mathbf{z} \sim q(\mathbf{z}|\mathbf{X}, \mathbf{m}) = \mathcal{N}(\bm{\mu}, \text{diag}(\bm{\sigma}^2))$. During training, the model is conditioned on true maximum values $\mathbf{m}$ (indicated by ``train only''), enabling the latent space to learn scale-aware representations. The \textit{decoder} (red) reconstructs the time series $\hat{\mathbf{X}}$ from $\mathbf{z}$ using an autoregressive LSTM, while a parallel prediction head (green) estimates the maximum values $\hat{\mathbf{m}}$ directly from the latent space. During generation, $\mathbf{z}$ is sampled from the standard normal prior $p(\mathbf{z}) = \mathcal{N}(\mathbf{0}, \mathbf{I})$, and both $\hat{\mathbf{X}}$ and $\hat{\mathbf{m}}$ are predicted from this sampled latent code, ensuring a proper variational autoencoder structure where all predictions flow through the latent bottleneck.}
+    \label{fig:architecture_conditioned}
+\end{figure}

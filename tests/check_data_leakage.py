@@ -21,8 +21,8 @@ TRAIN_FILE = 'data/TRAIN_FINAL_PROCESSED.pkl'
 TEST_FILE = 'data/TEST_FINAL_PROCESSED.pkl'
 
 # Seeds from generate_family.py
-TRAIN_SEED = 74
-TEST_SEED = 42
+TRAIN_SEED = 123456789
+TEST_SEED = 987654321
 
 
 def print_section(title):
