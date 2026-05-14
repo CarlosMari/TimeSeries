@@ -66,23 +66,22 @@ That story is publishable at CSF. It's a real scientific finding, not a marketin
 - [x] Results: $r$ at $R^2 = 0.24$, $A$ diag at 0.20, $A$ off-diag at 0.03, Re(eig A) at 0.16, Im(eig A) at 0.01. Stored in `RESULTS_PARAM_RECOVERY.json` and `final figures/fig_param_recoverability.pdf`.
 - [x] PROJECT.md §4.5 written with the honest framing.
 
-### 2.2 Baseline comparison — NOT STARTED
+### 2.2 Baseline comparison — IN FLIGHT
 
-The reviewer's first comment will be "compare to a non-conditioned baseline." Train one 30D LSTM-VAE with `use_scale_conditioning=False`, same data, same epochs.
+The reviewer's first comment will be "compare to a non-conditioned baseline." Train one 30D LSTM-VAE with `use_scale_conditioning=False`, otherwise identical config.
 
-- [ ] Modify `src/utils/config.py` to a baseline preset (or pass a CLI flag); set `name='model_final_30_baseline'`, `use_scale_conditioning=False`.
-- [ ] Train 2000 epochs (≈3 hr on GPU). Run as a background job.
-- [ ] Run `analysis/produce_paper_metrics.py` against the baseline checkpoint → `RESULTS_BASELINE.json`.
-- [ ] Compose a comparison table (recon $R^2$, max-val $R^2$, LV $R^2$, active dims) → goes into PROJECT.md §3 and the paper's Table 1.
+- [x] `train_baseline.py` launcher created: 1000 epochs (down from 2000 — finishes both TF decay at 400 and β warmup at 300 with margin), `use_scale_conditioning=False`, `name='model_final_30_baseline'`.
+- [x] Smoke-tested: forward pass + 2-epoch timing both fine. ~9.75 s/epoch, ETA ~3 hr.
+- [x] `analysis/evaluate_baseline.py` written — produces `RESULTS_BASELINE.json` and `RESULTS_COMPARISON.md` once the checkpoint exists.
+- [ ] **Training currently running** (detached, PID watch in `logs_baseline_training.log`).
+- [ ] After training completes: `python analysis/evaluate_baseline.py` → comparison table → PROJECT.md §3.
 
-### 2.3 Novelty / coverage — NOT STARTED
+### 2.3 Novelty / coverage — READY, BLOCKED ON GPU
 
-The 0.95 memorization ratio is a yellow flag. Close it.
+The 0.95 memorization ratio is a yellow flag. Close it with a proper statistical test.
 
-- [ ] Extract dynamical-feature vectors for {real test, generated} samples (use the feature set from `investigate_latent_interpretability.py`).
-- [ ] Compute MMD with a Gaussian kernel between generated and held-out test in feature space; report with bootstrap CI.
-- [ ] If feeling thorough: density-coverage (Naeem et al. 2020) on the same features.
-- [ ] One panel in the paper. Add to PROJECT.md.
+- [x] `analysis/novelty_coverage.py` written: dynamical-feature vectors (per-species mean/std/trend + 5 global), MMD with median-heuristic Gaussian kernel and permutation test, density-coverage (Naeem 2020) at k=5, per-feature KS test. Outputs `RESULTS_NOVELTY.json` and `final figures/fig_novelty_coverage.pdf`.
+- [ ] **Blocked**: needs the GPU/CPU back from baseline training. Run as soon as training completes.
 
 ---
 
