@@ -37,6 +37,7 @@ A vanilla VAE on raw trajectories fails because the population scale is enormous
   The two scale factors (`family_max_values`, `reconstruction_max_values`) are stored alongside the normalized tensor; the original trajectory is recoverable as `data * reconstruction_max_values * family_max_values`.
 
 - **Dataset sizes** (verified): TRAIN = 156,800 samples; TEST = 39,189 samples; both at shape `(N, 7, 65)`.
+- **Parameter-recovery matched set** (added 2026-05-14): an additional 10,000 trajectories generated with seed base `555_000_001` (outside train/test seed ranges) where `(r, A)` are also recorded. Stored in `data/PARAM_RECOVERY_MATCHED.pkl`; used in the §4.5 experiment.
 
 ### 2.2 Model (`src/models/cvae.py`) — Scale-Conditioned LSTM-VAE
 
@@ -167,6 +168,50 @@ Ridge-regression predictability from latent codes:
 
 ---
 
+## 4.5 Parameter Recoverability — `μ(z) → (r, A)` (added 2026-05-14)
+
+To answer the "what does the model know about the underlying physics?" question quantitatively, we generated a fresh held-out dataset of **N = 10,000 trajectories** with seed base `555_000_001` (outside both train and test seed ranges) where we also recorded the GLV parameters `(r, A)` used to integrate each trajectory. We preprocess identically to training (family-norm → sort-by-peak → per-curve norm), encode through the trained 30D conditioned CVAE to get `μ(z) ∈ ℝ³⁰`, *permute `r` and `A` row/column to match the same sort the model sees*, and fit Ridge regression with 5-fold CV.
+
+Sanity check: reconstruction R² on this fresh dataset = **0.939** — matches the test-set 0.93, so the matched data is in-distribution and the encoder produces meaningful `μ(z)`.
+
+**Out-of-fold Ridge R² (5-fold CV):**
+
+| Target | Mean $R^2$ |
+|---|---|
+| Growth rate **r** (7 outputs) | **0.241** |
+| Interaction matrix **A** (49 outputs) | 0.052 |
+|   ↳ Diagonal of A (self-regulation) | **0.195** |
+|   ↳ Off-diagonal of A (cross-species) | 0.028 |
+| Re(eig A) (system stability) | 0.162 |
+| Im(eig A) (oscillation frequency) | 0.014 |
+
+**Per-species growth rate $R^2$** (species 0 = highest peak):
+0.43, 0.38, 0.32, 0.06, 0.19, 0.11, 0.20.
+
+**Top-5 most-recoverable A entries** are all diagonal: $A_{00}$ (0.39), $A_{11}$ (0.29), $A_{22}$ (0.24), $A_{44}$ (0.15), $A_{10}$ (0.14). **Bottom entries** are all far off-diagonal entries involving the smallest species: $R^2$ around zero.
+
+### What this means
+
+This is a **partial-recoverability** result, and it's *informative* — three concrete claims emerge:
+
+1. **The latent space recovers what shapes the dominant-species trajectory.** The growth rate of the most-dominant species is the best-recovered target ($R^2 = 0.43$); subdominant species drop off. The same is true for the diagonal of $A$: the model knows the self-regulation of the species you can *see* clearly, not the ones near the noise floor.
+2. **Cross-species coupling is essentially invisible to the latent space.** $A_{ij}$ for $i \ne j$ has mean $R^2 = 0.03$. This is consistent with what we already knew: only ~7% of latent dimensions encode interaction-style features (Dim 2 ↔ synchronization, $r = 0.38$) — too thin to back out individual coupling coefficients.
+3. **System stability is partially encoded; oscillation frequency is not.** Real parts of the eigenvalues of $A$ are recoverable at $R^2 = 0.16$; imaginary parts at $R^2 = 0.01$. The model captures "is this regime stable?" better than "at what frequency does it oscillate?"
+
+### Honest framing for the paper
+
+The pre-experiment narrative we were *tempted* to write was "the model implicitly identifies GLV parameters." The honest result is **the model identifies the parameters of the species you can see, and is blind to the rest**. That sentence is publishable as-is. It dovetails with the species-centric interpretability story (§4) and explains *why* the latent space looks the way it does: the normalization-and-sort pipeline preserves dominant-species information by construction and discards the rest.
+
+This is the *new headline figure of the paper* (`final figures/fig_param_recoverability.pdf`).
+
+Stored:
+- `data/PARAM_RECOVERY_MATCHED.pkl` — 10k trajectories + `(r, A)` + sort permutations (78 MB)
+- `RESULTS_PARAM_RECOVERY.json` — all numbers above
+- `analysis/parameter_recoverability.py` — reproducible from scratch (~6 min generation + ~1 min eval)
+- `final figures/fig_param_recoverability.{pdf,png}` — the figure
+
+---
+
 ## 5. Figures Inventory (`final figures/`)
 
 40 PDFs + matching PNGs. Categorized:
@@ -253,26 +298,28 @@ Still pending (for the paper push, not blocking PROJECT.md):
 ### Solid (paper-ready)
 
 - Architecture and training pipeline.
-- Reconstruction quality: $R^2 = 0.93$ normalized, $0.97$ denormalized, all curves > 0.91.
-- Max-value prediction: $R^2 = 0.97$ — the headline contribution.
+- Reconstruction quality: $R^2 = 0.93$ normalized, $0.97$ denormalized, all curves > 0.91; bootstrap CIs in `RESULTS.json`.
+- Max-value prediction: $R^2 = 0.971$, 95% CI [0.9711, 0.9715] — strong architectural contribution.
 - Latent-space health: 25/30 active dims, 20 PCs for 90% variance.
-- Latent-space interpretability: hierarchical species/global/interaction decomposition with strong feature correlations.
+- Latent-space interpretability: hierarchical species/global/interaction decomposition with named dim↔feature correlations.
 - 50D → 30D ablation: clear and well-documented.
-- Extinction-threshold post-processing: principled, with a sweep.
+- Extinction-threshold post-processing: principled, with a sweep (θ=0.005 winner).
+- **LV adherence (corrected)**: real = 0.99 median, gen with fix = 0.99 median, gap of 0.013 in mean — generated samples are LV-consistent.
+- **Parameter recoverability (NEW)**: $μ(z)$ recovers growth rates partially ($R^2 = 0.24$, best species = 0.43), diagonal of $A$ partially ($R^2 = 0.20$), off-diagonal $A$ essentially not at all ($R^2 = 0.03$). Honest framing: *the model identifies parameters of dominant species and is blind to fine cross-species coupling.* See §4.5.
 
 ### Soft (need work before submission)
 
-- **LV validation narrative**: must be honestly redone (real data ≈ 0.97, generated ≈ 0.95). The "generated beats real" claim is a bug.
-- **Novelty / coverage**: gen-to-train ratio of 0.94 is a yellow flag. Need a proper precision/recall-for-generation analysis (e.g., density-coverage or Wasserstein in feature space).
-- **Out-of-distribution generation**: `explore_oscillation_extrapolation.py` and the "ultra-oscillatory" experiments are interesting but unfinished — figures exist, narrative does not.
-- **Methods text in LaTeX is out of date** with the conditioned architecture and the corrected numbers.
-- **No comparison to a baseline generative model** (vanilla VAE without scale conditioning, or an RNN-only autoregressive model). Reviewer will ask.
-- **Confidence intervals on R² values** — reported as point estimates. Bootstrapped CIs would strengthen claims.
-- **Chaos-specific analyses**: recurrence plots exist; Lyapunov exponents, fractal dimension, attractor reconstruction (Takens embedding) do not. The journal will expect at least one of these.
+- **Methods text in LaTeX is out of date** with the conditioned architecture and the corrected numbers (planned in PLAN.md week 4).
+- **No comparison to a baseline generative model** (vanilla VAE without scale conditioning). Reviewer will ask (PLAN.md week 2).
+- **Chaos-specific analyses**: recurrence plots exist; Lyapunov exponents and RQA (recurrence quantification) do not yet. The journal will expect one of these (PLAN.md week 3).
+- **Novelty / coverage**: gen-to-train ratio of 0.95 is a yellow flag. A density-coverage or MMD analysis would close it (PLAN.md week 2).
+- **Out-of-distribution generation**: `explore_oscillation_extrapolation.py` is half-finished. Either finish it or remove the claim.
 
-### Open question (research, not engineering)
+### Resolved (was "soft", now solid)
 
-The model learns dynamical phenotypes, not GLV parameters. We've avoided the question of whether the latent space contains *recoverable* information about the underlying $(r, A)$. A linear regression from $\mu(z)$ to flattened $A$ would settle this — fast to do, useful in the paper either way (positive = strong claim; negative = honest interpretability story).
+- LV validation narrative ✓ corrected and locked into `RESULTS.json`.
+- Confidence intervals ✓ bootstrap CIs added.
+- Parameter recoverability question ✓ answered — partial recovery, dominant-species story (§4.5).
 
 ---
 
