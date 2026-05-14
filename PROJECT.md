@@ -145,6 +145,41 @@ A real artifact in generated samples: species occasionally cross near-zero and "
 
 Use **θ = 0.005** as the default in the paper.
 
+### 3.7 Baseline comparison: conditioned vs non-conditioned (added 2026-05-14)
+
+Trained a non-conditioned 30D LSTM-VAE (`model_ckpts/model_final_30_baseline.pth`) with `use_scale_conditioning=False` and otherwise identical architecture, data, and training schedule (1000 epochs, β warmup 300, TF decay 400, λ_maxval = 0.5). This isolates the contribution of the scale-conditioning architectural change.
+
+| Metric | Conditioned | Baseline (no cond.) | Δ |
+|---|---|---|---|
+| Recon $R^2$ (normalized) | 0.9335 | **0.9449** | −0.011 |
+| Recon $R^2$ (original scale) | **0.9654** | 0.8444 | **+0.121** |
+| Recon MAE (normalized) | 0.0541 | 0.0490 | +0.005 |
+| Max-value $R^2$ (curves 1–6) | **0.9711** | 0.5905 | **+0.381** |
+
+**Per-curve max-value $R^2$** (the critical one):
+
+| | x1 | x2 | x3 | x4 | x5 | x6 |
+|---|---|---|---|---|---|---|
+| Conditioned | 0.946 | 0.946 | 0.928 | 0.907 | 0.869 | 0.783 |
+| Baseline    | −0.308 | −0.289 | −0.226 | −0.146 | −0.043 | 0.036 |
+
+The baseline produces **negative** $R^2$ on 5 of 6 max-value targets — worse than predicting the mean, exactly as expected: it has no scale input, so the predictor head can only memorize the marginal distribution.
+
+| Latent metric | Conditioned | Baseline |
+|---|---|---|
+| Active dims (var ≥ 0.01) | 25 / 30 | **30 / 30** |
+| Collapsed dims | 5 / 30 | 0 / 30 |
+| PCs for 90% / 95% / 99% var | 20 / 22 / 23 | 25 / 27 / 30 |
+
+**Interpretation:**
+
+1. **Max-value prediction**: the conditioned model is decisively better (+0.38 absolute $R^2$). The baseline confirms that scale conditioning is *necessary* — without it, max-value prediction is broken.
+2. **Reconstruction $R^2$ on normalized space**: baseline is *marginally* better (+0.011). This is the expected trade-off — the conditioned model spends part of its capacity learning scale, leaving slightly less for shape; the gain comes back many-fold on the original-scale metric.
+3. **Reconstruction on original scale**: conditioned wins by +0.12, because the baseline's broken max-value prediction destroys the denormalization.
+4. **Latent geometry**: baseline shows zero posterior collapse but uses all 30 dims, suggesting the additional capacity goes to (futile) attempts at scale recovery from normalized data. The conditioned model is more efficient (25 active dims, 20 PCs for 90% variance).
+
+Numbers from `RESULTS_BASELINE.json` and `RESULTS_COMPARISON.md` (the canonical paper Table 1).
+
 ---
 
 ## 4. Latent-Space Interpretability

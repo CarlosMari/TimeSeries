@@ -66,15 +66,14 @@ That story is publishable at CSF. It's a real scientific finding, not a marketin
 - [x] Results: $r$ at $R^2 = 0.24$, $A$ diag at 0.20, $A$ off-diag at 0.03, Re(eig A) at 0.16, Im(eig A) at 0.01. Stored in `RESULTS_PARAM_RECOVERY.json` and `final figures/fig_param_recoverability.pdf`.
 - [x] PROJECT.md §4.5 written with the honest framing.
 
-### 2.2 Baseline comparison — IN FLIGHT
+### 2.2 Baseline comparison — DONE ✓ (2026-05-14)
 
-The reviewer's first comment will be "compare to a non-conditioned baseline." Train one 30D LSTM-VAE with `use_scale_conditioning=False`, otherwise identical config.
-
-- [x] `train_baseline.py` launcher created: 1000 epochs (down from 2000 — finishes both TF decay at 400 and β warmup at 300 with margin), `use_scale_conditioning=False`, `name='model_final_30_baseline'`.
-- [x] Smoke-tested: forward pass + 2-epoch timing both fine. ~9.75 s/epoch, ETA ~3 hr.
-- [x] `analysis/evaluate_baseline.py` written — produces `RESULTS_BASELINE.json` and `RESULTS_COMPARISON.md` once the checkpoint exists.
-- [ ] **Training currently running** (detached, PID watch in `logs_baseline_training.log`).
-- [ ] After training completes: `python analysis/evaluate_baseline.py` → comparison table → PROJECT.md §3.
+- [x] Trained `model_ckpts/model_final_30_baseline.pth` (1000 epochs, ~7.5 hr).
+- [x] `analysis/evaluate_baseline.py` → `RESULTS_BASELINE.json` + `RESULTS_COMPARISON.md`.
+- [x] **Headline**: max-value $R^2$ conditioned **0.971** vs baseline **0.591** (Δ +0.381); per-curve, baseline gives negative $R^2$ on 5/6 max-value targets — worse than mean predictor, exactly as the architectural argument predicted.
+- [x] Original-scale recon $R^2$: conditioned **0.965** vs baseline **0.844** (Δ +0.121) — baseline's broken max-val prediction destroys the denorm.
+- [x] Normalized recon $R^2$: baseline **0.945** vs conditioned **0.933** (Δ −0.011). The expected trade-off: conditioned model spends a fraction of its capacity learning scale.
+- [x] PROJECT.md §3.7 written with the comparison table — this is the paper's Table 1.
 
 ### 2.3 Novelty / coverage — READY, BLOCKED ON GPU
 
