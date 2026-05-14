@@ -180,6 +180,39 @@ The baseline produces **negative** $R^2$ on 5 of 6 max-value targets — worse t
 
 Numbers from `RESULTS_BASELINE.json` and `RESULTS_COMPARISON.md` (the canonical paper Table 1).
 
+### 3.8 Novelty / coverage — statistical test (added 2026-05-14)
+
+The §3.5 nearest-neighbor distance gave a single number (memorization ratio 0.95) that hinted at distributional mismatch without quantifying it. `analysis/novelty_coverage.py` runs a proper two-sample test on a **26-D dynamical-feature vector** (per-species mean/std/trend + 5 global features: total variance, mean correlation, mean extrema count, mean curvature, mean dominant frequency). N = 2000 per group. Generated samples are post-processed with the extinction threshold θ=0.005.
+
+| Test | Value |
+|---|---|
+| **MMD² (Gaussian kernel, median heuristic)** | 0.0677 |
+| Permutation null mean ± std | 0.0000 ± 0.0002 |
+| Permutation p-value (n_perm = 500) | **0.0020** |
+| Density@k=5 (Naeem 2020) | 0.135 |
+| Coverage@k=5 | 0.246 |
+| Density (gen → real, swapped) | 0.075 |
+| Coverage (swapped) | 0.209 |
+| Features distinguishing real vs gen (KS p<0.05) | **20 / 26** |
+
+**Verdict (honest):** real and generated samples are *statistically distinguishable* in dynamical-feature space (p ≈ 0.002). Coverage of 0.25 means only ~25% of real test points have a generated sample within their 5-NN ball — generated samples form a thinner/shifted distribution.
+
+**Where does the mismatch come from? The KS test points the finger:**
+
+| Feature | KS statistic | What it means |
+|---|---|---|
+| `mean_extrema` | **0.983** | Generated trajectories have a very different peak/trough count from real |
+| `mean_curvature` | **0.685** | Generated trajectories are markedly less "bumpy" (smoother) |
+| `sp3_std`, `sp6_std`, `sp6_mean`, `sp6_trend` | 0.09–0.13 | Subdominant-species statistics differ substantially |
+| Species means (sp0–sp5) | 0.02–0.06 | Mostly match real |
+| Dominant frequency | 0.025 | Matches real |
+
+**Interpretation:** the model generates *smoother, less oscillatory* trajectories than real data. Variances and extrema counts are mismatched, but means are roughly right. This is classic mode-covering behavior in autoregressive VAEs — the decoder regresses to the conditional mean and loses high-frequency content. The mismatch is most severe in subdominant species, which is also where parameter recoverability fails (§4.5). Both observations point to the same limitation: **the model captures dominant-species macroscopic dynamics well and misses fine-grained variability**.
+
+**For the paper:** report this honestly as a limitation. The fix is well-known in the literature (autoregressive decoder with output noise, or a perceptual-style loss that penalizes spectral mismatch) and goes into future work. This finding does not undercut the architectural contribution; it characterizes its scope.
+
+Source: `RESULTS_NOVELTY.json`, `final figures/fig_novelty_coverage.pdf`.
+
 ---
 
 ## 4. Latent-Space Interpretability
@@ -343,13 +376,13 @@ Still pending (for the paper push, not blocking PROJECT.md):
 - Extinction-threshold post-processing: principled, with a sweep (θ=0.005 winner).
 - **LV adherence (corrected)**: real = 0.99 median, gen with fix = 0.99 median, gap of 0.013 in mean — generated samples are LV-consistent.
 - **Parameter recoverability (NEW)**: $μ(z)$ recovers growth rates partially ($R^2 = 0.24$, best species = 0.43), diagonal of $A$ partially ($R^2 = 0.20$), off-diagonal $A$ essentially not at all ($R^2 = 0.03$). Honest framing: *the model identifies parameters of dominant species and is blind to fine cross-species coupling.* See §4.5.
+- **Baseline comparison (NEW)**: max-value $R^2$ **conditioned 0.97 vs baseline 0.59**; the architectural contribution is now isolated and decisive (see §3.7).
+- **Novelty / coverage statistical test (NEW)**: MMD permutation test p = 0.002 → real and generated distinguishable in feature space. Diagnosed: generated trajectories are *smoother / less oscillatory* than real. Concrete limitation, concrete future-work direction (see §3.8).
 
 ### Soft (need work before submission)
 
-- **Methods text in LaTeX is out of date** with the conditioned architecture and the corrected numbers (planned in PLAN.md week 4).
-- **No comparison to a baseline generative model** (vanilla VAE without scale conditioning). Reviewer will ask (PLAN.md week 2).
-- **Chaos-specific analyses**: recurrence plots exist; Lyapunov exponents and RQA (recurrence quantification) do not yet. The journal will expect one of these (PLAN.md week 3).
-- **Novelty / coverage**: gen-to-train ratio of 0.95 is a yellow flag. A density-coverage or MMD analysis would close it (PLAN.md week 2).
+- **Methods text in LaTeX is out of date** with the conditioned architecture and the corrected numbers (Phase 4 in PLAN.md).
+- **Chaos-specific analyses**: recurrence plots exist; Lyapunov exponents and RQA (recurrence quantification) do not yet. The journal will expect one of these (Phase 3 in PLAN.md).
 - **Out-of-distribution generation**: `explore_oscillation_extrapolation.py` is half-finished. Either finish it or remove the claim.
 
 ### Resolved (was "soft", now solid)
@@ -357,6 +390,8 @@ Still pending (for the paper push, not blocking PROJECT.md):
 - LV validation narrative ✓ corrected and locked into `RESULTS.json`.
 - Confidence intervals ✓ bootstrap CIs added.
 - Parameter recoverability question ✓ answered — partial recovery, dominant-species story (§4.5).
+- Baseline comparison ✓ done — scale conditioning is decisive (+0.38 max-val $R^2$, see §3.7).
+- Novelty / coverage ✓ done — MMD permutation test (p=0.002) shows real and generated *are* distributionally different in feature space, with the gap concentrated in oscillation-related features. Reported honestly as a limitation; concrete future-work direction (§3.8).
 
 ---
 

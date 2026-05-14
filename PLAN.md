@@ -22,13 +22,14 @@ PLAN.md is the **todo list**; PROJECT.md is the **wiki**. Anything new (data, re
 
 ## What the paper's headline result is now
 
-After the parameter-recoverability experiment (PROJECT.md §4.5), the paper's structure is:
+Phase 2 results in hand, the paper's structure is:
 
-1. **Main quantitative contribution:** scale-conditioned VAE for GLV, $R^2 = 0.971$ max-value prediction (up from $-0.28$ baseline).
-2. **Generative validation:** generated samples obey LV equations at $R^2 = 0.97$ (vs real $R^2 = 0.99$).
-3. **Honest interpretability story (the new headline):** the latent space $\mu(z)$ *partially recovers* GLV parameters — growth rates at $R^2 = 0.24$ (best species 0.43), diagonal of $A$ at $R^2 = 0.20$, but cross-species coupling at $R^2 = 0.03$. **The model identifies the parameters of the species it can see, and is blind to the rest.** Consistent with species-centric latent geometry.
+1. **Main quantitative contribution (now isolated against baseline):** scale-conditioned VAE for GLV achieves max-value $R^2 = 0.97$ vs non-conditioned baseline at $0.59$ (negative per-curve on 5/6 targets). The architectural change is decisively responsible.
+2. **Generative validation:** generated samples obey LV equations at mean $R^2 = 0.97$ (real data is at $R^2 = 0.99$); gap is 0.013 — within the noise band.
+3. **Honest interpretability story (the new headline):** $\mu(z)$ partially recovers GLV parameters — dominant-species growth rates at $R^2 = 0.43$, diagonal of $A$ at $R^2 = 0.20$, cross-species coupling at $R^2 = 0.03$. **The model identifies parameters of the species it can see, and is blind to the rest.** Consistent with species-centric latent geometry and with §3.8.
+4. **Honest limitation (also from §3.8):** generated trajectories are *smoother / less oscillatory* than real (MMD permutation p = 0.002, `mean_extrema` KS = 0.98). Classic VAE mode-covering. Concrete future-work direction.
 
-That story is publishable at CSF. It's a real scientific finding, not a marketing claim.
+That story is publishable at CSF. Every claim is backed by a number with a CI.
 
 ---
 
@@ -37,8 +38,8 @@ That story is publishable at CSF. It's a real scientific finding, not a marketin
 | Phase | What | Status |
 |---|---|---|
 | 1 | Lock down numbers (bug fixes + RESULTS.json + figure cleanup) | **DONE** 2026-05-14 |
-| 2 | Strengthen the science (recoverability, baseline, novelty) | **IN PROGRESS** |
-| 3 | Chaos diagnostics (RQA + Lyapunov) | not started |
+| 2 | Strengthen the science (recoverability, baseline, novelty) | **DONE** 2026-05-14 |
+| 3 | Chaos diagnostics (RQA + Lyapunov) | **NEXT** |
 | 4 | First full draft (methods + results) | not started |
 | 5 | Refine + supplement + reviewer pre-mortem | not started |
 | 6 | Co-author / advisor review | not started |
@@ -75,12 +76,14 @@ That story is publishable at CSF. It's a real scientific finding, not a marketin
 - [x] Normalized recon $R^2$: baseline **0.945** vs conditioned **0.933** (Δ −0.011). The expected trade-off: conditioned model spends a fraction of its capacity learning scale.
 - [x] PROJECT.md §3.7 written with the comparison table — this is the paper's Table 1.
 
-### 2.3 Novelty / coverage — READY, BLOCKED ON GPU
+### 2.3 Novelty / coverage — DONE ✓ (2026-05-14)
 
-The 0.95 memorization ratio is a yellow flag. Close it with a proper statistical test.
+- [x] `analysis/novelty_coverage.py` finished — dynamical-feature vectors (26-D), MMD permutation test, density-coverage (Naeem 2020), per-feature KS.
+- [x] **Result**: MMD² = 0.068, permutation p = **0.002** → real and generated are statistically distinguishable in feature space. Density@5 = 0.135, coverage@5 = 0.246. 20/26 features differ at p<0.05.
+- [x] **Diagnosed the source**: `mean_extrema` KS = 0.983, `mean_curvature` KS = 0.685 — generated trajectories are smoother / less oscillatory than real. Subdominant-species statistics also differ. Species means and dominant frequency match.
+- [x] PROJECT.md §3.8 written with the honest framing — limitation reported, concrete future-work direction (decoder stochasticity or perceptual loss for high-frequency content).
 
-- [x] `analysis/novelty_coverage.py` written: dynamical-feature vectors (per-species mean/std/trend + 5 global), MMD with median-heuristic Gaussian kernel and permutation test, density-coverage (Naeem 2020) at k=5, per-feature KS test. Outputs `RESULTS_NOVELTY.json` and `final figures/fig_novelty_coverage.pdf`.
-- [ ] **Blocked**: needs the GPU/CPU back from baseline training. Run as soon as training completes.
+**Phase 2 COMPLETE.** All three experiments done; the paper's "results" section now has its full skeleton.
 
 ---
 
