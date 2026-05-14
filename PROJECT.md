@@ -36,7 +36,7 @@ A vanilla VAE on raw trajectories fails because the population scale is enormous
 
   The two scale factors (`family_max_values`, `reconstruction_max_values`) are stored alongside the normalized tensor; the original trajectory is recoverable as `data * reconstruction_max_values * family_max_values`.
 
-- **Dataset sizes** (verified): TRAIN = 156,800 samples; TEST = 39,189 samples; both at shape `(N, 7, 65)`.
+- **Dataset sizes** (verified 2026-05-14 by loading the pickles): TRAIN = **117,472** samples; TEST = **39,189** samples; both at shape `(N, 7, 65)`. Older docs (`CODEBASE_REFERENCE.md`) quote 156,800 — that was the *generation target*, the actual saved file is smaller after quality rejection.
 - **Parameter-recovery matched set** (added 2026-05-14): an additional 10,000 trajectories generated with seed base `555_000_001` (outside train/test seed ranges) where `(r, A)` are also recorded. Stored in `data/PARAM_RECOVERY_MATCHED.pkl`; used in the §4.5 experiment.
 
 ### 2.2 Model (`src/models/cvae.py`) — Scale-Conditioned LSTM-VAE
@@ -105,13 +105,15 @@ These match the 30D-vs-50D analysis: 30D is the right size; 50D was over-paramet
 
 This is important. A previous, since-deleted summary (`LV_VALIDATION_SUMMARY.md`) claimed generated samples have *higher* LV-R² than real data (0.96 vs 0.62). The cause was a bug in `generate_lotka_volterra_validation_figure.py` (since deleted): the line `sample_norm[0]` collapsed the species axis on the *real* data path, so the regression silently used only species 0. When the regression is run correctly on all 7 species per sample (the `_with_fix.py` variant, which is the current canonical script):
 
-| Source | Mean LV-$R^2$ | Median | % > 0.9 |
-|---|---|---|---|
-| **Real test data** | **0.9734** | 0.9813 | **98.6%** |
-| Generated (raw) | 0.9441 | 0.9743 | 81.2% |
-| Generated (extinction threshold θ=0.001) | 0.9566 | 0.9762 | 87.7% |
+Canonical numbers from `RESULTS.json` (N=2000, bootstrap 95% CIs):
 
-Generated samples *are* highly LV-consistent (~97% mean R², ~92% are >0.9 with the extinction fix at θ=0.005), but they do **not** exceed real data. The buggy summary has been deleted. The honest story — "generated samples adhere to LV equations at ~97% R² with the extinction fix, within 0.02 of real data, with the gap explained by occasional near-extinction trajectories" — is the result we report.
+| Source | Mean LV-$R^2$ | 95% CI | Median | % > 0.9 | % > 0.95 |
+|---|---|---|---|---|---|
+| **Real test data** | **0.9875** | [0.9869, 0.9881] | 0.9913 | **99.7%** | 97.8% |
+| Generated (raw) | 0.9588 | [0.9560, 0.9615] | 0.9868 | 85.7% | 76.8% |
+| Generated (extinction θ=0.005) | 0.9680 | [0.9660, 0.9701] | 0.9876 | 91.5% | 80.5% |
+
+Generated samples are LV-consistent (~97% mean R², 92% are >0.9 with the extinction fix), but they do **not** exceed real data. The buggy "gen > real" summary has been deleted. The honest story — "generated samples adhere to LV equations at ~97% R² with the extinction fix, within 0.02 of real data, with the gap explained by occasional near-extinction trajectories" — is the result we report.
 
 Saved to `RESULTS.json` (regenerable via `analysis/produce_paper_metrics.py`).
 
@@ -123,11 +125,11 @@ Nearest-neighbor distances (Euclidean over flattened normalized curves), 1k gene
 |---|---|
 | Generated → nearest train | 3.43 |
 | Generated → nearest test | 3.44 |
-| Test → nearest train (baseline) | 3.64 |
+| Test → nearest train (baseline) | 3.62 |
 | Generated → nearest other generated | 3.88 |
-| Memorization ratio (gen→train / test→train) | **0.94** |
+| Memorization ratio (gen→train / test→train) | **0.946** |
 
-Generated samples sit *slightly closer* to the training set than held-out test samples do (ratio 0.94, not 1.0). The model is not copying — internal distances among generated samples are larger than gen-to-train — but the latent prior is somewhat biased toward dense training regions. This is worth a sentence in the discussion and ideally a fix (better prior matching or rejection sampling) before submission. Saved to `NOVELTY_VERIFIED.json`.
+Generated samples sit *slightly closer* to the training set than held-out test samples do (ratio 0.946). The model is not copying — internal distances among generated samples are larger than gen-to-train — but the latent prior is somewhat biased toward dense training regions. This was a yellow flag; the proper statistical follow-up (MMD permutation test + density/coverage on dynamical-feature vectors) is in `analysis/novelty_coverage.py` and runs after baseline training releases the GPU. Source: `RESULTS.json`.
 
 ### 3.6 Extinction / resurrection post-processing
 

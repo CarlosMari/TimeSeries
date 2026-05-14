@@ -27,7 +27,7 @@
 - **Scale Mode:** log (for max value prediction)
 
 ### Data
-- **Train:** `data/TRAIN_FINAL_PROCESSED.pkl` (156,800 samples)
+- **Train:** `data/TRAIN_FINAL_PROCESSED.pkl` (117,472 samples)
 - **Test:** `data/TEST_FINAL_PROCESSED.pkl` (39,189 samples)
 - **Shape:** (N, 7, 65) - N samples, 7 curves, 65 timesteps
 
@@ -460,7 +460,7 @@ TimeSeries/
 ├── generate_reconstruction_quality_figures.py  # Evaluation
 │
 ├── data/
-│   ├── TRAIN_FINAL_PROCESSED.pkl  # 156,800 samples
+│   ├── TRAIN_FINAL_PROCESSED.pkl  # 117,472 samples
 │   └── TEST_FINAL_PROCESSED.pkl   # 39,189 samples
 │
 ├── model_ckpts/
