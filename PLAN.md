@@ -46,45 +46,52 @@ The paper became a **comparative empirical study of 7 generative architectures o
 
 **Goal:** TRAIN_FINAL_NOSORT.pkl + TEST_FINAL_NOSORT.pkl on disk; models 1, 2, 3 trained with 3 seeds each (9 checkpoints).
 
-- [ ] **A1** Add a `--no-sort` flag (or new function) in `data_generation/preprocessor.py` that skips step 2 (sort-by-peak). Run on existing raw training & test seeds. Produce `TRAIN_FINAL_NOSORT.pkl`, `TEST_FINAL_NOSORT.pkl`. Sanity-check: shapes match v1 (117k / 39k); denormalization round-trip identity check.
-- [ ] **A2** Patch `train_cvae.py` to accept a data-path argument and a seed argument. Confirm WandB project name change to `Conditional_LV_VAE_pivot` so we don't clutter the v1 history.
-- [ ] **A3** Train **model 1** (scale-conditioned LSTM-VAE) on no-sort, seeds {42, 123, 2026}. Save to `model_ckpts/model_1_seed{42,123,2026}.pth`. ~3 hr each.
-- [ ] **A4** Train **model 2** (no-conditioning) on no-sort, seeds {42, 123, 2026}. ~3 hr each. Same hyperparameters as model 1 except `use_scale_conditioning=False`.
-- [ ] **A5** Implement **model 3** (stochastic-decoder): modify `src/models/cvae.py` decoder LSTM to inject Gaussian noise in hidden state with learned σ. Add small entropy bonus to prevent σ collapse. Train × 3 seeds.
-- [ ] **A6** Run v1 eval harness adapted (recon R², max-val R², latent dims) on each of the 9 new checkpoints. Spot-check: model 1 numbers should be close to v1 (~R² 0.95 on no-sort, possibly different by 0.01-0.02). If radically different, debug before proceeding.
+- [x] **A1** Added `--no-sort` flag to `data_generation/preprocessor.py`. Both `TRAIN_FINAL_NOSORT.pkl` (117k) and `TEST_FINAL_NOSORT.pkl` (39k) on disk; round-trip identity confirmed at machine epsilon.
+- [x] **A2** Wrote `train_pivot.py` thin CLI wrapper (preserves v1 `python train_cvae.py` reproducibility bit-identically). Accepts `--model`, `--seed`, `--data-train`, `--epochs`, `--use/no-scale-conditioning`, `--wandb-project`. Fixed TF-schedule divide-by-zero at small epoch counts.
+- [x] **A3** Model 1 seed 42 training (epoch 95/500 as of 10:21). Seeds 123 and 2026 queued via `scripts/autoqueue.sh`.
+- [x] **A4** Model 2 (no-cond) queued × 3 seeds.
+- [x] **A5** Model 3 (`StochasticLSTMVAE` at `src/models/cvae_stochastic.py`) — learnable σ via softplus, noise injected on the decoder hidden state at every step. Smoke-tested. Queued × 3 seeds.
+- [x] **A6** Unified eval harness `analysis/evaluate_all_models.py` validates on the v1 checkpoint (reproduces R² 0.93 norm, 0.97 orig, max-val R² 0.97).
 
-**Phase A exit criterion:** 9 checkpoints + 9-row provisional results table for models 1–3.
+**Phase A status:** infrastructure done; training in progress under `scripts/autoqueue.sh`.
 
 ---
 
 ## Phase B — Models 4–7
 
-- [ ] **B1** Model 4 — Latent-ODE. New file `src/models/latent_ode.py`. Encoder: existing LSTM. Latent dynamics: 2-layer MLP `f_θ(z, t)`. Integrator: `torchdiffeq.odeint`. Decoder: same as model 1 (autoregressive on z(t)). Train × 3 seeds. ~5 hr each.
-- [ ] **B2** Model 5 — Transformer-VAE. New file `src/models/transformer_vae.py`. 4-layer encoder + 4-layer decoder with positional embeddings. CLS pooling for posterior. Train × 3 seeds. ~4 hr each.
-- [ ] **B3** Model 6 — KAN-VAE. New file `src/models/kan_vae.py`. Pip-install `efficient-kan`. Replace MLP heads with KAN layers; LSTM backbone unchanged. Train × 3 seeds. Time-box at 2 days per seed; fallback to KAN-output-head-only if unstable.
-- [ ] **B4** Model 7 — Direct GLV regression. New file `src/models/glv_regression.py`. LSTM encoder → MLP → (r̂, Â). Train on `PARAM_RECOVERY_MATCHED.pkl` (10k). Inference: `solve_ivp` with predicted (r̂, Â). Train × 3 seeds. ~1 hr each.
+- [x] **B1** Model 4 — `src/models/latent_ode.py` (Rubanova 2019: ODE-RNN encoder → posterior on z₀, `f_θ(z,t)` MLP, torchdiffeq.odeint, MLP decoder). Scale conditioning preserved. Smoke-tested. **Queued for training × 3 seeds.**
+- [x] **B2** Model 5 — `src/models/transformer_vae.py` (4-layer Transformer encoder/decoder, positional encoding, learned query embedding, cross-attention from z). Smoke-tested. **Queued × 3 seeds.**
+- [x] **B3** Model 6 — `src/models/kan_vae.py` (LSTM backbone + KAN heads via vendored `efficient_kan`). Avoided pip-install of efficient-kan because its `torch>=1.5` constraint silently upgraded torch to cu130 — incompatible with the system CUDA 12.7 driver. Vendored the source file directly. Smoke-tested. **Queued × 3 seeds.**
+- [x] **B4** Model 7 — `src/models/glv_regression.py` + `train_glv_regression.py` (LSTM → MLP → (r̂, Â); MSE on `PARAM_RECOVERY_MATCHED.pkl` ground truth; inference via solve_ivp). **Queued × 3 seeds.**
 
-**Phase B exit criterion:** 12 additional checkpoints. All 21 checkpoints saved.
+**Phase B status:** all 7 architectures implemented and smoke-tested. Training is queued behind m1 via `scripts/autoqueue.sh`.
 
 ---
 
 ## Phase C — Unified eval harness + OOD + comparative results
 
-- [ ] **C1** `analysis/evaluate_all_models.py`: loops over all 21 checkpoints, dispatches to per-model adapters (because each architecture's inference call signature differs slightly), runs the full eval matrix, writes per-model JSON + the aggregate `RESULTS_COMPARATIVE.json`.
-- [ ] **C2** Drop `mean_extrema` + `mean_curvature` from the feature-MMD vector (D3 fix). Re-verify the §3.8 finding (real vs gen distinguishable) on v1, document if KS p-value of the residual feature set changes the headline.
-- [ ] **C3** Generate OOD test sets: `data/TEST_OOD_Exp1.pkl` (5k trajectories, `r ~ Exp(1)`), `data/TEST_OOD_Exp5.pkl` (5k, `r ~ Exp(5)`). Preprocess without sort. Evaluate all 21 checkpoints on both.
-- [ ] **C4** Statistical-comparison plan applied to RESULTS_COMPARATIVE: Wilcoxon signed-rank with FDR correction on continuous metrics; KS ladder for distributional metrics; bootstrap CIs.
+- [x] **C1** `analysis/evaluate_all_models.py` — per-model adapters for all 7 architectures, dispatches uniform recon + Lens-1 + Lens-2 + Lens-3 eval. Validated on the v1 checkpoint: reproduces R² 0.93/0.97/0.97 and RQA/Lyapunov KS p-values exactly. Writes incrementally so a crash never loses work.
+- [x] **C2** D3 fix baked into the eval harness (`DROPPED_FEATURES = {"mean_extrema", "mean_curv"}`). Re-verified on the v1 model: **MMD p = 0.005 (was 0.002)** — the headline finding survives the feature-set cleanup. **Coverage/density jumped from 0.13/0.25 to 0.95/0.98** — the model covers the real distribution well at coarse scales; the mismatch the protocol detects is specifically in fine-grained NLD invariants. Written into PROJECT.md §3.8.1.
+- [x] **C3** OOD test sets generated: `data/TEST_OOD_Exp1.pkl` and `data/TEST_OOD_Exp5.pkl` (5k samples each, raw + no-sort-preprocessed + ground-truth `(r, A)` stored). Evaluation pass will run after stage-1 training finishes (currently queued behind m1).
+- [ ] **C4** Statistical-comparison plan (Wilcoxon signed-rank + FDR + bootstrap CIs) — not yet implemented; will go into the final eval pass.
 
-**Phase C exit criterion:** RESULTS_COMPARATIVE.json populated; one Pandas-printable 7-row × N-column table that is the paper's central result.
+**Phase C status:** infrastructure complete; awaiting trained checkpoints to populate the comparative JSON.
 
 ---
 
-## Phase D — Synthetic-data lens-validation
+## Phase D — Synthetic-data lens-validation — DONE ✓ (2026-05-15)
 
-- [ ] **D1** `analysis/lens_validation.py`: take 200 real GLV trajectories; apply (a) low-pass filter, (b) high-frequency noise, (c) amplitude rescale, (d) phase shift, (e) species permutation. For each: compute recon-R² vs original *and* 3-lens distance. Tabulate sensitivity.
-- [ ] **D2** Figure: 5 perturbations × 4 metrics (recon-R², MMD, RQA-DET, λ₁) showing the lens protocol detects (a, b, d) while recon-R² remains high.
+- [x] **D1** `analysis/lens_validation.py`: 5 perturbations × 4-5 metrics, n = 200, results in `RESULTS_LENS_VALIDATION.json`.
+- [x] **D2** Figure: `final figures/fig_lens_validation.{pdf,png}` — recon-R² bar plot + lens p-value heatmap.
 
-This is the methodological lynchpin. Without it the eval-protocol contribution is weak.
+**Findings (validated paper Section 5):**
+- (a) **low-pass filter**: recon-R² = 0.99 (looks fine!) BUT RQA-DET KS p < 10⁻⁸¹, RQA-L_mean p < 10⁻³⁵ → **Lenses 2/3 catch what recon misses.**
+- (b) **HF noise**: recon-R² = 0.99 BUT all three lenses at p < 10⁻²² → **Lenses 1/2/3 catch.**
+- (c) **amplitude rescale**: recon-R² = 0.44; **only Lens 1 detects** (as designed — Lenses 2/3 are normalization-invariant by construction).
+- (d) **phase shift**: recon-R² = 0.84; **no lens detects.** Honest limitation.
+- (e) **species permutation**: recon-R² = -0.60; **no lens detects** (protocol is permutation-invariant by construction).
+
+The lenses are sensitive exactly where they should be (low-pass, HF noise — the failure mode of regress-to-mean decoders) and insensitive exactly where they shouldn't be (amplitude, permutation — both are protocol design choices). The phase-shift insensitivity is a genuine limitation to disclose. This is a strong methodological foundation for the paper.
 
 ---
 
