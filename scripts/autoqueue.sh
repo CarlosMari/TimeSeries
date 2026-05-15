@@ -7,6 +7,13 @@ cd "$(dirname "$0")/.."
 source TimeSeries/bin/activate
 mkdir -p logs model_ckpts
 
+# Redirect wandb writes to the 3.6 TB array so the root disk doesn't fill up.
+# (Verified writable by carlos; each wandb run is ~150 MB.)
+STORAGE_ROOT=/mnt/storage/shared/TimeSeries
+mkdir -p "$STORAGE_ROOT/wandb"
+export WANDB_DIR="$STORAGE_ROOT/wandb"
+echo "[$(date +%H:%M:%S)] WANDB_DIR=$WANDB_DIR  (overflow on /mnt/storage)"
+
 wait_for_gpu_free() {
   # Match any python process whose command line contains either trainer.
   while true; do
