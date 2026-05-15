@@ -1,35 +1,25 @@
-# PLAN.md — Path to submission
+# PLAN.md — Path to submission (post-pivot)
 
-**Today:** 2026-05-14  **Hard target:** **end of July 2026** (submitted, ideally under review).  **Soft target:** mid-July.
+**Today:** 2026-05-15  **Target:** submitted by end of August 2026 (slipped from end of July; quality > deadline per user direction).
 
-This project has been running too long. The goal is to *finish it*, not perfect it. New ideas get weighed against "does this ship the paper or delay it." Default to ship.
-
-PLAN.md is the **todo list**; PROJECT.md is the **wiki**. Anything new (data, results, decisions, course corrections) goes into PROJECT.md first, then this file gets pruned to reflect what remains.
+PLAN.md is the **todo list**; PROJECT.md is the **wiki**. The canonical design is `docs/superpowers/specs/2026-05-15-comparative-evaluation-design.md`. Updated state and findings go into PROJECT.md first; this file gets pruned to reflect what remains.
 
 ---
 
-## Guiding principles
+## Pivot in one line
 
-1. **No new model architecture.** The 30D scale-conditioned CVAE is the model.
-2. **Fix things that are wrong before adding things that are missing.**
-3. **Reviewer-driven scope.** Three predictable objections from a *Chaos, Solitons & Fractals* (CSF) reviewer:
-   - "Compare to a baseline."
-   - "What about chaos-specific diagnostics (Lyapunov, RQA)?"
-   - "Is the model just memorizing the training distribution?"
-4. **Time-box.** If something hasn't yielded a usable result in 2 working days, cut it.
+The paper became a **comparative empirical study of 7 generative architectures on GLV trajectories under a 3-lens nonlinear-dynamics evaluation protocol**, not a single-model paper about a scale-conditioned VAE.
 
 ---
 
-## What the paper's headline result is now
+## Guiding principles (post-pivot)
 
-Phase 2 results in hand, the paper's structure is:
-
-1. **Main quantitative contribution (now isolated against baseline):** scale-conditioned VAE for GLV achieves max-value $R^2 = 0.97$ vs non-conditioned baseline at $0.59$ (negative per-curve on 5/6 targets). The architectural change is decisively responsible.
-2. **Generative validation:** generated samples obey LV equations at mean $R^2 = 0.97$ (real data is at $R^2 = 0.99$); gap is 0.013 — within the noise band.
-3. **Honest interpretability story (the new headline):** $\mu(z)$ partially recovers GLV parameters — dominant-species growth rates at $R^2 = 0.43$, diagonal of $A$ at $R^2 = 0.20$, cross-species coupling at $R^2 = 0.03$. **The model identifies parameters of the species it can see, and is blind to the rest.** Consistent with species-centric latent geometry and with §3.8.
-4. **Honest limitation (also from §3.8):** generated trajectories are *smoother / less oscillatory* than real (MMD permutation p = 0.002, `mean_extrema` KS = 0.98). Classic VAE mode-covering. Concrete future-work direction.
-
-That story is publishable at CSF. Every claim is backed by a number with a CI.
+1. **Quality > deadline.** User has explicit permission for end-July → end-August slip.
+2. **Three seeds per model.** Single-seed numbers are not the final paper's numbers.
+3. **Same eval matrix for all 7 models.** No model gets a custom metric.
+4. **Honest negatives are findings.** If model X fails to converge in 2 days, document and drop; if model Y wins on RQA but loses on recon, that's an *interesting* result.
+5. **Update PROJECT.md and REFERENCES.md as we go.** Don't let stale framing accumulate.
+6. **Run autonomously.** Per user direction, don't ask for permission on individual training runs / refactors. Confirm only on destructive ops.
 
 ---
 
@@ -37,138 +27,144 @@ That story is publishable at CSF. Every claim is backed by a number with a CI.
 
 | Phase | What | Status |
 |---|---|---|
-| 1 | Lock down numbers (bug fixes + RESULTS.json + figure cleanup) | **DONE** 2026-05-14 |
-| 2 | Strengthen the science (recoverability, baseline, novelty) | **DONE** 2026-05-14 |
-| 3 | Chaos diagnostics (RQA + Lyapunov) | **NEXT** |
-| 4 | First full draft (methods + results) | not started |
-| 5 | Refine + supplement + reviewer pre-mortem | not started |
-| 6 | Co-author / advisor review | not started |
-| 7 | Final polish + submission | not started |
+| 0 | (legacy) Lock down v1 numbers + bug fixes + RESULTS.json | **DONE** 2026-05-14 |
+| 0.5 | (legacy) Strengthen v1 science (recoverability, baseline, novelty) | **DONE** 2026-05-14 |
+| 0.7 | (legacy) Chaos diagnostics on v1 | **DONE** 2026-05-15 |
+| **PIVOT** | **Decide + write design doc + seed REFERENCES.md** | **DONE** 2026-05-15 |
+| A | Data pipeline rebuild (no-sort) + retrain models 1, 2, 3 × 3 seeds | **NEXT** |
+| B | Models 4, 5, 6, 7 implemented + trained × 3 seeds | pending |
+| C | Unified eval harness + RESULTS_COMPARATIVE.json + OOD test sets | pending |
+| D | Synthetic-data lens-validation experiment | pending |
+| E | Comparative figures (replaces most of `final figures/`) | pending |
+| F | First full draft (methods + results + discussion) | pending |
+| G | Supplement + reviewer pre-mortem + advisor review | pending |
+| H | Final polish + submission | pending |
 
 ---
 
-## Phase 1 — DONE (recap)
+## Phase A — Data pipeline rebuild + first 3 models
 
-- [x] LV-validation bug fixed (`sample_norm[0]` species-axis collapse). Real LV-$R^2$ = 0.99 median; gen with θ=0.005 = 0.99 median; gap of 0.013 in mean.
-- [x] `analysis/produce_paper_metrics.py` = single metrics source of truth → `RESULTS.json` + `RESULTS.md` with bootstrap 95% CIs.
-- [x] Stale/wrong docs deleted (8 files), stale duplicate scripts deleted (8+ files).
-- [x] β-schedule wart fixed in `train_cvae.py`.
-- [x] `.gitignore` tightened (LaTeX intermediates, root-level ad-hoc PNG/PKL; removed bad `utils/` exclusion).
-- [x] Committed `5d64e64` "Lock down paper-ready state".
+**Goal:** TRAIN_FINAL_NOSORT.pkl + TEST_FINAL_NOSORT.pkl on disk; models 1, 2, 3 trained with 3 seeds each (9 checkpoints).
 
----
+- [ ] **A1** Add a `--no-sort` flag (or new function) in `data_generation/preprocessor.py` that skips step 2 (sort-by-peak). Run on existing raw training & test seeds. Produce `TRAIN_FINAL_NOSORT.pkl`, `TEST_FINAL_NOSORT.pkl`. Sanity-check: shapes match v1 (117k / 39k); denormalization round-trip identity check.
+- [ ] **A2** Patch `train_cvae.py` to accept a data-path argument and a seed argument. Confirm WandB project name change to `Conditional_LV_VAE_pivot` so we don't clutter the v1 history.
+- [ ] **A3** Train **model 1** (scale-conditioned LSTM-VAE) on no-sort, seeds {42, 123, 2026}. Save to `model_ckpts/model_1_seed{42,123,2026}.pth`. ~3 hr each.
+- [ ] **A4** Train **model 2** (no-conditioning) on no-sort, seeds {42, 123, 2026}. ~3 hr each. Same hyperparameters as model 1 except `use_scale_conditioning=False`.
+- [ ] **A5** Implement **model 3** (stochastic-decoder): modify `src/models/cvae.py` decoder LSTM to inject Gaussian noise in hidden state with learned σ. Add small entropy bonus to prevent σ collapse. Train × 3 seeds.
+- [ ] **A6** Run v1 eval harness adapted (recon R², max-val R², latent dims) on each of the 9 new checkpoints. Spot-check: model 1 numbers should be close to v1 (~R² 0.95 on no-sort, possibly different by 0.01-0.02). If radically different, debug before proceeding.
 
-## Phase 2 — IN PROGRESS
-
-### 2.1 GLV parameter recoverability — DONE ✓ (2026-05-14)
-
-- [x] Built `analysis/parameter_recoverability.py`: generates fresh 10k matched dataset with seed base 555M, encodes through CVAE, fits Ridge $\mu \to r$ and $\mu \to \mathrm{vec}(A)$ with 5-fold CV, writes JSON + figure.
-- [x] Sanity-check: recon $R^2$ on matched data = 0.939, matches the test-set baseline (in-distribution).
-- [x] Results: $r$ at $R^2 = 0.24$, $A$ diag at 0.20, $A$ off-diag at 0.03, Re(eig A) at 0.16, Im(eig A) at 0.01. Stored in `RESULTS_PARAM_RECOVERY.json` and `final figures/fig_param_recoverability.pdf`.
-- [x] PROJECT.md §4.5 written with the honest framing.
-
-### 2.2 Baseline comparison — DONE ✓ (2026-05-14)
-
-- [x] Trained `model_ckpts/model_final_30_baseline.pth` (1000 epochs, ~7.5 hr).
-- [x] `analysis/evaluate_baseline.py` → `RESULTS_BASELINE.json` + `RESULTS_COMPARISON.md`.
-- [x] **Headline**: max-value $R^2$ conditioned **0.971** vs baseline **0.591** (Δ +0.381); per-curve, baseline gives negative $R^2$ on 5/6 max-value targets — worse than mean predictor, exactly as the architectural argument predicted.
-- [x] Original-scale recon $R^2$: conditioned **0.965** vs baseline **0.844** (Δ +0.121) — baseline's broken max-val prediction destroys the denorm.
-- [x] Normalized recon $R^2$: baseline **0.945** vs conditioned **0.933** (Δ −0.011). The expected trade-off: conditioned model spends a fraction of its capacity learning scale.
-- [x] PROJECT.md §3.7 written with the comparison table — this is the paper's Table 1.
-
-### 2.3 Novelty / coverage — DONE ✓ (2026-05-14)
-
-- [x] `analysis/novelty_coverage.py` finished — dynamical-feature vectors (26-D), MMD permutation test, density-coverage (Naeem 2020), per-feature KS.
-- [x] **Result**: MMD² = 0.068, permutation p = **0.002** → real and generated are statistically distinguishable in feature space. Density@5 = 0.135, coverage@5 = 0.246. 20/26 features differ at p<0.05.
-- [x] **Diagnosed the source**: `mean_extrema` KS = 0.983, `mean_curvature` KS = 0.685 — generated trajectories are smoother / less oscillatory than real. Subdominant-species statistics also differ. Species means and dominant frequency match.
-- [x] PROJECT.md §3.8 written with the honest framing — limitation reported, concrete future-work direction (decoder stochasticity or perceptual loss for high-frequency content).
-
-**Phase 2 COMPLETE.** All three experiments done; the paper's "results" section now has its full skeleton.
+**Phase A exit criterion:** 9 checkpoints + 9-row provisional results table for models 1–3.
 
 ---
 
-## Phase 3 — Chaos diagnostics (after Phase 2)
+## Phase B — Models 4–7
 
-CSF will expect at least one chaos-specific analysis beyond recurrence plots. Pick **two** of:
+- [ ] **B1** Model 4 — Latent-ODE. New file `src/models/latent_ode.py`. Encoder: existing LSTM. Latent dynamics: 2-layer MLP `f_θ(z, t)`. Integrator: `torchdiffeq.odeint`. Decoder: same as model 1 (autoregressive on z(t)). Train × 3 seeds. ~5 hr each.
+- [ ] **B2** Model 5 — Transformer-VAE. New file `src/models/transformer_vae.py`. 4-layer encoder + 4-layer decoder with positional embeddings. CLS pooling for posterior. Train × 3 seeds. ~4 hr each.
+- [ ] **B3** Model 6 — KAN-VAE. New file `src/models/kan_vae.py`. Pip-install `efficient-kan`. Replace MLP heads with KAN layers; LSTM backbone unchanged. Train × 3 seeds. Time-box at 2 days per seed; fallback to KAN-output-head-only if unstable.
+- [ ] **B4** Model 7 — Direct GLV regression. New file `src/models/glv_regression.py`. LSTM encoder → MLP → (r̂, Â). Train on `PARAM_RECOVERY_MATCHED.pkl` (10k). Inference: `solve_ivp` with predicted (r̂, Â). Train × 3 seeds. ~1 hr each.
 
-- [ ] **RQA (recurrence quantification)** — recommended. For matched real and generated (n=200 each), compute recurrence rate, determinism, mean diagonal line length, laminarity, trapping time. Use `pyts` or `pyRQA`. Compare distributions with KS test.
-- [ ] **Largest Lyapunov exponent (Rosenstein/Wolf)** — recommended. Sequences are short (T=65); declare it as a limitation. Distribution of $\lambda_1$ across real vs generated.
-- [ ] Takens embedding + correlation dimension (skip unless time permits).
-- [ ] Bifurcation-style sweep along a high-variance latent direction (the controlled-generation interpretability story; partial work in `explore_oscillation_extrapolation.py`).
-
-End-of-phase: at least one statistical comparison real vs generated on a standard NLD metric; one new figure or panel; PROJECT.md update.
+**Phase B exit criterion:** 12 additional checkpoints. All 21 checkpoints saved.
 
 ---
 
-## Phase 4 — First full draft
+## Phase C — Unified eval harness + OOD + comparative results
 
-Goal: `paper.tex` compiles with all main figures inserted, ~6000–8000 words.
+- [ ] **C1** `analysis/evaluate_all_models.py`: loops over all 21 checkpoints, dispatches to per-model adapters (because each architecture's inference call signature differs slightly), runs the full eval matrix, writes per-model JSON + the aggregate `RESULTS_COMPARATIVE.json`.
+- [ ] **C2** Drop `mean_extrema` + `mean_curvature` from the feature-MMD vector (D3 fix). Re-verify the §3.8 finding (real vs gen distinguishable) on v1, document if KS p-value of the residual feature set changes the headline.
+- [ ] **C3** Generate OOD test sets: `data/TEST_OOD_Exp1.pkl` (5k trajectories, `r ~ Exp(1)`), `data/TEST_OOD_Exp5.pkl` (5k, `r ~ Exp(5)`). Preprocess without sort. Evaluate all 21 checkpoints on both.
+- [ ] **C4** Statistical-comparison plan applied to RESULTS_COMPARATIVE: Wilcoxon signed-rank with FDR correction on continuous metrics; KS ladder for distributional metrics; bootstrap CIs.
 
-- [ ] **Methods** (rewrite, do not reuse stale `METHODOLOGY_DOCUMENT.md` as-is): data pipeline, scale-conditioned architecture, training schedules, extinction post-processing.
-- [ ] **Results**: read every number from `RESULTS.json`. Subsections: reconstruction, max-val prediction, latent structure (PCA, t-SNE, active dims), LV adherence, interpretability + parameter recoverability (the new headline), baseline comparison, chaos diagnostics.
-- [ ] **Discussion**: what worked, what didn't, the phenotypes-vs-parameters framing, limitations (short sequences, ≈5% near-extinction failures, slight train-distribution bias, no explicit physics constraint), future work.
-- [ ] **Introduction** (write last): why generative models for ecological dynamics matter, why VAEs are appealing here, why scale is the hard problem, our contribution, why CSF.
-- [ ] **Abstract** (write last). 150–250 words.
-
----
-
-## Phase 5 — Supplement + reviewer pre-mortem
-
-- [ ] Supplement: full latent-collapse analysis, 50D-vs-30D ablation table, threshold sweep, extra t-SNE/UMAP, per-curve recon panels, failure-mode panel.
-- [ ] Write a 1-page "anticipated objections" doc. For each: do we have an answer? If not, add a paragraph.
-- [ ] Cover letter draft.
-- [ ] Have one friendly reader (PI / labmate) read cold and report what's confusing.
+**Phase C exit criterion:** RESULTS_COMPARATIVE.json populated; one Pandas-printable 7-row × N-column table that is the paper's central result.
 
 ---
 
-## Phase 6 — Co-author / advisor review
+## Phase D — Synthetic-data lens-validation
 
-- [ ] Send full draft + supplement to advisor and co-authors. Give them a full week minimum.
-- [ ] During wait: polish figures (consistent fonts, A/B/C labels, colorbar units, journal style), write data/code availability statement, double-check citations.
-- [ ] **No new experiments this phase.**
+- [ ] **D1** `analysis/lens_validation.py`: take 200 real GLV trajectories; apply (a) low-pass filter, (b) high-frequency noise, (c) amplitude rescale, (d) phase shift, (e) species permutation. For each: compute recon-R² vs original *and* 3-lens distance. Tabulate sensitivity.
+- [ ] **D2** Figure: 5 perturbations × 4 metrics (recon-R², MMD, RQA-DET, λ₁) showing the lens protocol detects (a, b, d) while recon-R² remains high.
+
+This is the methodological lynchpin. Without it the eval-protocol contribution is weak.
 
 ---
 
-## Phase 7 — Polish + submit
+## Phase E — Comparative figures
 
-- [ ] Address co-author feedback.
-- [ ] Final figure rev: vector PDFs, embedded fonts, 300 dpi rasters where vector isn't feasible.
-- [ ] Format to Elsevier `elsarticle` template.
-- [ ] Compile BibTeX with journal style.
-- [ ] Cover letter, highlights bullets, graphical abstract, conflict-of-interest, data availability, suggested reviewers.
+- [ ] Headline table figure (7 models × all metrics).
+- [ ] RQA-ladder real vs each-model on (DET, L_mean, L_max, LAM, TT).
+- [ ] Lyapunov-distribution panel (7 models overlaid on real).
+- [ ] Parameter-recoverability panel (model 7 should win; quantify by how much).
+- [ ] Latent-ODE vs LSTM-VAE chaos-comparison panel (the prediction-vs-test panel).
+- [ ] Stochastic-decoder vs deterministic-decoder ablation panel (the causal test).
+- [ ] Lens-validation figure (from Phase D).
+
+---
+
+## Phase F — Draft
+
+- [ ] **F1** Methods: data pipeline, 7 model architectures, training schedule, eval-protocol formalization.
+- [ ] **F2** Results: read every number from `RESULTS_COMPARATIVE.json`. Subsections: reconstruction comparison, distributional fidelity, NLD invariants, parameter recoverability, OOD generalization, lens validation, stochastic-decoder causal test.
+- [ ] **F3** Discussion: what the 7-way comparison tells us about inductive biases; the recurrence-prior vs. ODE-prior vs. attention-prior story; honest limitations (single dataset family, T=65, etc.).
+- [ ] **F4** Introduction (write last): why generative models for ecological dynamics matter, why standard eval metrics miss dynamical defects, what our protocol contributes, why this venue.
+- [ ] **F5** Abstract (write last).
+
+---
+
+## Phase G — Supplement / pre-mortem / review
+
+- [ ] Full per-seed tables (instead of just mean ± std) in supplement.
+- [ ] Per-model failure-mode analyses.
+- [ ] Hyperparameter-sweep tables.
+- [ ] "Anticipated objections" doc; address each in the paper or in a response-to-reviewer plan.
+- [ ] Advisor + co-author review.
+
+---
+
+## Phase H — Submit
+
+- [ ] Address advisor feedback.
+- [ ] elsarticle template, vector figures, BibTeX, cover letter, suggested reviewers.
 - [ ] Submit.
 
 ---
 
-## Risk register
+## Risk register (post-pivot)
 
 | Risk | Mitigation |
 |---|---|
-| Baseline VAE matches conditioned on max-val R² | Architecturally implausible (max-val info is removed by normalization). If it happens, reframe around interpretability + controlled generation. |
-| ~~GLV parameter recoverability comes back near 0~~ → addressed: it came back at 0.24 / 0.20 / 0.03 — *partial recovery*, the dominant-species story. |
-| Chaos diagnostics show real and generated are distinguishable | Honest reporting; "model captures macroscopic dynamics but not full attractor structure." Still publishable. |
-| Novelty/coverage shows memorization | Add rejection-sampling post-processing or KDE-based importance sampling on the prior. Don't retrain. |
-| Compute fails / GPU unavailable | Most experiments are <1 GPU-hour. Baseline VAE is 3 hr; schedule early in Phase 2. |
-| Co-author returns feedback late | Soft target ≈ mid-July leaves ~2-week buffer to hard target end-of-July. |
+| 21 training runs is too much compute | Sequential queueing; each model checkpointable. Worst-case fallback: 1 seed per model (still better than the v1 single-seed numbers). |
+| Some new architecture (Transformer / KAN) doesn't converge | 2-day time-box per model. Document failure honestly and drop. |
+| Stochastic-decoder ablation gives null result | Useful finding — "decoder stochasticity is insufficient" is a legitimate paper claim. |
+| Latent-ODE wins decisively on chaos but loses on recon | Best outcome for the paper: clean architectural trade-off story. |
+| Sort-step removal hurts the existing v1 R² materially | Accept honest worse numbers if correct. The paper's headline is comparative, not absolute. |
+| OOD experiment shows all models fail | "Scope is `r~Exp(2)`, 7 species" becomes the honest scope claim. Still publishable. |
+| KAN-VAE training is the bottleneck (notoriously fiddly) | Time-box hard. Skip if no convergence in 2 days. |
+| The 3-lens protocol turns out to be insensitive on the new models | Lens-validation experiment (Phase D) catches this early before we commit to the framing. If lens validation shows the lenses are weak, regroup. |
 
 ---
 
-## Anti-goals (do NOT do these)
+## Anti-goals (post-pivot)
 
-- Train a new model architecture (transformer, KAN-VAE, etc.).
-- Add a new dataset (larger species count, longer sequences).
-- Implement physics-informed loss terms.
-- Refactor the codebase beyond what Phase 1 already did.
-- Add a new evaluation metric every week. Use what's in `RESULTS.json`.
+- Train an 8th model unless we drop one first.
+- Add a new dataset (different ODE system) before submitting.
+- Add new evaluation metrics beyond the locked eval matrix.
+- Refactor the codebase beyond what each model's implementation requires.
 
 ---
 
-## Future-work bucket (deferred — for v2 or a follow-up paper)
+## Future-work bucket (deferred — v2 / follow-up paper)
 
 - Physics-informed losses (GLV residual penalty).
-- KAN-VAE, transformer, latent-ODE, neural-ODE baselines.
+- Apply the 3-lens protocol to a *different* dynamical-system family (Rössler, double pendulum, etc.) as a generality demonstration — natural follow-up paper.
 - Long-horizon extrapolation (T=65 → T=200).
+- GP emulator as an 8th comparator (revision-cycle add if reviewer asks).
 - Active learning for under-represented regimes.
-- β-VAE / DCI / MIG disentanglement metrics.
 - Hierarchical CVAE with explicit interaction-matrix prior.
-- Conditioning on initial conditions instead of (or in addition to) max values.
+
+---
+
+## Idea log (raised during the pivot brainstorm — not promised, will revisit during write-up)
+
+- **Per-regime chaos diagnostics.** Bin samples by real-data λ₁ quartile or dominant frequency; report each model's NLD-preservation by regime. ~10 min of code added to `chaos_diagnostics.py`. Strong supplement candidate.
+- **Decoder-noise scaling sweep.** Instead of one stochastic-decoder model, sweep σ ∈ {0, 0.01, 0.05, 0.1, 0.2}. Trace λ₁ as a function of σ. Defer to revision unless cheap.
+- **Mode-coverage decomposition.** Decompose the smoother-than-real defect into amplitude vs. phase vs. frequency components. Could yield a four-axis "fidelity radar" for each architecture. Aspirational; defer to v2.

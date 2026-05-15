@@ -1,0 +1,158 @@
+{
+  "n_samples_per_group": 200,
+  "rqa_params": {
+    "embed_dim": 3,
+    "embed_tau": 2,
+    "target_recurrence_rate": 0.1,
+    "min_line_length": 2
+  },
+  "lyap_params": {
+    "embed_dim": 3,
+    "embed_tau": 2,
+    "theiler_window": 5,
+    "fit_fraction": 0.5
+  },
+  "rqa": {
+    "RR": {
+      "real": {
+        "mean": 0.1,
+        "median": 0.1,
+        "std": 0.0,
+        "n": 200
+      },
+      "gen": {
+        "mean": 0.1,
+        "median": 0.1,
+        "std": 0.0,
+        "n": 200
+      },
+      "ks": {
+        "ks_stat": 0.0,
+        "ks_p": 1.0,
+        "n_real": 200,
+        "n_gen": 200
+      }
+    },
+    "DET": {
+      "real": {
+        "mean": 0.587896174863388,
+        "median": 0.5655737704918032,
+        "std": 0.24431286146740466,
+        "n": 200
+      },
+      "gen": {
+        "mean": 0.9897814207650274,
+        "median": 0.994535519125683,
+        "std": 0.010584544709835927,
+        "n": 200
+      },
+      "ks": {
+        "ks_stat": 0.945,
+        "ks_p": 1.776856400553018e-98,
+        "n_real": 200,
+        "n_gen": 200
+      }
+    },
+    "L_mean": {
+      "real": {
+        "mean": 5.463979211642302,
+        "median": 4.392307692307693,
+        "std": 2.877065595470036,
+        "n": 200
+      },
+      "gen": {
+        "mean": 13.302714546528577,
+        "median": 11.40625,
+        "std": 4.988106221668119,
+        "n": 200
+      },
+      "ks": {
+        "ks_stat": 0.76,
+        "ks_p": 6.562578199117758e-57,
+        "n_real": 200,
+        "n_gen": 200
+      }
+    },
+    "L_max": {
+      "real": {
+        "mean": 16.745,
+        "median": 12.0,
+        "std": 11.77681800025182,
+        "n": 200
+      },
+      "gen": {
+        "mean": 35.415,
+        "median": 35.0,
+        "std": 7.346607257159918,
+        "n": 200
+      },
+      "ks": {
+        "ks_stat": 0.72,
+        "ks_p": 2.49265231315905e-50,
+        "n_real": 200,
+        "n_gen": 200
+      }
+    },
+    "LAM": {
+      "real": {
+        "mean": 0.6799590163934427,
+        "median": 0.6885245901639344,
+        "std": 0.19438261753978228,
+        "n": 200
+      },
+      "gen": {
+        "mean": 0.9597540983606556,
+        "median": 0.9672131147540983,
+        "std": 0.027256022278510664,
+        "n": 200
+      },
+      "ks": {
+        "ks_stat": 0.845,
+        "ks_p": 3.303840100995146e-73,
+        "n_real": 200,
+        "n_gen": 200
+      }
+    },
+    "TT": {
+      "real": {
+        "mean": 3.7359937534632457,
+        "median": 3.438766746822398,
+        "std": 1.1548361476087794,
+        "n": 200
+      },
+      "gen": {
+        "mean": 5.865234165901775,
+        "median": 5.661458333333334,
+        "std": 1.26304137875972,
+        "n": 200
+      },
+      "ks": {
+        "ks_stat": 0.67,
+        "ks_p": 6.620619096712795e-43,
+        "n_real": 200,
+        "n_gen": 200
+      }
+    }
+  },
+  "lyap": {
+    "real": {
+      "mean": 0.07889523353127051,
+      "median": 0.07329252798207844,
+      "std": 0.03931353194532189,
+      "n": 200
+    },
+    "gen": {
+      "mean": 0.030537344281827274,
+      "median": 0.033546198095689206,
+      "std": 0.06359686439333474,
+      "n": 200
+    },
+    "ks": {
+      "ks_stat": 0.41,
+      "ks_p": 1.99799391269964e-15,
+      "n_real": 200,
+      "n_gen": 200
+    }
+  },
+  "note": "Sequences are T=65; this is a short-window regime in which Lyapunov estimation is noisy at the single-trajectory level. We report distribution-level comparisons (KS test) rather than per-trajectory precision. RQA epsilon is chosen per-trajectory to fix recurrence rate at the target value, so RR by construction matches between groups; the discriminative content lives in DET, L_mean, L_max, LAM, TT."
+}

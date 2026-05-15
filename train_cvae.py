@@ -292,8 +292,8 @@ def train(model):
     beta_max = hp['beta_max']
     beta = 0.0  # warmup starts at 0; updated each epoch from the schedule below
     initial_tf_ratio, final_tf_ratio = 1.0, 0.025
-    tf_decay_epochs = int(epochs * 0.4)
-    warmup_epochs = hp.get('warmup_epochs', int(0.3 * epochs))
+    tf_decay_epochs = max(1, int(epochs * 0.4))
+    warmup_epochs = max(1, hp.get('warmup_epochs', int(0.3 * epochs)))
 
     # --- Initial Evaluation ---
     generate_unconditionally(model, step=0, device=DEVICE)

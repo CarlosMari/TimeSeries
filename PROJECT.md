@@ -1,26 +1,52 @@
-# PROJECT.md — Scale-Conditioned CVAE for Generalized Lotka–Volterra Dynamics
+# PROJECT.md — Comparative Evaluation of Generative Models of GLV Dynamics under a 3-Lens NLD Protocol
 
-**Target venue:** *Chaos, Solitons & Fractals* (Elsevier)
-**State as of:** 2026-05-14 (metrics re-verified this session on the full 39,189-sample test set)
-**Headline checkpoint:** `model_ckpts/model_final_30_conditioned.pth` (30D latent, scale-conditioned)
+**Target venue:** *Chaos, Solitons & Fractals* (Elsevier), or comparable nonlinear-dynamics venue.
+**State as of:** 2026-05-15 (paper pivoted; design doc at `docs/superpowers/specs/2026-05-15-comparative-evaluation-design.md`).
+**Current headline (interim, single-model v1):** `model_ckpts/model_final_30_conditioned.pth` (30D, scale-conditioned). To be superseded by the 7-model comparative set once training completes (§A roadmap).
 
-This document is a clear-eyed snapshot of where the project stands today: what we built, what works, the verified numbers, what's wrong with some of the prior write-ups, and the artifacts ready (or not) for the paper. PLAN.md is the companion roadmap to submission.
+> **2026-05-15 PIVOT NOTICE.** Before this date the paper was framed around a single scale-conditioned VAE. A pre-Phase-4 audit concluded the contribution was incremental and the three "honest limitations" (§3.8, §3.9, §4.5) read as failures rather than findings. We have pivoted to **a comparative empirical study of 7 generative architectures on GLV trajectories, evaluated under a 3-lens nonlinear-dynamics protocol** (feature-MMD + RQA + Rosenstein λ₁). The model becomes one of seven worked examples; the *protocol* and the *comparison* are the contributions. The full rationale, locked decisions, and schedule are in the design doc above. **Existing numbers in §§3–4 below are still valid for the v1 single-model with the old preprocessing pipeline** (which included a sort-by-peak step). They will be re-derived on the new no-sort pipeline as Phase-A retraining completes; current numbers are preserved here as `v1 results` and will be archived to an appendix once the comparative table is finalized. **Until that table exists, treat everything below as v1 evidence informing the pivot, not as the final paper's results.**
 
 ---
 
 ## 1. The Problem
 
-We want a generative model for multivariate ecological time series obeying Generalized Lotka–Volterra (GLV) dynamics:
+We want **a generative model for multivariate ecological time series** obeying Generalized Lotka–Volterra (GLV) dynamics:
 
 $$\dot x_i = x_i\!\left(r_i + \sum_j A_{ij}\,x_j\right),\qquad i=1,\dots,N_s$$
 
-with $N_s = 7$ species, $T = 65$ timesteps. We want a model that:
+with $N_s = 7$ species, $T = 65$ timesteps. We want generative models that:
 
-1. **Reconstructs** held-out trajectories faithfully (shape *and* magnitude).
-2. **Generates** new trajectories that are physically plausible — i.e., they actually look like solutions to *some* GLV system, not just plausible-looking curves.
-3. **Has an interpretable latent space** that can be inspected, interpolated, and used for controlled generation.
+1. **Reconstruct** held-out trajectories faithfully (shape *and* magnitude).
+2. **Generate** new trajectories that are physically plausible — i.e., they actually look like solutions to *some* GLV system.
+3. **Preserve nonlinear-dynamics invariants** of the underlying system (recurrence structure, Lyapunov exponent, dominant-frequency content). The point of the 2026-05-15 pivot is that **this third property is what we can no longer take for granted, and what our 3-lens evaluation protocol is built to measure**.
 
-A vanilla VAE on raw trajectories fails because the population scale is enormous and species-specific (`r ~ Exp(2)`, abundances span orders of magnitude). The standard fix — normalize — destroys the scale information, which is itself biologically meaningful. The whole project hinges on resolving that tension.
+A vanilla VAE on raw trajectories fails because the population scale is enormous and species-specific (`r ~ Exp(2)`, abundances span orders of magnitude). The standard fix — normalize — destroys the scale information, which is itself biologically meaningful. **This single tension was the original paper's whole subject; in the pivoted paper it is the motivation for one of the seven comparators (the scale-conditioned VAE) and is no longer the central narrative.**
+
+### 1.1 Why the pivot, in one paragraph
+
+We trained a state-of-the-art scale-conditioned VAE; it reconstructs (R² 0.97) and predicts max-values (R² 0.97). But three independent diagnostics — feature-MMD (p=0.002), RQA (p<10⁻⁴³ on every measure), Rosenstein λ₁ (p≈2×10⁻¹⁵) — show generated samples are **quantifiably less chaotic than real**. Rather than report this as a "limitation," we make the diagnostics themselves the contribution: a **three-lens NLD evaluation protocol** sensitive to dynamical-invariance defects that standard recon-quality metrics miss. We then apply it to seven generative architectures (LSTM-VAE family, latent-ODE, Transformer-VAE, KAN-VAE, direct GLV regression) to characterize which inductive biases preserve which dynamical invariants. The deterministic-decoder hypothesis is tested directly via a stochastic-decoder variant. The paper's contribution is the **protocol + the comparative study + the causal demonstration**, not the model.
+
+### 1.2 Roadmap snapshot (live)
+
+| Pivot-era task | Status |
+|---|---|
+| Design doc written | ✓ `docs/superpowers/specs/2026-05-15-comparative-evaluation-design.md` |
+| REFERENCES.md seeded | ✓ |
+| Wiki / plan / README updated | in progress |
+| Data pipeline rebuilt w/o sort (D1 fix) | pending |
+| Model 1 (scale-cond VAE) retrained × 3 seeds | pending |
+| Model 2 (no-cond VAE) retrained × 3 seeds | pending |
+| Model 3 (stochastic-decoder VAE) trained × 3 seeds | pending |
+| Model 4 (Latent-ODE) trained × 3 seeds | pending |
+| Model 5 (Transformer-VAE) trained × 3 seeds | pending |
+| Model 6 (KAN-VAE) trained × 3 seeds | pending |
+| Model 7 (Direct GLV regression) trained × 3 seeds | pending |
+| Unified eval harness (`analysis/evaluate_all_models.py`) | pending |
+| OOD family test sets (`r~Exp(1)`, `r~Exp(5)`) | pending |
+| Lens-validation synthetic-perturbation experiment | pending |
+| `RESULTS_COMPARATIVE.json` | pending |
+| Comparative figures | pending |
+| Phase-4 draft | starts once eval table exists |
 
 ---
 
@@ -66,7 +92,9 @@ A small wart: `train_cvae.py:293` currently has `beta, beta_max = hp['beta_max']
 
 ---
 
-## 3. Verified Performance (this session, full test set N = 39,189)
+## 3. Verified Performance — v1 single-model results (with-sort preprocessing)
+
+> **All numbers in §§3–4 below are for the v1 model (single scale-conditioned VAE, with-sort preprocessing).** They informed the 2026-05-15 pivot but are *not* the final paper's headline results. The comparative table across the 7 architectures will live in a new §5 once training completes. Existing v1 numbers are kept here in full because (a) they were verified, (b) they tell the story that motivated the pivot, and (c) the comparative paper still cites the scale-conditioned VAE as one of the seven models — these are its numbers, on the old preprocessing. **Numbers re-derived on the no-sort pipeline may shift; the qualitative findings about chaos-under-modeling are expected to persist.**
 
 Re-ran inference from `model_ckpts/model_final_30_conditioned.pth` on the entire test set; numbers below are written to `METRICS_VERIFIED.json`.
 
@@ -129,7 +157,7 @@ Nearest-neighbor distances (Euclidean over flattened normalized curves), 1k gene
 | Generated → nearest other generated | 3.88 |
 | Memorization ratio (gen→train / test→train) | **0.946** |
 
-Generated samples sit *slightly closer* to the training set than held-out test samples do (ratio 0.946). The model is not copying — internal distances among generated samples are larger than gen-to-train — but the latent prior is somewhat biased toward dense training regions. This was a yellow flag; the proper statistical follow-up (MMD permutation test + density/coverage on dynamical-feature vectors) is in `analysis/novelty_coverage.py` and runs after baseline training releases the GPU. Source: `RESULTS.json`.
+Generated samples sit *slightly closer* to the training set than held-out test samples do (ratio 0.946). The model is not copying — internal distances among generated samples are larger than gen-to-train — but the latent prior is somewhat biased toward dense training regions. This was a yellow flag; the proper statistical follow-up (MMD permutation test + density/coverage on dynamical-feature vectors) has been completed and is reported in §3.8. Source: `RESULTS.json`.
 
 ### 3.6 Extinction / resurrection post-processing
 
@@ -212,6 +240,37 @@ The §3.5 nearest-neighbor distance gave a single number (memorization ratio 0.9
 **For the paper:** report this honestly as a limitation. The fix is well-known in the literature (autoregressive decoder with output noise, or a perceptual-style loss that penalizes spectral mismatch) and goes into future work. This finding does not undercut the architectural contribution; it characterizes its scope.
 
 Source: `RESULTS_NOVELTY.json`, `final figures/fig_novelty_coverage.pdf`.
+
+### 3.9 Chaos diagnostics — RQA and largest Lyapunov exponent (added 2026-05-15)
+
+CSF reviewers will expect at least one nonlinear-dynamics analysis beyond the recurrence plots we already have. `analysis/chaos_diagnostics.py` computes two standard NLD diagnostics on the species-averaged signal of matched real vs generated samples (n = 200 per group; generated samples post-processed with the extinction fix θ = 0.005). All measures are computed from a Takens embedding with m = 3, τ = 2 (so the recurrence matrix has N = 61, sufficient for distributional comparison; per-trajectory estimates of λ₁ are noisy at T = 65 and we declare that as a limitation).
+
+**Recurrence Quantification Analysis** — ε is chosen per trajectory to fix the recurrence rate at 10 % so RR matches between groups by construction; the discriminative content lives in DET, L_mean, L_max, LAM, TT.
+
+| Measure | Real (mean ± std) | Generated (mean ± std) | KS stat | KS p-value |
+|---|---|---|---|---|
+| Recurrence rate RR (target) | 0.100 ± 0.000 | 0.100 ± 0.000 | 0.00 | 1.0 |
+| **Determinism DET** | **0.588 ± 0.244** | **0.990 ± 0.011** | 0.95 | 2 × 10⁻⁹⁸ |
+| Mean diagonal line L_mean | 5.46 ± 2.88 | 13.30 ± 4.99 | 0.76 | 7 × 10⁻⁵⁷ |
+| Max diagonal line L_max | 16.7 ± 11.8 | 35.4 ± 7.3 | 0.72 | 2 × 10⁻⁵⁰ |
+| Laminarity LAM | 0.680 ± 0.194 | 0.960 ± 0.027 | 0.85 | 3 × 10⁻⁷³ |
+| Trapping time TT | 3.74 ± 1.15 | 5.87 ± 1.26 | 0.67 | 7 × 10⁻⁴³ |
+
+**Largest Lyapunov exponent** (Rosenstein, fit on first 50 % of the divergence curve):
+
+| | Real | Generated | KS stat | KS p-value |
+|---|---|---|---|---|
+| λ₁ (per timestep) | **+0.079 ± 0.039** | **+0.031 ± 0.064** | 0.41 | 2 × 10⁻¹⁵ |
+
+**Interpretation:** all five non-trivial RQA measures and the Lyapunov exponent differ significantly between real and generated populations, and they tell *one coherent story*: generated trajectories are **more deterministic, more laminar, and less chaotic** than real ones (DET 0.99 vs 0.59, LAM 0.96 vs 0.68, λ₁ +0.03 vs +0.08). This is exactly the same finding as §3.8 (real and generated distinguishable in feature space, gap concentrated in `mean_extrema` and `mean_curvature`) — RQA and Lyapunov put a hard NLD number on the *smoother-than-real* limitation.
+
+**Why this finding is paper-positive, not paper-negative:**
+
+1. It is *consistent across independent metrics* — the same defect surfaces in the dynamical-feature KS test (§3.8), in the parameter-recoverability ceiling on cross-species coupling (§4.5), and in the chaos diagnostics here. Three independent lenses point at one phenomenon.
+2. It is *the textbook mode-covering signature of an autoregressive VAE with a deterministic decoder* — the model regresses to the conditional mean and discards high-frequency content. The literature has well-known fixes (decoder stochasticity, perceptual / spectral loss, autoregressive output noise). We report it as a clean limitation and direct future-work bullet, not as a surprise.
+3. Real-data λ₁ is *not* near zero — the real GLV systems have positive Lyapunov on this embedding, which is a non-trivial sanity check that the diagnostic is sensitive to chaotic content. Generated samples have λ₁ closer to zero, which is what "smoother" looks like in NLD terms.
+
+Source: `RESULTS_CHAOS.json`, `final figures/fig_chaos_diagnostics.pdf`.
 
 ---
 
@@ -303,6 +362,7 @@ Stored:
 | `latent_collapse_analysis_30.pdf` | Per-dim variance bar plot |
 | `fig_latent_interpretability_30.pdf` | Heatmap of dim ↔ feature correlations |
 | `fig_recurrence_dynamics.pdf` | Recurrence plots, power spectra (Chaos-journal idiom) |
+| `fig_chaos_diagnostics.pdf` | RQA distributions (DET, L_mean, L_max, LAM, TT) + λ₁ histogram, real vs generated (§3.9) |
 | `fig_phase_space.pdf`, `fig_phase_space_3d_comparison.pdf` | 2D and 3D phase portraits |
 | `fig_lotka_volterra_validation_with_fix.pdf` | LV-R² distribution real vs gen ⚠️ regenerate — uses old buggy real-data computation |
 | `fig_extinction_fix.pdf`, `fig_threshold_sweep.pdf` | Extinction-threshold sensitivity |
@@ -378,11 +438,11 @@ Still pending (for the paper push, not blocking PROJECT.md):
 - **Parameter recoverability (NEW)**: $μ(z)$ recovers growth rates partially ($R^2 = 0.24$, best species = 0.43), diagonal of $A$ partially ($R^2 = 0.20$), off-diagonal $A$ essentially not at all ($R^2 = 0.03$). Honest framing: *the model identifies parameters of dominant species and is blind to fine cross-species coupling.* See §4.5.
 - **Baseline comparison (NEW)**: max-value $R^2$ **conditioned 0.97 vs baseline 0.59**; the architectural contribution is now isolated and decisive (see §3.7).
 - **Novelty / coverage statistical test (NEW)**: MMD permutation test p = 0.002 → real and generated distinguishable in feature space. Diagnosed: generated trajectories are *smoother / less oscillatory* than real. Concrete limitation, concrete future-work direction (see §3.8).
+- **Chaos diagnostics (NEW)**: RQA (DET, L_mean, L_max, LAM, TT) + Rosenstein's largest Lyapunov, on n = 200 matched real vs generated samples. Every non-trivial RQA measure differs at p < 10⁻⁴³; λ₁ differs at p ≈ 2 × 10⁻¹⁵. Generated trajectories are *more deterministic, more laminar, and less chaotic* than real — same story as §3.8, sharper number. See §3.9.
 
 ### Soft (need work before submission)
 
 - **Methods text in LaTeX is out of date** with the conditioned architecture and the corrected numbers (Phase 4 in PLAN.md).
-- **Chaos-specific analyses**: recurrence plots exist; Lyapunov exponents and RQA (recurrence quantification) do not yet. The journal will expect one of these (Phase 3 in PLAN.md).
 - **Out-of-distribution generation**: `explore_oscillation_extrapolation.py` is half-finished. Either finish it or remove the claim.
 
 ### Resolved (was "soft", now solid)
@@ -392,6 +452,7 @@ Still pending (for the paper push, not blocking PROJECT.md):
 - Parameter recoverability question ✓ answered — partial recovery, dominant-species story (§4.5).
 - Baseline comparison ✓ done — scale conditioning is decisive (+0.38 max-val $R^2$, see §3.7).
 - Novelty / coverage ✓ done — MMD permutation test (p=0.002) shows real and generated *are* distributionally different in feature space, with the gap concentrated in oscillation-related features. Reported honestly as a limitation; concrete future-work direction (§3.8).
+- Chaos diagnostics ✓ done — RQA + Rosenstein's largest Lyapunov on n=200 matched real vs generated. All RQA measures differ at p < 10⁻⁴³; λ₁ at p ≈ 2 × 10⁻¹⁵. Generated trajectories are quantifiably *less chaotic* (DET 0.99 vs 0.59, λ₁ +0.03 vs +0.08) — the same smoother-than-real story as §3.8, now anchored in standard NLD measures (§3.9).
 
 ---
 
@@ -404,4 +465,11 @@ python train_cvae.py                     # ~2–3 hr on a single GPU, 2000 epoch
 python -c "from src.models.cvae import LSTM_VAE; ..."   # see METRICS_VERIFIED.json
 ```
 
-Verified metrics live in **`RESULTS.json`** + **`RESULTS.md`**, regenerated by `analysis/produce_paper_metrics.py`. That single script is the source of truth for every number in the paper — recon, max-val, latent health, LV adherence (real vs generated raw vs generated with extinction fix), novelty/memorization. Bootstrap 95% CIs included.
+Verified metrics live in **`RESULTS.json`** + **`RESULTS.md`**, regenerated by `analysis/produce_paper_metrics.py` — recon, max-val, latent health, LV adherence (real vs generated raw vs generated with extinction fix), nearest-neighbor novelty/memorization. Bootstrap 95% CIs included.
+
+The Phase-2 / Phase-3 experiments have their own self-contained scripts and JSON outputs (each can be re-run independently in 1–10 minutes on a single GPU):
+
+- `analysis/parameter_recoverability.py` → `RESULTS_PARAM_RECOVERY.json` (§4.5)
+- `analysis/evaluate_baseline.py` → `RESULTS_BASELINE.json` + `RESULTS_COMPARISON.md` (§3.7)
+- `analysis/novelty_coverage.py` → `RESULTS_NOVELTY.json` (§3.8)
+- `analysis/chaos_diagnostics.py` → `RESULTS_CHAOS.json` (§3.9)
