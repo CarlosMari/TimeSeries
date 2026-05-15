@@ -30,6 +30,19 @@ sys.path.insert(0, str(REPO_ROOT))
 import train_cvae  # noqa: E402  — module-level imports include wandb, model, etc.
 from src.utils.config import hp, model_config  # noqa: E402
 from src.models.cvae import LSTM_VAE  # noqa: E402
+from src.models.cvae_stochastic import StochasticLSTMVAE  # noqa: E402
+from src.models.latent_ode import LatentODE  # noqa: E402
+
+
+MODEL_REGISTRY = {
+    "cvae": LSTM_VAE,                      # models 1 + 2 (with / without scale-cond)
+    "cvae-stochastic": StochasticLSTMVAE,  # model 3
+    "latent-ode": LatentODE,               # model 4
+    # The following are added as their training scripts land:
+    # "transformer-vae": TransformerVAE,   # model 5
+    # "kan-vae": KANVAE,                   # model 6
+    # "glv-regression": GLVRegressor,      # model 7 — uses its own trainer
+}
 
 
 def set_seed(seed: int) -> None:
@@ -43,6 +56,8 @@ def set_seed(seed: int) -> None:
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--model", choices=list(MODEL_REGISTRY.keys()), default="cvae",
+                    help="which architecture to train (default: cvae)")
     ap.add_argument("--data-train", default="data/TRAIN_FINAL_NOSORT.pkl")
     ap.add_argument("--data-test", default="data/TEST_FINAL_NOSORT.pkl")
     ap.add_argument("--seed", type=int, required=True)
@@ -51,6 +66,8 @@ def main():
     ap.add_argument("--use-scale-conditioning", dest="use_scale", action="store_true",
                     default=True)
     ap.add_argument("--no-scale-conditioning", dest="use_scale", action="store_false")
+    ap.add_argument("--decoder-noise-init", type=float, default=0.05,
+                    help="initial decoder-noise σ (only used for cvae-stochastic)")
     ap.add_argument("--wandb-project", default="Conditional_LV_VAE_pivot")
     ap.add_argument("--no-log", dest="log", action="store_false", default=True)
     args = ap.parse_args()
@@ -64,6 +81,8 @@ def main():
 
     model_config["use_scale_conditioning"] = args.use_scale
     model_config["name"] = args.name
+    if args.model == "cvae-stochastic":
+        model_config["decoder_noise_init"] = args.decoder_noise_init
 
     # Patch the data routes the train script uses (it reads module globals)
     train_cvae.TRAIN_ROUTE = args.data_train
@@ -84,6 +103,7 @@ def main():
         )
 
     print(f"=== Pivot training run ===")
+    print(f"  model:        {args.model}")
     print(f"  seed:         {args.seed}")
     print(f"  name:         {args.name}")
     print(f"  epochs:       {args.epochs}")
@@ -92,7 +112,8 @@ def main():
     print(f"  data-test:    {args.data_test}")
     print(f"  wandb proj:   {args.wandb_project if args.log else '(disabled)'}")
 
-    model = LSTM_VAE(config=model_config)
+    ModelClass = MODEL_REGISTRY[args.model]
+    model = ModelClass(config=model_config)
     train_cvae.train(model)
 
 
