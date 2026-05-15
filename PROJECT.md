@@ -32,19 +32,21 @@ We trained a state-of-the-art scale-conditioned VAE; it reconstructs (R² 0.97) 
 |---|---|
 | Design doc written | ✓ `docs/superpowers/specs/2026-05-15-comparative-evaluation-design.md` |
 | REFERENCES.md seeded | ✓ |
-| Wiki / plan / README updated | in progress |
-| Data pipeline rebuilt w/o sort (D1 fix) | pending |
-| Model 1 (scale-cond VAE) retrained × 3 seeds | pending |
-| Model 2 (no-cond VAE) retrained × 3 seeds | pending |
-| Model 3 (stochastic-decoder VAE) trained × 3 seeds | pending |
-| Model 4 (Latent-ODE) trained × 3 seeds | pending |
-| Model 5 (Transformer-VAE) trained × 3 seeds | pending |
-| Model 6 (KAN-VAE) trained × 3 seeds | pending |
-| Model 7 (Direct GLV regression) trained × 3 seeds | pending |
-| Unified eval harness (`analysis/evaluate_all_models.py`) | pending |
-| OOD family test sets (`r~Exp(1)`, `r~Exp(5)`) | pending |
-| Lens-validation synthetic-perturbation experiment | pending |
-| `RESULTS_COMPARATIVE.json` | pending |
+| Wiki / plan / README updated | ✓ |
+| Data pipeline rebuilt w/o sort (D1 fix) | ✓ `data/TRAIN_FINAL_NOSORT.pkl` + `data/TEST_FINAL_NOSORT.pkl` |
+| 7 model architectures implemented + smoke-tested | ✓ (`src/models/{cvae,cvae_stochastic,latent_ode,transformer_vae,kan_vae,glv_regression}.py`) |
+| Unified eval harness | ✓ `analysis/evaluate_all_models.py` (validated on v1 ckpt) |
+| **D3 fix verified on v1 model (§3.8.1)** | ✓ density/coverage 0.13→0.98, MMD p=0.005 survives |
+| OOD family test sets (`r~Exp(1)`, `r~Exp(5)`) | ✓ 5k samples each |
+| Lens-validation synthetic-perturbation experiment | ✓ `RESULTS_LENS_VALIDATION.json` + figure |
+| Model 1 (scale-cond VAE) retrained × 3 seeds | seed 42 training (~70% done at writing) |
+| Model 2 (no-cond VAE) retrained × 3 seeds | queued behind m1 |
+| Model 3 (stochastic-decoder VAE) trained × 3 seeds | queued |
+| Model 4 (Latent-ODE) trained × 3 seeds | queued |
+| Model 5 (Transformer-VAE) trained × 3 seeds | queued |
+| Model 6 (KAN-VAE) trained × 3 seeds | queued |
+| Model 7 (Direct GLV regression) trained × 3 seeds | queued |
+| `RESULTS_COMPARATIVE.json` | pending (writes incrementally as checkpoints land) |
 | Comparative figures | pending |
 | Phase-4 draft | starts once eval table exists |
 
