@@ -51,7 +51,6 @@ Reproducing pivot results requires the rebuilt no-sort preprocessing and the 21 
 
 ## Acknowledgments
 
-Two physics-professor advisors (UT Austin). This project began in late 2024.
 
 ## License
 
