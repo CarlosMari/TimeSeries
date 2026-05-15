@@ -39,14 +39,14 @@ We trained a state-of-the-art scale-conditioned VAE; it reconstructs (R² 0.97) 
 | **D3 fix verified on v1 model (§3.8.1)** | ✓ density/coverage 0.13→0.98, MMD p=0.005 survives |
 | OOD family test sets (`r~Exp(1)`, `r~Exp(5)`) | ✓ 5k samples each |
 | Lens-validation synthetic-perturbation experiment | ✓ `RESULTS_LENS_VALIDATION.json` + figure |
-| Model 1 (scale-cond VAE) retrained × 3 seeds | seed 42 training (~70% done at writing) |
-| Model 2 (no-cond VAE) retrained × 3 seeds | queued behind m1 |
-| Model 3 (stochastic-decoder VAE) trained × 3 seeds | queued |
+| Model 1 (scale-cond VAE) retrained × 3 seeds | seed 42 ✓ (`model_1_seed42.pth`, finished 13:19 UTC 2026-05-15); seeds 123, 2026 queued |
+| Model 2 (no-cond VAE) retrained × 3 seeds | seed 42 ✓ (`model_2_seed42.pth`, finished 17:10 UTC); seeds 123, 2026 queued |
+| Model 3 (stochastic-decoder VAE) trained × 3 seeds | seed 42 training (~90% at last check, ~20:50 UTC) |
 | Model 4 (Latent-ODE) trained × 3 seeds | queued |
 | Model 5 (Transformer-VAE) trained × 3 seeds | queued |
 | Model 6 (KAN-VAE) trained × 3 seeds | queued |
 | Model 7 (Direct GLV regression) trained × 3 seeds | queued |
-| `RESULTS_COMPARATIVE.json` | pending (writes incrementally as checkpoints land) |
+| `RESULTS_COMPARATIVE.json` | pending (autoqueue runs unified eval after seed-42 batch completes) |
 | Comparative figures | pending |
 | Phase-4 draft | starts once eval table exists |
 
@@ -438,10 +438,10 @@ Fixed this session:
 
 Still pending (for the paper push, not blocking PROJECT.md):
 
-- **Old datasets** in `data/` (`TEST_FINAL.pkl`, `TRAIN_DIVERSE.pkl`, etc.) should be archived or deleted; only `TRAIN_FINAL_PROCESSED.pkl` / `TEST_FINAL_PROCESSED.pkl` are live.
-- **wandb/** dir is 8.6 GB (ignored); periodically prune.
-- **Methods LaTeX** (`METHODOLOGY_DOCUMENT.md`) describes the non-conditioned 30D; needs rewrite for paper draft (planned in PLAN.md week 4).
-- Several `generate_*.py` scripts at the root still overlap and could be moved into `analysis/`; left in place for now since they were used to produce the current figures and any reshuffle risks regressions before submission.
+- ✅ Old datasets pruned 2026-05-15: `data/` dropped from 4.5 GB → 1.8 GB; only the live pipeline files (FIXED, NOSORT, PROCESSED, OOD, PARAM_RECOVERY) remain. Legacy `checkpoints/` dir also deleted.
+- ✅ wandb pruned 2026-05-15: 187 runs >1 year old deleted (~1.1 GB); pivot-era wandb dir now routed to `/mnt/storage/shared/TimeSeries/wandb` so root disk doesn't fill.
+- **Methods LaTeX** (`METHODOLOGY_DOCUMENT.md`) describes the v1 non-conditioned 30D and is now doubly stale (the pivot changes the paper's identity entirely); the Phase-4 draft will rewrite methods from scratch against the design doc, not against this file.
+- Several `generate_*.py` scripts at the root still overlap and could be moved into `analysis/`; left in place for now since they were used to produce the v1 figures and any reshuffle risks regressions before submission.
 
 ---
 
