@@ -241,6 +241,26 @@ The §3.5 nearest-neighbor distance gave a single number (memorization ratio 0.9
 
 Source: `RESULTS_NOVELTY.json`, `final figures/fig_novelty_coverage.pdf`.
 
+#### 3.8.1 D3 fix (2026-05-15, pivot): cleaner feature set, finding holds
+
+The §3.8 v1 finding rested on a 26-D feature vector including `mean_extrema` (KS 0.98 — driving the headline) and `mean_curvature` (KS 0.69). Both are integer-valued or near-integer; the first is essentially a peak count, the second a smoothed version of the same. Re-running the analysis on the **24-D feature vector with these two dropped** (via `analysis/evaluate_all_models.py`):
+
+| Metric | v1 (26-D, with sort) | D3-corrected (24-D, same v1 model) |
+|---|---|---|
+| MMD² (observed) | 0.0677 | 0.0035 |
+| Permutation p | 0.002 | **0.005** |
+| Density@5 | 0.135 | 0.983 |
+| Coverage@5 | 0.246 | 0.948 |
+| Features distinguishing real vs gen (KS p<0.05) | 20 / 26 | **18 / 24** |
+
+Two things change:
+1. **The MMD finding survives the D3 fix.** Real and generated are still statistically distinguishable in feature space (p = 0.005). The smoother-than-real story is not an artifact of the integer-valued features.
+2. **Density/coverage rise dramatically** (0.13/0.25 → 0.98/0.95). The collapse in v1 was driven by the integer-valued features inflating distances. **With clean features, the model actually *covers* the real distribution well at the k-NN scale.** The mismatch is concentrated in *fine-grained NLD invariants* — picked up by Lens 2 (RQA) and Lens 3 (Lyapunov) but invisible at the coarse k-NN scale.
+
+This is a paper-positive finding: the model's distributional fidelity is much better than v1 reported on coarse metrics, and the mismatch sits specifically in dynamical-invariance properties — which is exactly what the 3-lens protocol is designed to detect. Reframes §3.8 from "the model is statistically distinguishable from real" to "the model matches real *coarse-grainedly*, but the NLD-invariance protocol detects fine-grained differences invisible to standard sample-quality metrics" — a much sharper statement.
+
+Source: `RESULTS_COMPARATIVE_v1_sanity.json`, run 2026-05-15.
+
 ### 3.9 Chaos diagnostics — RQA and largest Lyapunov exponent (added 2026-05-15)
 
 CSF reviewers will expect at least one nonlinear-dynamics analysis beyond the recurrence plots we already have. `analysis/chaos_diagnostics.py` computes two standard NLD diagnostics on the species-averaged signal of matched real vs generated samples (n = 200 per group; generated samples post-processed with the extinction fix θ = 0.005). All measures are computed from a Takens embedding with m = 3, τ = 2 (so the recurrence matrix has N = 61, sufficient for distributional comparison; per-trajectory estimates of λ₁ are noisy at T = 65 and we declare that as a limitation).
