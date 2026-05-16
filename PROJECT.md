@@ -44,7 +44,7 @@ We trained a state-of-the-art scale-conditioned VAE; it reconstructs (R² 0.97) 
 | Model 3 (stochastic-decoder VAE) trained × 3 seeds | seed 42 ✓ (`model_3_seed42.pth`, 21:13 UTC 2026-05-15); seeds 123, 2026 queued |
 | Model 4 (Latent-ODE) trained × 3 seeds | seed 42 ✓ (`model_4_seed42.pth`, 00:15 UTC 2026-05-16); seeds 123, 2026 queued |
 | Model 5 (Transformer-VAE) trained × 3 seeds | seed 42 ✓ (`model_5_seed42.pth`, 06:57 UTC 2026-05-16, ran 6h42m — heavier than expected); seeds 123, 2026 queued |
-| Model 6 (KAN-VAE) trained × 3 seeds | seed 42 training (6% at 07:46 UTC 2026-05-16; ~98s/iter — KAN layers slower than v1 LSTM; ETA ~21:00 Spain time today); seeds 123, 2026 queued |
+| Model 6 (KAN-VAE) trained × 3 seeds | seed 42 training (71% at 18:20 UTC 2026-05-16; 121s/iter now, slowing slightly; ETA ~01:20 Spain Sunday). Loss 0.051, recon 0.008 — converging to similar performance as the other VAEs at much higher compute cost (the early-stage "recon 0.003" reading was a β-warmup artifact, not signal). Seeds 123, 2026 queued |
 | Model 7 (Direct GLV regression) trained × 3 seeds | seed 42 ✓ (`model_7_seed42.pth`, 21:22 UTC 2026-05-15, only 9 min); seeds 123, 2026 queued |
 | `RESULTS_COMPARATIVE.json` | pending (autoqueue runs unified eval automatically when m6 seed-42 finishes) |
 | Comparative figures | pending (autoqueue regenerates after unified eval) |
