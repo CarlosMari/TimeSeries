@@ -31,11 +31,11 @@ The paper became a **comparative empirical study of 7 generative architectures o
 | 0.5 | (legacy) Strengthen v1 science (recoverability, baseline, novelty) | **DONE** 2026-05-14 |
 | 0.7 | (legacy) Chaos diagnostics on v1 | **DONE** 2026-05-15 |
 | **PIVOT** | **Decide + write design doc + seed REFERENCES.md** | **DONE** 2026-05-15 |
-| A | Data pipeline rebuild (no-sort) + retrain models 1, 2, 3 × 3 seeds | **NEXT** |
-| B | Models 4, 5, 6, 7 implemented + trained × 3 seeds | pending |
-| C | Unified eval harness + RESULTS_COMPARATIVE.json + OOD test sets | pending |
-| D | Synthetic-data lens-validation experiment | pending |
-| E | Comparative figures (replaces most of `final figures/`) | pending |
+| A | Data pipeline rebuild (no-sort) + retrain models 1, 2, 3 × 3 seeds | seed-42 row ✓ 2026-05-15→16; seeds 123 + 2026 queued |
+| B | Models 4, 5, 6, 7 implemented + trained × 3 seeds | seed-42: m4 ✓, m5 ✓, m7 ✓, **m6 in flight (slow)**; seeds 123 + 2026 queued |
+| C | Unified eval harness + RESULTS_COMPARATIVE.json + OOD test sets | harness + D3 fix + OOD sets ✓; RESULTS_COMPARATIVE awaits m6 |
+| D | Synthetic-data lens-validation experiment | **DONE** 2026-05-15 |
+| E | Comparative figures (replaces most of `final figures/`) | scaffolding ✓; full regen on real data scheduled by autoqueue post-m6 |
 | F | First full draft (methods + results + discussion) | pending |
 | G | Supplement + reviewer pre-mortem + advisor review | pending |
 | H | Final polish + submission | pending |
@@ -48,8 +48,8 @@ The paper became a **comparative empirical study of 7 generative architectures o
 
 - [x] **A1** Added `--no-sort` flag to `data_generation/preprocessor.py`. Both `TRAIN_FINAL_NOSORT.pkl` (117k) and `TEST_FINAL_NOSORT.pkl` (39k) on disk; round-trip identity confirmed at machine epsilon.
 - [x] **A2** Wrote `train_pivot.py` thin CLI wrapper (preserves v1 `python train_cvae.py` reproducibility bit-identically). Accepts `--model`, `--seed`, `--data-train`, `--epochs`, `--use/no-scale-conditioning`, `--wandb-project`. Fixed TF-schedule divide-by-zero at small epoch counts.
-- [x] **A3** Model 1 seed 42 training (epoch 95/500 as of 10:21). Seeds 123 and 2026 queued via `scripts/autoqueue.sh`.
-- [x] **A4** Model 2 (no-cond) queued × 3 seeds.
+- [x] **A3** Model 1 seed 42 ✓ (`model_1_seed42.pth`, 13:19 UTC 2026-05-15). Seeds 123 + 2026 queued via `scripts/autoqueue.sh`.
+- [x] **A4** Model 2 (no-cond) seed 42 ✓ (`model_2_seed42.pth`, 17:10 UTC 2026-05-15). Seeds 123 + 2026 queued.
 - [x] **A5** Model 3 (`StochasticLSTMVAE` at `src/models/cvae_stochastic.py`) — learnable σ via softplus, noise injected on the decoder hidden state at every step. Smoke-tested. Queued × 3 seeds.
 - [x] **A6** Unified eval harness `analysis/evaluate_all_models.py` validates on the v1 checkpoint (reproduces R² 0.93 norm, 0.97 orig, max-val R² 0.97).
 
@@ -64,7 +64,7 @@ The paper became a **comparative empirical study of 7 generative architectures o
 - [x] **B3** Model 6 — `src/models/kan_vae.py` (LSTM backbone + KAN heads via vendored `efficient_kan`). Avoided pip-install of efficient-kan because its `torch>=1.5` constraint silently upgraded torch to cu130 — incompatible with the system CUDA 12.7 driver. Vendored the source file directly. Smoke-tested. **Queued × 3 seeds.**
 - [x] **B4** Model 7 — `src/models/glv_regression.py` + `train_glv_regression.py` (LSTM → MLP → (r̂, Â); MSE on `PARAM_RECOVERY_MATCHED.pkl` ground truth; inference via solve_ivp). **Queued × 3 seeds.**
 
-**Phase B status:** all 7 architectures implemented and smoke-tested. Training is queued behind m1 via `scripts/autoqueue.sh`.
+**Phase B status (2026-05-16 morning):** seed-42 row is 6/7 complete. m1, m2, m3 ✓; m4 (Latent-ODE) ✓ 00:15 UTC; m5 (Transformer-VAE) ✓ 06:57 UTC (ran 6h42m, heavier than expected); m7 (GLV regression) ✓ 21:22 UTC (only 9 min). **m6 KAN-VAE in flight** — ~98s/iter, projected ~13h total; the literature-known slow path for spline-basis KAN. Letting it complete (recon already 0.0031 at epoch 29, the best per-epoch number of any model so far, so the slowness may be paying off).
 
 ---
 
@@ -72,7 +72,7 @@ The paper became a **comparative empirical study of 7 generative architectures o
 
 - [x] **C1** `analysis/evaluate_all_models.py` — per-model adapters for all 7 architectures, dispatches uniform recon + Lens-1 + Lens-2 + Lens-3 eval. Validated on the v1 checkpoint: reproduces R² 0.93/0.97/0.97 and RQA/Lyapunov KS p-values exactly. Writes incrementally so a crash never loses work.
 - [x] **C2** D3 fix baked into the eval harness (`DROPPED_FEATURES = {"mean_extrema", "mean_curv"}`). Re-verified on the v1 model: **MMD p = 0.005 (was 0.002)** — the headline finding survives the feature-set cleanup. **Coverage/density jumped from 0.13/0.25 to 0.95/0.98** — the model covers the real distribution well at coarse scales; the mismatch the protocol detects is specifically in fine-grained NLD invariants. Written into PROJECT.md §3.8.1.
-- [x] **C3** OOD test sets generated: `data/TEST_OOD_Exp1.pkl` and `data/TEST_OOD_Exp5.pkl` (5k samples each, raw + no-sort-preprocessed + ground-truth `(r, A)` stored). Evaluation pass will run after stage-1 training finishes (currently queued behind m1).
+- [x] **C3** OOD test sets generated: `data/TEST_OOD_Exp1.pkl` and `data/TEST_OOD_Exp5.pkl` (5k samples each, raw + no-sort-preprocessed + ground-truth `(r, A)` stored). Evaluation pass will run after stage-1 training finishes (waiting on m6 to complete the seed-42 row).
 - [ ] **C4** Statistical-comparison plan (Wilcoxon signed-rank + FDR + bootstrap CIs) — not yet implemented; will go into the final eval pass.
 
 **Phase C status:** infrastructure complete; awaiting trained checkpoints to populate the comparative JSON.

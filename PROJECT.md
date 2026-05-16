@@ -39,15 +39,15 @@ We trained a state-of-the-art scale-conditioned VAE; it reconstructs (R² 0.97) 
 | **D3 fix verified on v1 model (§3.8.1)** | ✓ density/coverage 0.13→0.98, MMD p=0.005 survives |
 | OOD family test sets (`r~Exp(1)`, `r~Exp(5)`) | ✓ 5k samples each |
 | Lens-validation synthetic-perturbation experiment | ✓ `RESULTS_LENS_VALIDATION.json` + figure |
-| Model 1 (scale-cond VAE) retrained × 3 seeds | seed 42 ✓ (`model_1_seed42.pth`, finished 13:19 UTC 2026-05-15); seeds 123, 2026 queued |
-| Model 2 (no-cond VAE) retrained × 3 seeds | seed 42 ✓ (`model_2_seed42.pth`, finished 17:10 UTC); seeds 123, 2026 queued |
-| Model 3 (stochastic-decoder VAE) trained × 3 seeds | seed 42 training (~90% at last check, ~20:50 UTC) |
-| Model 4 (Latent-ODE) trained × 3 seeds | queued |
-| Model 5 (Transformer-VAE) trained × 3 seeds | queued |
-| Model 6 (KAN-VAE) trained × 3 seeds | queued |
-| Model 7 (Direct GLV regression) trained × 3 seeds | queued |
-| `RESULTS_COMPARATIVE.json` | pending (autoqueue runs unified eval after seed-42 batch completes) |
-| Comparative figures | pending |
+| Model 1 (scale-cond VAE) retrained × 3 seeds | seed 42 ✓ (`model_1_seed42.pth`, 13:19 UTC 2026-05-15); seeds 123, 2026 queued |
+| Model 2 (no-cond VAE) retrained × 3 seeds | seed 42 ✓ (`model_2_seed42.pth`, 17:10 UTC 2026-05-15); seeds 123, 2026 queued |
+| Model 3 (stochastic-decoder VAE) trained × 3 seeds | seed 42 ✓ (`model_3_seed42.pth`, 21:13 UTC 2026-05-15); seeds 123, 2026 queued |
+| Model 4 (Latent-ODE) trained × 3 seeds | seed 42 ✓ (`model_4_seed42.pth`, 00:15 UTC 2026-05-16); seeds 123, 2026 queued |
+| Model 5 (Transformer-VAE) trained × 3 seeds | seed 42 ✓ (`model_5_seed42.pth`, 06:57 UTC 2026-05-16, ran 6h42m — heavier than expected); seeds 123, 2026 queued |
+| Model 6 (KAN-VAE) trained × 3 seeds | seed 42 training (6% at 07:46 UTC 2026-05-16; ~98s/iter — KAN layers slower than v1 LSTM; ETA ~21:00 Spain time today); seeds 123, 2026 queued |
+| Model 7 (Direct GLV regression) trained × 3 seeds | seed 42 ✓ (`model_7_seed42.pth`, 21:22 UTC 2026-05-15, only 9 min); seeds 123, 2026 queued |
+| `RESULTS_COMPARATIVE.json` | pending (autoqueue runs unified eval automatically when m6 seed-42 finishes) |
+| Comparative figures | pending (autoqueue regenerates after unified eval) |
 | Phase-4 draft | starts once eval table exists |
 
 ---
