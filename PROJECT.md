@@ -162,6 +162,39 @@ Waiting on OOD Exp(5) eval (slower growth than Exp(2)) — if Exp(5) shows real-
 
 Source: `RESULTS_COMPARATIVE_OOD_Exp1.json`. Exp(5) eval running in background (PID 1081971).
 
+#### 1.3.3 OOD Exp(5) result — story sharpens further (2026-05-17, completed 07:36 UTC)
+
+**Predicted:** Exp(5) (slower growth, expected more variable trajectories) would have real-DET ≈ 0.5, completing the U-shape (Exp(1)=0.99, Exp(2)=0.62, Exp(5)=0.5) and confirming "generators are regime-locked at 0.99 independent of real-data DET."
+
+**Actual:** Exp(5) real-DET = **0.993** — same as Exp(1). It's the *training distribution Exp(2)* that's the outlier at 0.617, NOT the OOD regimes.
+
+This **deepens** the story rather than confirming the simpler regime-lock interpretation:
+
+| Distribution | Real DET | Gen DET (range across 7 models) | Gap |
+|---|---|---|---|
+| Exp(1) — OOD, faster growth | 0.993 | [0.985, 0.992] | 0.001–0.008 (often non-significant) |
+| **Exp(2) — TRAINING distribution** | **0.617** | [0.986, 0.991] | **0.37 (always p < 10⁻⁷⁵)** |
+| Exp(5) — OOD, slower growth | 0.993 | [0.985, 0.991] | 0.002–0.008 (significant but small) |
+
+| Distribution | Real λ₁ | Gen λ₁ (range) | Match? |
+|---|---|---|---|
+| Exp(1) | +0.058 | [+0.043, +0.061] | mostly good |
+| **Exp(2)** | +0.076 | [+0.051, +0.058] | gap ~0.02, all p < 10⁻⁵ |
+| Exp(5) | +0.048 | [+0.044, +0.069] | mixed — m1 best (0.044 vs 0.048), others overshoot |
+
+**The honest claim emerges as:** ***MSE-trained autoregressive decoders, trained on the most variable subset of GLV systems, generate trajectories that are smoother than the training data they were trained on.*** They converge to producing DET ≈ 0.99 regardless of where they're tested. This is *not* "regime-lock" (which would mean they produce 0.99 because that's what they saw); it's **mode-covering toward an inductive-bias attractor that differs from the training distribution itself**.
+
+Why this is paper-good (much better than the original §1.3 framing):
+
+1. **The protocol's sensitivity matches the data's variability.** On Exp(2) where real is variable, the protocol catches mismatch; on Exp(1)/Exp(5) where real is also high-DET, mismatch is small. That validates the protocol as a *measurement* tool.
+2. **The generator failure is sharper:** they don't produce what they were trained on. The training data has DET 0.62 (variable); the generated data has DET 0.99 (smooth). That's a *real loss of training-distribution coverage*, not a mismatch with some held-out unfamiliar regime.
+3. **The "and here's the cure" question now has teeth.** The spectral-loss + frozen-σ experiments (Phase B1) ask: can we change the training objective to make generators produce DET = 0.62 like their training data, rather than 0.99? If yes, we have diagnosis + cure in one paper. If no, the inductive-bias attractor is genuinely robust to surface-level interventions.
+4. **m7 GLV-regression behaves differently** — on Exp(5) its λ₁ overshoots dramatically (+0.069 vs real +0.048). This is consistent with the inverse-problem solver predicting (r, A) from a short trajectory and then integrating: if it gets r̂ slightly too high, the trajectory blows up. Real Exp(5) has *smaller* growth rates than the inverse-solver was trained on (it was trained on Exp(2)). m7 has a different failure mode — *overshooting* — that the protocol cleanly distinguishes.
+
+**For the paper's Section 5:** a 3-panel figure (one per OOD distribution) of real-vs-gen DET histograms, or a single scatter of (real-DET, gen-DET) across all three regimes with the "generators sit at 0.99" line visually striking. This is now the paper's centerpiece comparative result.
+
+Source: `RESULTS_COMPARATIVE_OOD_Exp5.json` + `RESULTS_COMPARATIVE_OOD_Exp1.json` + `RESULTS_COMPARATIVE.json`.
+
 ---
 
 ## 2. What We Built
