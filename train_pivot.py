@@ -69,6 +69,12 @@ def main():
     ap.add_argument("--no-scale-conditioning", dest="use_scale", action="store_false")
     ap.add_argument("--decoder-noise-init", type=float, default=0.05,
                     help="initial decoder-noise σ (only used for cvae-stochastic)")
+    ap.add_argument("--decoder-noise-freeze", action="store_true",
+                    help="freeze decoder-noise σ at the init value (don't learn). "
+                         "Useful for the 'is decoder stochasticity actually testable' experiment.")
+    ap.add_argument("--spectral-loss-weight", type=float, default=0.0,
+                    help="add a spectral (FFT-magnitude MSE) term to the loss "
+                         "with this weight. 0 = off (default, v1 behavior).")
     ap.add_argument("--wandb-project", default="Conditional_LV_VAE_pivot")
     ap.add_argument("--no-log", dest="log", action="store_false", default=True)
     args = ap.parse_args()
@@ -84,6 +90,10 @@ def main():
     model_config["name"] = args.name
     if args.model == "cvae-stochastic":
         model_config["decoder_noise_init"] = args.decoder_noise_init
+        model_config["decoder_noise_freeze"] = args.decoder_noise_freeze
+
+    # Hook the optional spectral loss into train_cvae.vae_loss (default 0 = off)
+    train_cvae.SPECTRAL_LOSS_WEIGHT = float(args.spectral_loss_weight)
 
     # Patch the data routes the train script uses (it reads module globals)
     train_cvae.TRAIN_ROUTE = args.data_train

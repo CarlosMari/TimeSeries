@@ -108,13 +108,28 @@ This is a **paper-positive finding stated honestly**: the smoother-than-real phe
 What this means for the paper's framing:
 
 1. **The 3-lens protocol is sensitive to a real, persistent feature of the generated-trajectory distribution that no architectural choice has fixed.** That is exactly what an *evaluation* protocol should do — detect a property invisible to recon-R².
-2. **The deterministic-decoder hypothesis from v1 §3.9 is disproved cleanly.** Decoder noise is *insufficient*. The cause is upstream — most likely the GLV trajectory family + normalization pipeline + 65-step horizon combine to produce trajectories that, *after the per-family + per-curve max normalization*, are smoother than what the model can reconstruct from a sample. Worth investigating in v2.
+2. **The deterministic-decoder hypothesis test (m3) is INVALID — see §1.3.1 below.** ⚠️ The learned σ on m3's stochastic decoder converged to σ ≈ 0.00044 (essentially zero) — the optimizer drove it down because the MSE recon loss penalizes any noise. So m3 effectively became a deterministic decoder during training and the "m3 vs m1 ≈ identical" comparison is uninformative for the hypothesis. **Retraining m3 with frozen σ ∈ {0.05, 0.1, 0.2}** is now scheduled as part of the spectral-loss / decoder-noise experimental batch.
 3. **The "comparison reveals architectural trade-offs" arc that motivated the pivot is *less interesting than expected on this single seed***. All 7 architectures cluster tightly on the NLD metrics. The architectural diversity is real on max-val R² (m1=0.97, m2=0.05) and distributional fidelity (m7 best, m2 worst), but the chaos diagnostics show essentially one cluster.
 4. **The headline pivots, again, toward a method paper.** The 3-lens protocol detects a property that recon-R² and even Lens 1 (MMD on coarse features) miss, and that property is *invariant* across the architectures you can plausibly use for this problem. That's a strong sales pitch for the protocol; it's a less-strong sales pitch for any particular model.
 
 Wait for seed-123 and seed-2026 to confirm the architecture-invariance is not a seed artifact. If two more seeds show the same pattern, this is the paper's headline.
 
 Source: `RESULTS_COMPARATIVE.json` (50 KB), `final figures/fig_comparative_table.{pdf,png}`, `final figures/fig_recon_vs_chaos.{pdf,png}`.
+
+#### 1.3.1 Pre-multi-seed validation sweep (2026-05-17, before seeds 123/2026 finish)
+
+Five sanity / extension checks before committing the ~40 GPU-hr remaining multi-seed compute:
+
+| Check | Result | Wiki impact |
+|---|---|---|
+| **A1**: protocol on original-scale vs normalized real data | Real DET = 0.59 (orig) vs 0.65 (norm); λ₁ = +0.079 in both. The "real 0.6, gen 0.99" gap is **NOT a normalization artifact** — it reflects a genuine generator defect | §1.3 RQA finding is robust |
+| **A2**: visual inspection of generated samples from all 7 models | Strong qualitative confirmation. Real samples show multi-peak oscillation; m1/m3/m4/m5/m6 produce fast transient + monotonic settling (mode-covering / exponential decay); m2 is even flatter; **m7 GLV-regression visibly oscillates** — consistent with its lens-1 win. Figure: `final figures/fig_visual_sanity_seed42.{pdf,png}` | New figure for paper Section 3, "what 'smoother than real' actually looks like" |
+| **A3**: each ckpt produces non-garbage forward passes | ✓ all 7 |  — |
+| **B3**: inspect m3 stochastic-decoder learned σ | ⚠️ **σ = 0.00044, essentially zero.** Optimizer drove it down because MSE recon term penalizes any noise added to the output. **The "m3 vs m1 → decoder stochasticity is insufficient" conclusion is invalid** — m3 effectively trained as a deterministic decoder. The hypothesis is *untested*, not *disproved*. | Edit §1.3 finding #2: scheduled retrain with frozen σ ∈ {0.05, 0.1, 0.2} as part of the B1 batch |
+| **B2**: OOD eval on Exp(1) and Exp(5) test sets | in progress (results land in `RESULTS_COMPARATIVE_OOD_Exp{1,5}.json`) |  — |
+| **B1**: spectral-loss VAE variant + frozen-σ variants | designed, queued to run on free GPU window |  — |
+
+The A1 and A2 results substantially **strengthen** the paper's headline (the protocol works, the defect is visible). The B3 result substantially **weakens** one of the four supporting claims (decoder stochasticity → null) and forces a real retrain to settle the hypothesis. Net: better paper after the validation than before.
 
 ---
 

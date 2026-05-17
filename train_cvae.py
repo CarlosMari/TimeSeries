@@ -47,6 +47,29 @@ class TimeSeriesDataset(Dataset):
         )
 
 # --- 2. NEW: Loss function for the new model ---
+# Module-level flag for optional spectral-loss term (set by train_pivot.py).
+# Default 0 keeps train_cvae.py v1-bit-identical.
+SPECTRAL_LOSS_WEIGHT = 0.0
+
+
+def _spectral_loss(x_hat, x):
+    """Magnitude-MSE in the FFT domain along the time axis.
+
+    x_hat, x : (N, C, T). We FFT along T, take magnitudes, and MSE them. The
+    DC term is excluded (covered by the regular recon MSE; including it just
+    doubles the mean penalty).
+
+    Note: cuFFT under AMP fp16 only supports power-of-2 sizes; T=65 is not,
+    so we cast to float32 before the FFT.
+    """
+    # rfft along the last dim — force fp32 (cuFFT half precision needs power-of-2)
+    Xh = torch.fft.rfft(x_hat.float(), dim=-1)
+    X = torch.fft.rfft(x.float(), dim=-1)
+    mag_diff = torch.abs(Xh).pow(2) - torch.abs(X).pow(2)
+    # drop DC (index 0)
+    return (mag_diff[..., 1:] ** 2).mean()
+
+
 def vae_loss(x_hat, x, mu, log_var, max_vals_pred, max_vals_true, beta, lambda_max_val):
     """Calculates the loss for the VAE with a parallel max value predictor.
 
@@ -60,6 +83,11 @@ def vae_loss(x_hat, x, mu, log_var, max_vals_pred, max_vals_true, beta, lambda_m
 
           Curve 0's max is always 1.0 (normalization artifact), so we only
           compute loss on curves 1-6 to avoid wasted computation.
+
+          If SPECTRAL_LOSS_WEIGHT > 0, an FFT-magnitude MSE term is added.
+          This is the post-pivot 2026-05-17 experiment to test whether
+          explicitly penalizing spectral mismatch closes the chaos-diagnostics
+          gap that all 7 architectures hit identically.
     """
     recon_loss = nn.functional.mse_loss(x_hat, x, reduction='mean')
     kl_divergence = -0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp(), dim=1).mean()
@@ -69,6 +97,10 @@ def vae_loss(x_hat, x, mu, log_var, max_vals_pred, max_vals_true, beta, lambda_m
     max_val_loss = nn.functional.mse_loss(max_vals_pred[:, 1:], max_vals_true[:, 1:], reduction='mean')
 
     total_loss = recon_loss + (beta * kl_divergence) + (lambda_max_val * max_val_loss)
+
+    if SPECTRAL_LOSS_WEIGHT > 0.0:
+        spec_loss = _spectral_loss(x_hat, x)
+        total_loss = total_loss + SPECTRAL_LOSS_WEIGHT * spec_loss
 
     return total_loss, recon_loss, kl_divergence, max_val_loss
 

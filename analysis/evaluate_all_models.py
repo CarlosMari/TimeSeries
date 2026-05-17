@@ -83,9 +83,15 @@ def adapter_cvae(checkpoint_path: Path, use_scale_conditioning: bool, device) ->
 
 
 def adapter_cvae_stochastic(checkpoint_path: Path, device) -> StochasticLSTMVAE:
-    cfg = {**_common_config(), "use_scale_conditioning": True, "decoder_noise_init": 0.05}
+    # Detect whether checkpoint has frozen or learnable σ by inspecting state dict keys
+    sd = torch.load(checkpoint_path, map_location=device)
+    is_frozen = "decoder_noise_sigma_frozen" in sd
+    init_sigma = float(sd.get("decoder_noise_sigma_frozen", 0.05))
+    cfg = {**_common_config(), "use_scale_conditioning": True,
+           "decoder_noise_init": init_sigma,
+           "decoder_noise_freeze": is_frozen}
     m = StochasticLSTMVAE(cfg).to(device)
-    m.load_state_dict(torch.load(checkpoint_path, map_location=device))
+    m.load_state_dict(sd)
     m.eval()
     return m
 

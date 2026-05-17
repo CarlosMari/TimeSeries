@@ -28,19 +28,28 @@ class StochasticLSTMVAE(LSTM_VAE):
     def __init__(self, config: dict) -> None:
         super().__init__(config)
 
-        # Decoder-noise scale: learned scalar, initialized to the value in config
-        # (default 0.05). Clamped >= 0 via softplus so it can't go negative.
+        # Decoder-noise scale.
+        # When `decoder_noise_freeze` is True, σ is a buffer (frozen at init).
+        # When False (default), σ is a learnable parameter (init at config value).
         init = float(config.get("decoder_noise_init", 0.05))
-        # We parameterize through softplus so the learned param is unconstrained.
-        # softplus^{-1}(init) for the inverse.
-        import math
-        raw_init = math.log(math.expm1(max(1e-4, init)))
-        self.decoder_noise_raw = nn.Parameter(torch.tensor(raw_init, dtype=torch.float32))
+        self.decoder_noise_freeze = bool(config.get("decoder_noise_freeze", False))
 
-        print(f"Stochastic decoder noise initialized at σ ≈ {init:.4f} (learnable)")
+        if self.decoder_noise_freeze:
+            # Frozen: store as a non-learnable buffer, no softplus needed.
+            self.register_buffer("decoder_noise_sigma_frozen",
+                                 torch.tensor(init, dtype=torch.float32))
+            print(f"Stochastic decoder noise FROZEN at σ = {init:.4f}")
+        else:
+            # Learnable: parameterized through softplus.
+            import math
+            raw_init = math.log(math.expm1(max(1e-4, init)))
+            self.decoder_noise_raw = nn.Parameter(torch.tensor(raw_init, dtype=torch.float32))
+            print(f"Stochastic decoder noise initialized at σ ≈ {init:.4f} (learnable)")
 
     @property
     def decoder_noise_sigma(self) -> torch.Tensor:
+        if self.decoder_noise_freeze:
+            return self.decoder_noise_sigma_frozen
         return nn.functional.softplus(self.decoder_noise_raw)
 
     def _inject_noise(self, hidden_state: tuple) -> tuple:
