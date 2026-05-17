@@ -33,9 +33,9 @@ The paper became a **comparative empirical study of 7 generative architectures o
 | **PIVOT** | **Decide + write design doc + seed REFERENCES.md** | **DONE** 2026-05-15 |
 | A | Data pipeline rebuild (no-sort) + retrain models 1, 2, 3 × 3 seeds | seed-42 row ✓ 2026-05-15→16; seeds 123 + 2026 queued |
 | B | Models 4, 5, 6, 7 implemented + trained × 3 seeds | seed-42: m4 ✓, m5 ✓, m7 ✓, **m6 in flight (slow)**; seeds 123 + 2026 queued |
-| C | Unified eval harness + RESULTS_COMPARATIVE.json + OOD test sets | harness + D3 fix + OOD sets ✓; RESULTS_COMPARATIVE awaits m6 |
+| C | Unified eval harness + RESULTS_COMPARATIVE.json + OOD test sets | harness + D3 fix + OOD sets ✓; **seed-42 row of RESULTS_COMPARATIVE.json populated 00:15 UTC 2026-05-17** (all 7 models); seed-123/2026 in progress |
 | D | Synthetic-data lens-validation experiment | **DONE** 2026-05-15 |
-| E | Comparative figures (replaces most of `final figures/`) | scaffolding ✓; full regen on real data scheduled by autoqueue post-m6 |
+| E | Comparative figures | seed-42 regen ✓ 00:15 UTC 2026-05-17 (`fig_comparative_table`, `fig_recon_vs_chaos`); multi-seed regen after seeds 123 + 2026 land |
 | F | First full draft (methods + results + discussion) | pending |
 | G | Supplement + reviewer pre-mortem + advisor review | pending |
 | H | Final polish + submission | pending |

@@ -46,9 +46,75 @@ We trained a state-of-the-art scale-conditioned VAE; it reconstructs (R² 0.97) 
 | Model 5 (Transformer-VAE) trained × 3 seeds | seed 42 ✓ (`model_5_seed42.pth`, 06:57 UTC 2026-05-16, ran 6h42m — heavier than expected); seeds 123, 2026 queued |
 | Model 6 (KAN-VAE) trained × 3 seeds | seed 42 training (71% at 18:20 UTC 2026-05-16; 121s/iter now, slowing slightly; ETA ~01:20 Spain Sunday). Loss 0.051, recon 0.008 — converging to similar performance as the other VAEs at much higher compute cost (the early-stage "recon 0.003" reading was a β-warmup artifact, not signal). Seeds 123, 2026 queued |
 | Model 7 (Direct GLV regression) trained × 3 seeds | seed 42 ✓ (`model_7_seed42.pth`, 21:22 UTC 2026-05-15, only 9 min); seeds 123, 2026 queued |
-| `RESULTS_COMPARATIVE.json` | pending (autoqueue runs unified eval automatically when m6 seed-42 finishes) |
-| Comparative figures | pending (autoqueue regenerates after unified eval) |
-| Phase-4 draft | starts once eval table exists |
+| `RESULTS_COMPARATIVE.json` | ✓ seed-42 row populated 00:15 UTC 2026-05-17 (all 7 models). Seed-123 + seed-2026 rows fill as autoqueue progresses |
+| Comparative figures | seed-42 versions regenerated 00:15 UTC 2026-05-17 (`fig_comparative_table.{pdf,png}`, `fig_recon_vs_chaos.{pdf,png}`) |
+| Phase-4 draft | starts once multi-seed table exists (~Monday) |
+
+### 1.3 Seed-42 comparative findings (added 2026-05-17, headline)
+
+**Single-seed run on all 7 architectures, full eval matrix.** Real data is the 39k-sample no-sort test set; 2k generated per model (extinction-fix θ=0.005), 200 per RQA + Lyapunov. JSON: `RESULTS_COMPARATIVE.json`. Numbers re-derive with `python analysis/evaluate_all_models.py --checkpoints …`.
+
+#### Recon + scale prediction
+
+| Model | recon R² (norm) | recon R² (orig) | max-val R² (pooled) |
+|---|---|---|---|
+| m1 scale-cond VAE | 0.904 | 0.683 | **0.971** |
+| m2 no-cond VAE | 0.922 | 0.217 | **0.047** |
+| m3 stochastic VAE | 0.904 | 0.682 | 0.972 |
+| m4 Latent-ODE | 0.927 | 0.682 | 0.975 |
+| m5 Transformer-VAE | 0.936 | 0.675 | 0.962 |
+| m6 KAN-VAE | 0.907 | 0.601 | 0.805 |
+| m7 GLV-regression | n/a (generative-only) | n/a | n/a |
+
+**Reading.** The v1 scale-conditioning result generalizes cleanly to the no-sort pipeline and **across architectures**: every scale-conditioned model lands max-val R² in [0.96, 0.98]; the no-cond ablation collapses to **0.047** (worse than even the v1 baseline's 0.59, which had the sort step helping it). KAN-VAE underperforms on max-value (0.805) without obvious upside — KAN's function-approximation basis is not paying off for scale prediction on this task. Transformer-VAE has the best *normalized* recon (0.936); LSTM-VAEs cluster around 0.90.
+
+#### Distributional fidelity (Lens 1)
+
+| Model | MMD² (lower = better) | density@5 | coverage@5 |
+|---|---|---|---|
+| m1 scale-cond VAE | 6.10e-02 | 0.731 | 0.652 |
+| m2 no-cond VAE | 1.26e-01 | 0.395 | 0.467 |
+| m3 stochastic VAE | 4.83e-02 | 0.759 | 0.633 |
+| m4 Latent-ODE | 5.64e-02 | 0.486 | 0.621 |
+| m5 Transformer-VAE | 3.00e-02 | 0.769 | 0.691 |
+| m6 KAN-VAE | 4.32e-02 | 0.617 | 0.637 |
+| **m7 GLV-regression** | **1.00e-02** | 0.764 | **0.847** |
+
+**Reading — the most paper-disruptive finding.** The "physics-naive" inverse-problem baseline **wins distributional fidelity decisively**: MMD² = 0.010 (3× better than Transformer-VAE, 12× better than the no-cond ablation), coverage 0.847 (Transformer-VAE second at 0.69). "Just regress the ODE parameters and integrate" produces samples that match real most closely in feature space. The fancier generative ML doesn't lose by a lot, but it doesn't beat the physics-informed baseline. This re-frames the paper's "what does generative ML buy you over inverse-problem-plus-integration?" question into a real comparison rather than rhetorical setup.
+
+#### NLD invariants (Lens 2 + Lens 3) — the architecture-independent finding
+
+For every model, real RQA-DET = 0.617 (unchanged — same real-data subsample). Generated DET clusters tightly:
+
+| Model | gen RQA-DET | DET KS p | gen λ₁ | λ₁ KS p |
+|---|---|---|---|---|
+| m1 scale-cond VAE | 0.991 | 1.4e-88 | +0.052 | 6.7e-06 |
+| m2 no-cond VAE | 0.991 | 1.4e-88 | +0.053 | 4.6e-07 |
+| m3 stochastic VAE | **0.987** | 9.5e-79 | **+0.054** | 1.8e-04 |
+| m4 Latent-ODE | 0.990 | 9.8e-85 | +0.052 | 1.4e-06 |
+| m5 Transformer-VAE | 0.986 | 2.2e-75 | +0.053 | 6.7e-06 |
+| m6 KAN-VAE | 0.991 | 1.4e-88 | +0.051 | 8.1e-07 |
+| m7 GLV-regression | 0.988 | 9.5e-79 | +0.058 | 4.3e-04 |
+
+(Real λ₁ = +0.076 across the board.)
+
+**Reading.** Every model — *including the Latent-ODE with its continuous-time prior*, the *stochastic-decoder variant that tested the determinism hypothesis directly*, and the *GLV-regression baseline that literally integrates the ODE* — produces RQA-DET in [0.986, 0.991]. The gap of 0.37 vs real is **identical to within 0.005 across all 7 architectures**. Same story for λ₁: every model produces +0.05-0.06, real is +0.076, gap ~0.02-0.025 with the same KS p-value order of magnitude.
+
+This is a **paper-positive finding stated honestly**: the smoother-than-real phenomenon the protocol detects **is not architecture-specific**. It survives:
+- Architectural diversity (recurrent / attention / continuous-time / KAN basis).
+- Decoder stochasticity (m3 vs m1: ΔDET = 0.004, basically zero).
+- The "just integrate the ODE" approach (m7).
+
+What this means for the paper's framing:
+
+1. **The 3-lens protocol is sensitive to a real, persistent feature of the generated-trajectory distribution that no architectural choice has fixed.** That is exactly what an *evaluation* protocol should do — detect a property invisible to recon-R².
+2. **The deterministic-decoder hypothesis from v1 §3.9 is disproved cleanly.** Decoder noise is *insufficient*. The cause is upstream — most likely the GLV trajectory family + normalization pipeline + 65-step horizon combine to produce trajectories that, *after the per-family + per-curve max normalization*, are smoother than what the model can reconstruct from a sample. Worth investigating in v2.
+3. **The "comparison reveals architectural trade-offs" arc that motivated the pivot is *less interesting than expected on this single seed***. All 7 architectures cluster tightly on the NLD metrics. The architectural diversity is real on max-val R² (m1=0.97, m2=0.05) and distributional fidelity (m7 best, m2 worst), but the chaos diagnostics show essentially one cluster.
+4. **The headline pivots, again, toward a method paper.** The 3-lens protocol detects a property that recon-R² and even Lens 1 (MMD on coarse features) miss, and that property is *invariant* across the architectures you can plausibly use for this problem. That's a strong sales pitch for the protocol; it's a less-strong sales pitch for any particular model.
+
+Wait for seed-123 and seed-2026 to confirm the architecture-invariance is not a seed artifact. If two more seeds show the same pattern, this is the paper's headline.
+
+Source: `RESULTS_COMPARATIVE.json` (50 KB), `final figures/fig_comparative_table.{pdf,png}`, `final figures/fig_recon_vs_chaos.{pdf,png}`.
 
 ---
 
