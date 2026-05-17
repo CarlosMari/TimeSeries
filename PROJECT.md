@@ -26,6 +26,20 @@ A vanilla VAE on raw trajectories fails because the population scale is enormous
 
 We trained a state-of-the-art scale-conditioned VAE; it reconstructs (R² 0.97) and predicts max-values (R² 0.97). But three independent diagnostics — feature-MMD (p=0.002), RQA (p<10⁻⁴³ on every measure), Rosenstein λ₁ (p≈2×10⁻¹⁵) — show generated samples are **quantifiably less chaotic than real**. Rather than report this as a "limitation," we make the diagnostics themselves the contribution: a **three-lens NLD evaluation protocol** sensitive to dynamical-invariance defects that standard recon-quality metrics miss. We then apply it to seven generative architectures (LSTM-VAE family, latent-ODE, Transformer-VAE, KAN-VAE, direct GLV regression) to characterize which inductive biases preserve which dynamical invariants. The deterministic-decoder hypothesis is tested directly via a stochastic-decoder variant. The paper's contribution is the **protocol + the comparative study + the causal demonstration**, not the model.
 
+### 1.2.1 B1 experimental batch — interleaved high-priority (started 2026-05-17 16:31 UTC)
+
+Per user direction ("ASAP, but don't disturb"), `scripts/run_b1_batch.sh` (PID 1455296) is monitoring the autoqueue. When the currently-running `model_5_seed123` finishes (~00:30 Spain Monday), it will SIGSTOP the autoqueue (parent only — `m5` already finished by then, `m6_seed123` is blocked from starting), run 4 B1 trainings, eval them into `RESULTS_COMPARATIVE_B1.json`, then SIGCONT the autoqueue to resume the seed-123 batch.
+
+B1 batch:
+1. `b1_m3_frozen_0p05_seed42.pth` — m3 stochastic-decoder with σ frozen at 0.05.
+2. `b1_m3_frozen_0p1_seed42.pth` — σ frozen at 0.10.
+3. `b1_m3_frozen_0p2_seed42.pth` — σ frozen at 0.20.
+4. `b1_m1_spectral_0p1_seed42.pth` — m1 scale-cond VAE with spectral-MSE loss term weight 0.1.
+
+**These directly test the §1.3.3 hypothesis** that MSE-trained autoregressive decoders converge to a smoothness attractor at DET ≈ 0.99 regardless of training data. If frozen-σ moves gen-DET *down* toward real Exp(2) DET=0.62, that's diagnosis-plus-causation. If spectral-loss does, that's diagnosis-plus-cure. Either way the paper picks up a substantial Section-6 result.
+
+Cost: ~12 GPU-hours. Pushes seed-123 m6 (KAN) back by 12 hours but does not affect seed-2026 unless tasks run very late.
+
 ### 1.2 Roadmap snapshot (live)
 
 | Pivot-era task | Status |
