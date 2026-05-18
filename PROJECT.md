@@ -300,6 +300,39 @@ Higher-σ variants (0.10, 0.20) will likely shift the equilibrium further — po
 
 Sources: `RESULTS_COMPARATIVE_B1_partial.json`, `RESULTS_COMPARATIVE_B1_partial_OOD_Exp1.json`, `RESULTS_COMPARATIVE_B1_partial_OOD_Exp5.json`.
 
+##### 1.3.4.2 σ sweep — variant 2 (σ=0.10) confirms a monotone shift (added 2026-05-18 14:30 UTC)
+
+Variant 2 (`b1_m3_frozen_0p1_seed42.pth`) finished at 14:11 UTC and was eval'd on all 3 distributions immediately. The σ-sweep is shaping up cleanly:
+
+| Test set | real DET | gen DET @ σ=0.0 (det.) | gen DET @ σ=0.05 | gen DET @ σ=0.10 | trend |
+|---|---|---|---|---|---|
+| ID Exp(2) | 0.617 | 0.987 | 0.822 | **0.810** | gap shrinking |
+| OOD Exp(1) | 0.993 | 0.987 | 0.852 | **0.794** | gap widening (away from real-0.99) |
+| OOD Exp(5) | 0.993 | 0.987 | 0.852 | **0.793** | same |
+
+| Test set | real λ₁ | gen λ₁ @ σ=0.0 | @ σ=0.05 | @ σ=0.10 | trend |
+|---|---|---|---|---|---|
+| ID Exp(2) | +0.076 | +0.054 | **+0.076** | **+0.081** | matched at σ=0.05, slightly overshoots at σ=0.10 |
+| OOD Exp(1) | +0.058 | +0.058 | +0.077 | **+0.088** | drifting upward as σ↑ |
+| OOD Exp(5) | +0.048 | +0.058 | +0.077 | **+0.088** | same |
+
+**Reading.** Increasing σ from 0.05 to 0.10 continues to **shift the generator's NLD attractor away from the deterministic-0.99 mode** in a monotone way. On ID Exp(2), gen-DET keeps moving toward real (0.99 → 0.82 → 0.81). On OOD where real-DET is already 0.99, the σ=0.10 generator is *further* from real than σ=0.05. The Lyapunov story is the same direction — σ=0.10 pushes λ₁ slightly higher across all 3 distributions; matches ID-real almost exactly at σ=0.05, slightly overshoots at σ=0.10.
+
+**New side-effect observed at σ=0.10**: original-scale recon R² **on OOD distributions** is now **negative** (-2.78 Exp(1), -1.52 Exp(5)) — even though normalized recon and max-val R² are healthy (0.89 and 0.98 respectively). Diagnosis: the σ=0.10 noise destabilizes the encoder's posterior enough that max-value predictions on OOD inputs systematically miss, so the denormalization product (recon × max-val × family-max) drifts. This is a *regime-extrapolation* cost specific to σ=0.10; σ=0.05 didn't show it. Worth a Section 6 paragraph on "the cure has a cost on OOD reconstruction at higher σ."
+
+**Working interpretation of the σ axis:**
+
+| σ | Effect | Verdict |
+|---|---|---|
+| 0.0 (det.) | Generator collapses to DET ≈ 0.99 attractor, λ₁ ≈ +0.054 | The §1.3 deterministic-decoder defect |
+| 0.05 | DET drops to ~0.82-0.85, λ₁ matches real on ID, slight overshoot on OOD | **Best balance so far** — fixes ID without ruining OOD recon |
+| 0.10 | DET drops further to ~0.79-0.81, λ₁ overshoots everywhere; OOD orig-scale recon collapses | **Cure starting to cost** — recon stability is the price |
+| 0.20 (in progress) | TBD — projecting further DET drop, more recon cost. Variant 3 finishes ~17:35 UTC |
+
+**Implication for the paper's Section 6:** the σ-sweep produces a *Pareto frontier* between ID-DET-match and OOD-recon-stability. σ=0.05 is the sweet spot from what we have so far. If σ=0.20 confirms the recon cost grows, the headline becomes "small forced decoder noise (σ=0.05) is the cure; higher values trade ID-fidelity for OOD-stability." That's a *richer* paper than "any σ > 0 fixes it."
+
+Source: `RESULTS_B1_frozen_0p1_FINAL_NOSORT.json`, `RESULTS_B1_frozen_0p1_OOD_Exp1.json`, `RESULTS_B1_frozen_0p1_OOD_Exp5.json`.
+
 ---
 
 ## 2. What We Built
