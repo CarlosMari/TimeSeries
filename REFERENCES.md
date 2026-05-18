@@ -22,9 +22,15 @@ Living document. Each entry: bibtex-able key, full reference, **what we cite it 
 - **Higgins et al. 2017** — Higgins, I., et al. "β-VAE: Learning Basic Visual Concepts with a Constrained Variational Framework." *ICLR* 2017. — β annealing; we use β-warmup over 300 epochs.
 - **Bowman et al. 2016** — Bowman, S.R., et al. "Generating Sentences from a Continuous Space." *CoNLL* 2016. — teacher-forcing schedule and KL-warmup tricks for sequence VAEs.
 
-### Stochastic decoder (model 3)
+### Stochastic decoder (model 3 + B1 frozen-σ variants)
 - **Goyal et al. 2017** — Goyal, A., Sordoni, A., Côté, M.-A., Ke, N.R., Bengio, Y. "Z-Forcing: Training Stochastic Recurrent Networks." *NeurIPS* 2017. — stochastic hidden state in recurrent generative models; principled basis for model 3.
 - **Fraccaro et al. 2016** — Fraccaro, M., Sønderby, S.K., Paquet, U., Winther, O. "Sequential Neural Models with Stochastic Layers." *NeurIPS* 2016. — alternative stochastic-decoder formulation; methods comparison.
+- *(Note: the B1 finding — that MSE recon collapses learned σ to zero, motivating the frozen-σ ablation — is, to our knowledge, novel; if a prior paper documents the same σ-collapse failure mode in seq2seq VAEs, we'll add it during the literature search before submission.)*
+
+### Spectral / FFT-domain losses (B1 spectral-loss variant)
+- **Engel et al. 2020** — Engel, J., Hantrakul, L., Gu, C., Roberts, A. "DDSP: Differentiable Digital Signal Processing." *ICLR* 2020. arXiv:2001.04643. — popularized multi-resolution STFT-magnitude loss for audio synthesis; our full-FFT magnitude-MSE (T=65, no windowing) is the simplest case of this family.
+- **Yamamoto et al. 2020** — Yamamoto, R., Song, E., Kim, J.-M. "Parallel WaveGAN: A fast waveform generation model based on adversarial networks with multi-resolution spectrogram." *ICASSP* 2020. — multi-resolution spectrogram MSE; precedent for adding spectral terms to non-adversarial losses too.
+- **Steinmetz & Reiss 2020** — Steinmetz, C.J., Reiss, J.D. "auraloss: Audio focused loss functions in PyTorch." *DMRN+15 Workshop* (2020). — implementation reference for spectral losses; we use a custom rfft-magnitude MSE in `train_cvae._spectral_loss()`.
 
 ### Latent-ODE (model 4)
 - **Chen et al. 2018** — Chen, R.T.Q., Rubanova, Y., Bettencourt, J., Duvenaud, D. "Neural Ordinary Differential Equations." *NeurIPS* 2018. — neural ODE foundational.
@@ -98,5 +104,5 @@ These need a specific reference; will be filled in during the lit-search phase:
 
 - A canonical inverse-Volterra-problem paper for model 7's motivation.
 - One KAN-as-generative-component paper (or confirm we are one of the first).
-- One reference on perceptual / spectral losses for time-series generation (to back the §3.8 future-work direction).
+- ~~One reference on perceptual / spectral losses for time-series generation~~ ✓ Engel/Yamamoto/Steinmetz added 2026-05-18 (used by B1 spectral-loss variant).
 - "Generative-model fidelity in scientific simulators" — find the closest equivalent in physics ML (cosmology emulators? climate emulators?) to position our protocol.
