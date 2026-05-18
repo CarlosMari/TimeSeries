@@ -46,18 +46,18 @@ B1 batch:
 
 Cost: ~14 GPU-hours total (revised upward from initial ~12 estimate — frozen-σ forward pass is ~10% slower than v1 m1; observed pace ~3.5 hr/variant). Pushes seed-123 m6 (KAN) back by 14 hours; seed-2026 unaffected because it queues behind m7_seed123 (10 min).
 
-**B1 timeline (live, refreshed 2026-05-18 10:14 UTC):**
+**B1 timeline (live, refreshed 2026-05-18 14:11 UTC):**
 
 | Variant | Status |
 |---|---|
-| frozen-σ 0.05 | ✓ done 09:48 UTC, **eval'd on ID — IS THE CURE (§1.3.4)**. OOD evals running now |
-| frozen-σ 0.10 | training (11%, 53/500, ETA ~3hr 18min → ~13:30 UTC) |
-| frozen-σ 0.20 | queued |
+| frozen-σ 0.05 | ✓ 09:48 UTC + eval'd on all 3 distributions (§1.3.4 + §1.3.4.1) |
+| frozen-σ 0.10 | ✓ 14:11 UTC, eval running on all 3 distributions |
+| frozen-σ 0.20 | training (just started 14:11 UTC, ETA ~17:35 UTC) |
 | spectral-loss 0.1 | queued |
 | unified eval → `RESULTS_COMPARATIVE_B1.json` | queued (runs after all 4 train) |
 | SIGCONT autoqueue → resume m6_seed123 | queued |
 
-Projected B1 batch finish: **~20:30 UTC / 22:30 Spain today (Monday)**.
+Projected B1 batch finish: **~21:00 UTC / 23:00 Spain today (Monday)**.
 
 **The variant 1 result was decisive enough that §1.3.4 below already documents the centerpiece finding.** Variants 2–4 will refine: does higher σ close DET further? Does the orthogonal spectral-loss approach independently work?
 
