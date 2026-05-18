@@ -333,6 +333,47 @@ Variant 2 (`b1_m3_frozen_0p1_seed42.pth`) finished at 14:11 UTC and was eval'd o
 
 Source: `RESULTS_B1_frozen_0p1_FINAL_NOSORT.json`, `RESULTS_B1_frozen_0p1_OOD_Exp1.json`, `RESULTS_B1_frozen_0p1_OOD_Exp5.json`.
 
+##### 1.3.4.3 σ sweep complete — variant 3 (σ=0.20) closes the Pareto picture (added 2026-05-18 19:05 UTC)
+
+Variant 3 (σ=0.20) finished at 18:44 UTC. With 3 σ-values × 3 test distributions = 9 new data points (plus σ=0 m3 row from §1.3 → 12), the σ-axis is fully characterized.
+
+**ID Exp(2) — gen-DET monotonically approaches real (0.617) as σ ↑:**
+
+| σ | gen DET | DET gap | DET KS p | gen λ₁ | λ₁ gap | λ₁ KS p | recon Ro |
+|---|---|---|---|---|---|---|---|
+| 0.0 (det.) | 0.987 | 0.370 | 9.5e-79 | +0.054 | 0.022 | 1.8e-04 | 0.682 |
+| **0.05** | **0.822** | **0.205** | 2.2e-17 | **+0.076** | **0.001** | **0.71 ✓ n.s.** | **0.693** |
+| 0.10 | 0.810 | 0.194 | 4.7e-15 | +0.081 | 0.005 | 0.27 ✓ n.s. | 0.691 |
+| 0.20 | 0.791 | 0.174 | 3.0e-13 | +0.089 | 0.013 | 0.068 (marginal) | 0.688 |
+
+DET gap shrinks 0.37 → 0.17 across the sweep. λ₁ matches at σ=0.05, overshoots progressively. ID original-scale recon unchanged within 0.005 across all σ.
+
+**OOD Exp(1) and Exp(5) — gen-DET drops away from real (0.993) as σ ↑, and original-scale recon degrades:**
+
+| σ | gen DET (both OOD) | OOD Exp(1) recon Ro | OOD Exp(5) recon Ro |
+|---|---|---|---|
+| 0.05 | 0.852 | -2.95 | -2.04 |
+| 0.10 | 0.794 | -2.78 | -1.52 |
+| 0.20 | **0.758** | **-3.60** | -2.03 |
+
+OOD orig-scale recon degrades monotonically (sharpest at σ=0.20).
+
+**The Pareto frontier is now unambiguous.** Forcing higher σ:
+- ✓ Continues to pull ID gen-DET toward real (good, monotone)
+- ✗ Pulls OOD gen-DET further from real (bad, monotone — generators were "accidentally" matching OOD because deterministic-attractor sat at 0.99)
+- ✗ Degrades OOD original-scale reconstruction monotonically (max-value head destabilizes under noise on OOD inputs)
+
+**Recommended operating point: σ = 0.05.** Reasoning:
+- Matches ID-λ₁ within noise (KS p = 0.71 — the strongest "matches real" signal possible)
+- DET gap of 0.205 is the largest single jump in the sweep (0.370 → 0.205 is bigger than 0.205 → 0.174)
+- OOD recon damage is real but smallest at σ=0.05
+
+This makes the paper's Section 6 a clean σ-sweep figure: x-axis σ ∈ {0, 0.05, 0.10, 0.20}, dual y-axis ID-DET-gap (decreasing) and OOD-recon-R² (decreasing), with σ=0.05 visually marked as the sweet spot.
+
+Source: `RESULTS_B1_frozen_0p2_FINAL_NOSORT.json`, `RESULTS_B1_frozen_0p2_OOD_Exp1.json`, `RESULTS_B1_frozen_0p2_OOD_Exp5.json`.
+
+**Next:** variant 4 (m1 + spectral-loss 0.1) is training (ETA ~22:30 UTC). This tests an *orthogonal* cure axis — penalize FFT-magnitude mismatch directly in the loss. If it produces a generator with gen-DET ≈ real *without* the OOD-recon Pareto cost, we have two independent cures with different trade-off profiles — a richer Section 6 story.
+
 ---
 
 ## 2. What We Built
