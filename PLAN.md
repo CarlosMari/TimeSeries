@@ -1,6 +1,6 @@
 # PLAN.md — Path to submission (post-pivot)
 
-**Today:** 2026-05-15  **Target:** submitted by end of August 2026 (slipped from end of July; quality > deadline per user direction).
+**Today:** 2026-05-18 (post-pivot mid-execution)  **Target:** submitted by end of August 2026 (slipped from end of July; quality > deadline per user direction).
 
 PLAN.md is the **todo list**; PROJECT.md is the **wiki**. The canonical design is `docs/superpowers/specs/2026-05-15-comparative-evaluation-design.md`. Updated state and findings go into PROJECT.md first; this file gets pruned to reflect what remains.
 
@@ -32,7 +32,7 @@ The paper became a **comparative empirical study of 7 generative architectures o
 | 0.7 | (legacy) Chaos diagnostics on v1 | **DONE** 2026-05-15 |
 | **PIVOT** | **Decide + write design doc + seed REFERENCES.md** | **DONE** 2026-05-15 |
 | A | Data pipeline rebuild (no-sort) + retrain models 1, 2, 3 × 3 seeds | seed-42 row ✓ 2026-05-15→16; seeds 123 + 2026 queued |
-| B | Models 4, 5, 6, 7 implemented + trained × 3 seeds | seed-42: m4 ✓, m5 ✓, m7 ✓, **m6 in flight (slow)**; seeds 123 + 2026 queued |
+| B | Models 4, 5, 6, 7 implemented + trained × 3 seeds | seed-42 row ✓; seed-123 row: m4 ✓, m5 ✓, m7 queued, **m6 killed mid-train at 44% to free GPU for B1 (will resume after B1)**; seed-2026 not started; B1 sub-batch in flight |
 | C | Unified eval harness + RESULTS_COMPARATIVE.json + OOD test sets | harness + D3 fix + OOD sets ✓; **seed-42 row of RESULTS_COMPARATIVE.json populated 00:15 UTC 2026-05-17** (all 7 models); seed-123/2026 in progress |
 | D | Synthetic-data lens-validation experiment | **DONE** 2026-05-15 |
 | E | Comparative figures | seed-42 regen ✓ 00:15 UTC 2026-05-17 (`fig_comparative_table`, `fig_recon_vs_chaos`); multi-seed regen after seeds 123 + 2026 land |
@@ -64,7 +64,11 @@ The paper became a **comparative empirical study of 7 generative architectures o
 - [x] **B3** Model 6 — `src/models/kan_vae.py` (LSTM backbone + KAN heads via vendored `efficient_kan`). Avoided pip-install of efficient-kan because its `torch>=1.5` constraint silently upgraded torch to cu130 — incompatible with the system CUDA 12.7 driver. Vendored the source file directly. Smoke-tested. **Queued × 3 seeds.**
 - [x] **B4** Model 7 — `src/models/glv_regression.py` + `train_glv_regression.py` (LSTM → MLP → (r̂, Â); MSE on `PARAM_RECOVERY_MATCHED.pkl` ground truth; inference via solve_ivp). **Queued × 3 seeds.**
 
-**Phase B status (2026-05-16 late afternoon):** seed-42 row is 6/7 complete. m1, m2, m3 ✓; m4 (Latent-ODE) ✓ 00:15 UTC; m5 (Transformer-VAE) ✓ 06:57 UTC (ran 6h42m, heavier than expected); m7 (GLV regression) ✓ 21:22 UTC (only 9 min). **m6 KAN-VAE at 71% (epoch 353/500), 121s/iter, ETA ~01:20 Spain Sunday.** The morning's "recon 0.0031, KAN may be the recon champion" reading was a β-warmup artifact and has since corrected to loss 0.051 / recon 0.008 — in line with the other VAEs. Provisional takeaway: KAN-VAE costs ~4× the compute for similar performance on this task. The unified eval will tell us whether the inductive bias buys anything on the NLD metrics specifically.
+**Phase B status (refreshed 2026-05-18 09:21 UTC):** seed-42 row complete for all 7 models. Seed-123 row: m1, m2, m3, m4, m5 ✓; m6 (KAN-VAE) was 44% in when killed at 06:10 to free GPU for B1 (PROJECT.md §1.2.1 watcher postmortem); m7 queued. Seed-2026 batch hasn't started.
+
+**Phase B1 sub-batch (interleaved):** 4 trainings (m3 frozen-σ at 0.05/0.10/0.20 + m1 spectral-loss 0.1) running now. First variant (frozen-σ 0.05) at 90% as of 09:21; projected B1 complete ~20:30 UTC tonight. Autoqueue SIGSTOPped during B1; will resume m6_seed123 → m7_seed123 → seed-2026 batch automatically.
+
+Outstanding from m6 seed-123 kill: KAN seed-123 ckpt will need to be retrained (autoqueue does this automatically on resume) or skipped if compute tight (design doc pre-authorized).
 
 ---
 

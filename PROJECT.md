@@ -44,7 +44,22 @@ B1 batch:
 
 **These directly test the §1.3.3 hypothesis** that MSE-trained autoregressive decoders converge to a smoothness attractor at DET ≈ 0.99 regardless of training data. If frozen-σ moves gen-DET *down* toward real Exp(2) DET=0.62, that's diagnosis-plus-causation. If spectral-loss does, that's diagnosis-plus-cure. Either way the paper picks up a substantial Section-6 result.
 
-Cost: ~12 GPU-hours. Pushes seed-123 m6 (KAN) back by 12 hours but does not affect seed-2026 unless tasks run very late.
+Cost: ~14 GPU-hours total (revised upward from initial ~12 estimate — frozen-σ forward pass is ~10% slower than v1 m1; observed pace ~3.5 hr/variant). Pushes seed-123 m6 (KAN) back by 14 hours; seed-2026 unaffected because it queues behind m7_seed123 (10 min).
+
+**B1 timeline (live, refreshed 2026-05-18 09:21 UTC):**
+
+| Variant | Status |
+|---|---|
+| frozen-σ 0.05 | 90% (449/500), ~24 min remaining, recon 0.0074 |
+| frozen-σ 0.10 | queued |
+| frozen-σ 0.20 | queued |
+| spectral-loss 0.1 | queued |
+| unified eval → `RESULTS_COMPARATIVE_B1.json` | queued |
+| SIGCONT autoqueue → resume m6_seed123 | queued |
+
+Projected finish: ~20:30 UTC / 22:30 Spain today (Monday).
+
+**Early signal** (frozen-σ 0.05, not yet final): recon 0.0074 at epoch 449 is *slightly better* than deterministic m1's final 0.0079. Forcing σ=0.05 has not hurt reconstruction. The interesting question — whether it changes generation-time DET — is answered only by the post-training unified eval.
 
 ### 1.2 Roadmap snapshot (live)
 
@@ -59,16 +74,19 @@ Cost: ~12 GPU-hours. Pushes seed-123 m6 (KAN) back by 12 hours but does not affe
 | **D3 fix verified on v1 model (§3.8.1)** | ✓ density/coverage 0.13→0.98, MMD p=0.005 survives |
 | OOD family test sets (`r~Exp(1)`, `r~Exp(5)`) | ✓ 5k samples each |
 | Lens-validation synthetic-perturbation experiment | ✓ `RESULTS_LENS_VALIDATION.json` + figure |
-| Model 1 (scale-cond VAE) retrained × 3 seeds | seed 42 ✓ (`model_1_seed42.pth`, 13:19 UTC 2026-05-15); seeds 123, 2026 queued |
-| Model 2 (no-cond VAE) retrained × 3 seeds | seed 42 ✓ (`model_2_seed42.pth`, 17:10 UTC 2026-05-15); seeds 123, 2026 queued |
-| Model 3 (stochastic-decoder VAE) trained × 3 seeds | seed 42 ✓ (`model_3_seed42.pth`, 21:13 UTC 2026-05-15); seeds 123, 2026 queued |
-| Model 4 (Latent-ODE) trained × 3 seeds | seed 42 ✓ (`model_4_seed42.pth`, 00:15 UTC 2026-05-16); seeds 123, 2026 queued |
-| Model 5 (Transformer-VAE) trained × 3 seeds | seed 42 ✓ (`model_5_seed42.pth`, 06:57 UTC 2026-05-16, ran 6h42m — heavier than expected); seeds 123, 2026 queued |
-| Model 6 (KAN-VAE) trained × 3 seeds | seed 42 training (71% at 18:20 UTC 2026-05-16; 121s/iter now, slowing slightly; ETA ~01:20 Spain Sunday). Loss 0.051, recon 0.008 — converging to similar performance as the other VAEs at much higher compute cost (the early-stage "recon 0.003" reading was a β-warmup artifact, not signal). Seeds 123, 2026 queued |
-| Model 7 (Direct GLV regression) trained × 3 seeds | seed 42 ✓ (`model_7_seed42.pth`, 21:22 UTC 2026-05-15, only 9 min); seeds 123, 2026 queued |
-| `RESULTS_COMPARATIVE.json` | ✓ seed-42 row populated 00:15 UTC 2026-05-17 (all 7 models). Seed-123 + seed-2026 rows fill as autoqueue progresses |
-| Comparative figures | seed-42 versions regenerated 00:15 UTC 2026-05-17 (`fig_comparative_table.{pdf,png}`, `fig_recon_vs_chaos.{pdf,png}`) |
-| Phase-4 draft | starts once multi-seed table exists (~Monday) |
+| Model 1 (scale-cond VAE) retrained × 3 seeds | seed 42 ✓ + seed 123 ✓ (`model_1_seed123.pth`, 04:05 UTC 2026-05-17); seed 2026 queued |
+| Model 2 (no-cond VAE) retrained × 3 seeds | seed 42 ✓ + seed 123 ✓ (`model_2_seed123.pth`, 08:06 UTC 2026-05-17); seed 2026 queued |
+| Model 3 (stochastic-decoder VAE) trained × 3 seeds | seed 42 ✓ + seed 123 ✓ (`model_3_seed123.pth`, 12:11 UTC 2026-05-17); ⚠️ seed-42 σ collapsed to 0.0004 (see §1.3.1 B3) — superseded by B1 frozen-σ variants. Seed 2026 queued |
+| Model 4 (Latent-ODE) trained × 3 seeds | seed 42 ✓ + seed 123 ✓ (`model_4_seed123.pth`, 15:14 UTC 2026-05-17); seed 2026 queued |
+| Model 5 (Transformer-VAE) trained × 3 seeds | seed 42 ✓ + seed 123 ✓ (`model_5_seed123.pth`, 23:05 UTC 2026-05-17, ran ~8h); seed 2026 queued |
+| Model 6 (KAN-VAE) trained × 3 seeds | seed 42 ✓ (`model_6_seed42.pth`, 23:38 UTC 2026-05-16, 16h total). Seed 123 was 44% in when killed at 06:10 UTC 2026-05-18 to free GPU for B1 batch (per the watcher-race-condition postmortem in §1.2.1) — will resume after B1 finishes. Seed 2026 queued |
+| Model 7 (Direct GLV regression) trained × 3 seeds | seed 42 ✓ (`model_7_seed42.pth`, 21:22 UTC 2026-05-15, 9 min); seed 123 + seed 2026 queued behind seed-123 m6/m7 |
+| `RESULTS_COMPARATIVE.json` | ✓ seed-42 row populated 00:15 UTC 2026-05-17 (all 7 models). Seed-123 row not yet evaluated (eval runs after batch). Seed-2026 batch hasn't started |
+| `RESULTS_COMPARATIVE_OOD_Exp1.json` | ✓ 07:30 UTC 2026-05-17 — all 7 seed-42 models on `r~Exp(1)`. See §1.3.2 |
+| `RESULTS_COMPARATIVE_OOD_Exp5.json` | ✓ 07:36 UTC 2026-05-17 — all 7 seed-42 models on `r~Exp(5)`. See §1.3.3 |
+| `RESULTS_COMPARATIVE_B1.json` | queued — runs ~20:30 UTC tonight after the 4 B1 trainings complete |
+| Comparative figures | seed-42 versions regenerated 00:15 UTC 2026-05-17. Multi-seed regen scheduled after seed-123 row + B1 land |
+| Phase-4 draft | starts once multi-seed + B1 table exists (~Tue–Wed) |
 
 ### 1.3 Seed-42 comparative findings (added 2026-05-17, headline)
 
