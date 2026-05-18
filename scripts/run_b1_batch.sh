@@ -35,16 +35,30 @@ if ! kill -0 "$AUTOQUEUE_PID" 2>/dev/null; then
   exit 1
 fi
 
-# Step 1: wait until the current autoqueue child (any train_pivot.py /
-# train_glv_regression.py) exits. We don't pin to a specific name, so this
-# handles the case where the user inspects a different m5/m6/m7 — whatever
-# is running now finishes naturally, then we grab the GPU.
-log "Waiting for the current GPU job to finish before pausing autoqueue..."
+# Step 1: SIGSTOP the autoqueue FIRST, before waiting on its current child.
+# SIGSTOP on the parent does NOT propagate to its python child (verified
+# 2026-05-17), so the running training continues. But now when it exits, the
+# autoqueue can't fire the next item — so when pgrep stops matching, the GPU
+# is genuinely ours to take.
+#
+# (The previous version polled pgrep with a 30s loop while leaving the
+# autoqueue running. The autoqueue spawned the next child within
+# sub-seconds of the previous one exiting — well within one poll period — so
+# the loop never saw a "no children" instant and never proceeded. Race lost.
+# Pausing first eliminates the race.)
+log "Pausing autoqueue first (SIGSTOP $AUTOQUEUE_PID) so its next item can't fire mid-poll..."
+kill -STOP "$AUTOQUEUE_PID" || { log "FATAL: SIGSTOP failed"; exit 1; }
+sleep 2
+STATE=$(ps -o stat= -p "$AUTOQUEUE_PID" | tr -d ' ')
+if [[ "$STATE" != T* ]]; then
+  log "WARNING: autoqueue state is '$STATE' (expected T)"
+fi
+
+log "Waiting for the autoqueue's current child (if any) to finish..."
 while pgrep -f "train_pivot.py" > /dev/null 2>&1 || pgrep -f "train_glv_regression.py" > /dev/null 2>&1; do
   sleep 30
 done
-log "GPU job ended. Pausing autoqueue (SIGSTOP $AUTOQUEUE_PID)..."
-kill -STOP "$AUTOQUEUE_PID" || { log "FATAL: SIGSTOP failed"; exit 1; }
+log "GPU job ended."
 
 # Verify autoqueue is stopped (otherwise it'll race with us)
 sleep 3

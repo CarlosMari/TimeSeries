@@ -26,9 +26,15 @@ A vanilla VAE on raw trajectories fails because the population scale is enormous
 
 We trained a state-of-the-art scale-conditioned VAE; it reconstructs (R² 0.97) and predicts max-values (R² 0.97). But three independent diagnostics — feature-MMD (p=0.002), RQA (p<10⁻⁴³ on every measure), Rosenstein λ₁ (p≈2×10⁻¹⁵) — show generated samples are **quantifiably less chaotic than real**. Rather than report this as a "limitation," we make the diagnostics themselves the contribution: a **three-lens NLD evaluation protocol** sensitive to dynamical-invariance defects that standard recon-quality metrics miss. We then apply it to seven generative architectures (LSTM-VAE family, latent-ODE, Transformer-VAE, KAN-VAE, direct GLV regression) to characterize which inductive biases preserve which dynamical invariants. The deterministic-decoder hypothesis is tested directly via a stochastic-decoder variant. The paper's contribution is the **protocol + the comparative study + the causal demonstration**, not the model.
 
-### 1.2.1 B1 experimental batch — interleaved high-priority (started 2026-05-17 16:31 UTC)
+### 1.2.1 B1 experimental batch — interleaved high-priority (relaunched 2026-05-18 06:11 UTC)
 
-Per user direction ("ASAP, but don't disturb"), `scripts/run_b1_batch.sh` (PID 1455296) is monitoring the autoqueue. When the currently-running `model_5_seed123` finishes (~00:30 Spain Monday), it will SIGSTOP the autoqueue (parent only — `m5` already finished by then, `m6_seed123` is blocked from starting), run 4 B1 trainings, eval them into `RESULTS_COMPARATIVE_B1.json`, then SIGCONT the autoqueue to resume the seed-123 batch.
+**First-attempt postmortem (2026-05-17 16:31 → 2026-05-18 06:10).** The original watcher polled `pgrep` every 30 seconds for the autoqueue's current child to exit, planning to SIGSTOP only *after*. The race condition I missed: when `m5_seed123` exited at 23:05:56, the autoqueue spawned `m6_seed123` within sub-seconds (well inside the 30s poll window), so the watcher never saw a "no child" instant and stayed in its wait loop forever. By morning the watcher was still polling while `m6_seed123` had been training for 7 hours.
+
+**Fix and relaunch (06:10 UTC).** Killed the stuck watcher, SIGSTOPped the autoqueue first, killed the m6_seed123 process (lost ~7h of training, no checkpoint had been saved yet — KAN-VAE trainer only writes at end), confirmed GPU free, then launched a corrected watcher (`scripts/run_b1_batch.sh`, fixed order: SIGSTOP autoqueue *before* the pgrep loop, so when the loop exits the GPU is genuinely ours). B1 training started at 06:11 UTC.
+
+**Cost of the kill:** 7 hours of KAN-VAE seed-123 training discarded. KAN seed-123 will need to be retrained either from the autoqueue's natural resume (after B1) or skipped. The design doc pre-authorized "single-seed KAN if compute is tight" as a fallback, so this is recoverable.
+
+`scripts/run_b1_batch.sh` (PID 1487355) will run 4 B1 trainings sequentially, eval them into `RESULTS_COMPARATIVE_B1.json`, then SIGCONT the autoqueue to resume the seed-123 batch (starting from m6_seed123).
 
 B1 batch:
 1. `b1_m3_frozen_0p05_seed42.pth` — m3 stochastic-decoder with σ frozen at 0.05.
