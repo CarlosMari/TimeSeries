@@ -74,13 +74,13 @@ Cost: ~14 GPU-hours total (revised upward from initial ~12 estimate — frozen-�
 | **D3 fix verified on v1 model (§3.8.1)** | ✓ density/coverage 0.13→0.98, MMD p=0.005 survives |
 | OOD family test sets (`r~Exp(1)`, `r~Exp(5)`) | ✓ 5k samples each |
 | Lens-validation synthetic-perturbation experiment | ✓ `RESULTS_LENS_VALIDATION.json` + figure |
-| Model 1 (scale-cond VAE) retrained × 3 seeds | seed 42 ✓ + seed 123 ✓ (`model_1_seed123.pth`, 04:05 UTC 2026-05-17); seed 2026 queued |
-| Model 2 (no-cond VAE) retrained × 3 seeds | seed 42 ✓ + seed 123 ✓ (`model_2_seed123.pth`, 08:06 UTC 2026-05-17); seed 2026 queued |
-| Model 3 (stochastic-decoder VAE) trained × 3 seeds | seed 42 ✓ + seed 123 ✓ (`model_3_seed123.pth`, 12:11 UTC 2026-05-17); ⚠️ seed-42 σ collapsed to 0.0004 (see §1.3.1 B3) — superseded by B1 frozen-σ variants. Seed 2026 queued |
-| Model 4 (Latent-ODE) trained × 3 seeds | seed 42 ✓ + seed 123 ✓ (`model_4_seed123.pth`, 15:14 UTC 2026-05-17); seed 2026 queued |
-| Model 5 (Transformer-VAE) trained × 3 seeds | seed 42 ✓ + seed 123 ✓ (`model_5_seed123.pth`, 23:05 UTC 2026-05-17, ran ~8h); seed 2026 queued |
+| Model 1 (scale-cond VAE) retrained × 3 seeds | seed 42 ✓ + seed 123 ✓; **seed 2026 training as of 23:43 UTC 2026-05-18** |
+| Model 2 (no-cond VAE) retrained × 3 seeds | seed 42 ✓ + seed 123 ✓; seed 2026 queued |
+| Model 3 (stochastic-decoder VAE) trained × 3 seeds | seed 42 ✓ + seed 123 ✓; ⚠️ seed-42 σ collapsed (§1.3.1 B3) — superseded by B1 frozen-σ variants. Seed 2026 queued |
+| Model 4 (Latent-ODE) trained × 3 seeds | seed 42 ✓ + seed 123 ✓; seed 2026 queued |
+| Model 5 (Transformer-VAE) trained × 3 seeds | seed 42 ✓ + seed 123 ✓; seed 2026 queued |
 | Model 6 (KAN-VAE) trained × 3 seeds | seed 42 ✓ (`model_6_seed42.pth`, 23:38 UTC 2026-05-16, 16h total). **Seed 123 + seed 2026 SKIPPED:** the SIGTERM during B1 setup left autoqueue's bookkeeping thinking m6_seed123 completed (rc=143), so it advanced to m7_seed123 without retraining KAN. Per design doc fallback ("KAN single-seed acceptable if compute tight"), KAN remains single-seed in the paper. Documented in the comparative table as "n=1 for KAN-VAE." |
-| Model 7 (Direct GLV regression) trained × 3 seeds | seed 42 ✓ (`model_7_seed42.pth`, 21:22 UTC 2026-05-15, 9 min); seed 123 + seed 2026 queued behind seed-123 m6/m7 |
+| Model 7 (Direct GLV regression) trained × 3 seeds | seed 42 ✓ + seed 123 ✓ (`model_7_seed123.pth`, 23:43 UTC 2026-05-18, 4 min); seed 2026 queued |
 | `RESULTS_COMPARATIVE.json` | ✓ seed-42 row populated 00:15 UTC 2026-05-17 (all 7 models). Seed-123 row not yet evaluated (eval runs after batch). Seed-2026 batch hasn't started |
 | `RESULTS_COMPARATIVE_OOD_Exp1.json` | ✓ 07:30 UTC 2026-05-17 — all 7 seed-42 models on `r~Exp(1)`. See §1.3.2 |
 | `RESULTS_COMPARATIVE_OOD_Exp5.json` | ✓ 07:36 UTC 2026-05-17 — all 7 seed-42 models on `r~Exp(5)`. See §1.3.3 |
