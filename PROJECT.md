@@ -268,6 +268,38 @@ Remaining 3 B1 variants (frozen-σ 0.10, 0.20, spectral-loss 0.1) finish over th
 
 Source: `RESULTS_COMPARATIVE_B1_partial.json` (frozen-σ 0.05 only as of this writing). Full `RESULTS_COMPARATIVE_B1.json` lands ~20:30 UTC tonight.
 
+##### 1.3.4.1 OOD eval of frozen-σ 0.05 — the "cure" is regime-specific (added 2026-05-18 10:20 UTC)
+
+Evaluated `b1_m3_frozen_0p05_seed42.pth` on both OOD test sets immediately after the ID eval. The picture refines substantially.
+
+| Distribution | real DET | gen DET | DET gap | DET KS p | real λ₁ | gen λ₁ | λ₁ gap | λ₁ KS p |
+|---|---|---|---|---|---|---|---|---|
+| **ID Exp(2)** | 0.617 | 0.822 | 0.205 | 2.2e-17 | +0.076 | +0.076 | **0.001** | **0.71 (n.s.)** |
+| **OOD Exp(1)** | 0.993 | 0.852 | 0.141 | 1.3e-77 | +0.058 | +0.077 | 0.018 | 2.4e-08 |
+| **OOD Exp(5)** | 0.993 | 0.852 | 0.142 | 9.5e-79 | +0.048 | +0.077 | 0.029 | 5.6e-17 |
+
+**Comparison to the §1.3.4 deterministic-decoder generators:** on ID, those produced gen-DET ≈ 0.99 and gen-λ₁ ≈ +0.054. Forcing σ=0.05 moves the generator's outputs **toward more variable trajectories**: gen-DET dropped from 0.99 to 0.85 across all 3 distributions, and gen-λ₁ rose from +0.054 to +0.077 across all 3 distributions.
+
+**The honest cure-vs-trade-off story:**
+
+1. **σ=0.05 shifts the generator's NLD-invariant equilibrium**, it doesn't move it onto any particular real distribution. The new equilibrium is DET ≈ 0.85, λ₁ ≈ +0.077 (regardless of test distribution).
+2. **On ID Exp(2)** (real DET=0.62, λ₁=+0.076), the new equilibrium is *closer* to real on both metrics — λ₁ matches to 0.001 (KS p 0.71); DET still off by 0.21 but down from 0.37.
+3. **On OOD Exp(1)/(5)** (real DET=0.99, λ₁=+0.05 or +0.06), the new equilibrium is *further* from real on both metrics than the deterministic generators were. Deterministic gen-DET was 0.99 (matched OOD real); the σ=0.05 cure made gen-DET=0.85 (no longer matches).
+4. **The §1.3.3 "training data is the outlier" observation was right.** The σ=0.05 fix successfully pulls the generator off its mode-covering attractor and toward the training distribution it was actually trained on — but the OOD regimes happen to coincide with the deterministic-attractor DET, so making the generator more variable hurts there.
+
+**For the paper this is even better than a clean global cure.** It demonstrates:
+
+- The protocol detected a real defect (mode collapse to a DET-0.99 attractor).
+- A protocol-informed intervention (force σ) shifts the attractor in a known direction (toward more variable trajectories).
+- The intervention *matches the training distribution better* (which is the right thing to want from a generative model — it should reproduce its training distribution).
+- The OOD trade-off is itself informative: it tells you the deterministic generators "got OOD right by accident" — they didn't match real Exp(1) because they understood it; they matched it because their attractor sat in the same place.
+
+Section 6 of the paper now has a much richer narrative: "We diagnose, we cure on the training distribution, and we use OOD to show the cure does the right thing in a principled sense (matches the distribution it was trained on) rather than the accidental sense (sits where every distribution happens to be)."
+
+Higher-σ variants (0.10, 0.20) will likely shift the equilibrium further — possibly closing the ID DET gap entirely but worsening OOD further. This is a sweepable axis with publishable interpretation.
+
+Sources: `RESULTS_COMPARATIVE_B1_partial.json`, `RESULTS_COMPARATIVE_B1_partial_OOD_Exp1.json`, `RESULTS_COMPARATIVE_B1_partial_OOD_Exp5.json`.
+
 ---
 
 ## 2. What We Built
