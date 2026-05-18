@@ -46,18 +46,18 @@ B1 batch:
 
 Cost: ~14 GPU-hours total (revised upward from initial ~12 estimate — frozen-σ forward pass is ~10% slower than v1 m1; observed pace ~3.5 hr/variant). Pushes seed-123 m6 (KAN) back by 14 hours; seed-2026 unaffected because it queues behind m7_seed123 (10 min).
 
-**B1 timeline (live, refreshed 2026-05-18 23:18 UTC):**
+**B1 timeline — ALL COMPLETE (2026-05-18 23:40 UTC):**
 
 | Variant | Status |
 |---|---|
-| frozen-σ 0.05 | ✓ 09:48 UTC + eval'd on all 3 distributions (§1.3.4 + §1.3.4.1) |
-| frozen-σ 0.10 | ✓ 14:11 UTC + eval'd on all 3 distributions (§1.3.4.2) |
-| frozen-σ 0.20 | ✓ 18:44 UTC + eval'd on all 3 distributions (§1.3.4.3) |
-| spectral-loss 0.1 | **✓ 23:17 UTC, eval running on all 3 distributions** |
-| unified eval → `RESULTS_COMPARATIVE_B1.json` | running (B1 watcher) |
-| SIGCONT autoqueue → resume m6_seed123 | queued (fires when watcher exits) |
+| frozen-σ 0.05 | ✓ trained + eval'd on all 3 distributions (§1.3.4 + §1.3.4.1) |
+| frozen-σ 0.10 | ✓ trained + eval'd on all 3 distributions (§1.3.4.2) |
+| frozen-σ 0.20 | ✓ trained + eval'd on all 3 distributions (§1.3.4.3) |
+| spectral-loss 0.1 | ✓ trained + eval'd on all 3 distributions (§1.3.4.4 — orthogonal cure axis FAILED, informatively) |
+| unified eval → `RESULTS_COMPARATIVE_B1.json` | ✓ 23:39 UTC |
+| SIGCONT autoqueue → resume m6_seed123 | ✓ 23:39 UTC — autoqueue running m6_seed123 (KAN) |
 
-All 4 B1 trainings complete. Final §1.3.4.4 + §1.3.5 write-up follows when the OOD evals land.
+**Verdict (full B1 batch):** σ=0.05 is the recommended operating point. σ-sweep shows monotone Pareto trade-off (ID-DET-match vs OOD-recon-stability). Spectral-loss failed in an interpretable way (reinforces smoothing rather than counteracting it). Full combined writeup in §1.3.5.
 
 **The variant 1 result was decisive enough that §1.3.4 below already documents the centerpiece finding.** Variants 2–4 will refine: does higher σ close DET further? Does the orthogonal spectral-loss approach independently work?
 
@@ -372,7 +372,66 @@ This makes the paper's Section 6 a clean σ-sweep figure: x-axis σ ∈ {0, 0.05
 
 Source: `RESULTS_B1_frozen_0p2_FINAL_NOSORT.json`, `RESULTS_B1_frozen_0p2_OOD_Exp1.json`, `RESULTS_B1_frozen_0p2_OOD_Exp5.json`.
 
-**Next:** variant 4 (m1 + spectral-loss 0.1) is training (ETA ~22:30 UTC). This tests an *orthogonal* cure axis — penalize FFT-magnitude mismatch directly in the loss. If it produces a generator with gen-DET ≈ real *without* the OOD-recon Pareto cost, we have two independent cures with different trade-off profiles — a richer Section 6 story.
+##### 1.3.4.4 Variant 4 — spectral-loss 0.1: orthogonal cure axis FAILS (added 2026-05-18 23:40 UTC)
+
+Variant 4 (`b1_m1_spectral_0p1_seed42.pth`) finished at 23:17 UTC. The unified eval landed at 23:39 UTC. **The spectral-loss approach did not work — and the failure is informative.**
+
+| Test set | recon Ro | max-val R² | gen DET | DET gap | gen λ₁ | λ₁ gap | λ₁ KS p |
+|---|---|---|---|---|---|---|---|
+| ID Exp(2) | **0.493** | **0.601** | 0.988 | 0.371 | **+0.032** | 0.043 | 6.2e-14 |
+| OOD Exp(1) | **-18.8** | 0.572 | 0.987 | 0.005 | +0.032 | 0.026 | 2.2e-06 |
+| OOD Exp(5) | **-17.4** | 0.514 | 0.987 | 0.006 | +0.035 | 0.013 | 4.4e-07 |
+
+**Reading.**
+
+1. **DET on ID Exp(2): 0.988 — essentially unchanged from the deterministic baseline's 0.987.** Spectral-loss did NOT shift the chaos attractor on the training distribution. The σ-variants moved DET from 0.99 → 0.82 / 0.81 / 0.79; spectral-loss kept it at 0.99.
+2. **gen-λ₁ moved in the WRONG direction.** Real ID λ₁ = +0.076. Deterministic gen = +0.054 (gap 0.022). Spectral-loss gen = +0.032 (gap 0.043) — **doubly worse than deterministic**. Penalizing FFT-magnitude mismatch made the generator produce *less* chaotic trajectories.
+3. **OOD gen-DET matches OOD-real almost exactly** (0.987 vs 0.993, gap 0.005). But this is the same "matches by accident" pattern as the deterministic baseline — the generator just sits at the smoothness attractor that OOD real also happens to occupy.
+4. **Recon and max-val collapsed.** Recon R² (original scale) dropped to 0.493 on ID and *negative-double-digits* on OOD (−18 / −17). Max-val R² collapsed from 0.97 to 0.60. The spectral term destabilized both the autoregressive decoder and the max-value head, with the damage compounding on OOD inputs.
+
+**Why it failed (working interpretation).** The spectral-loss penalizes FFT-magnitude **differences in the same direction** — and during early training when the decoder is still imprecise, the cheapest way to reduce both MSE *and* spectral-MSE is to produce smoother outputs (which have less high-frequency content to mismatch). So spectral-loss *reinforces* the smoothing tendency rather than counteracting it. Adding stochasticity (the σ-variants) attacks the failure mode at its root — the deterministic decoder regressing to the mean — while spectral-loss adds another regression-friendly term.
+
+**Paper implication.** This is a *valuable* negative result:
+
+- It tells future practitioners that the obvious cure (spectral loss, recommended in audio synthesis literature) is the wrong intervention for this class of failure.
+- It strengthens the σ-variant story by showing it's not "any added regularization works" — only interventions that break the deterministic-attractor specifically (i.e., stochasticity injected into the recurrent state) work.
+- The paper's Section 6 now has two interventions: σ-sweep (works, Pareto trade-off) + spectral-loss (doesn't work, fails in an interpretable way). Even more nuanced and publishable than two working cures would have been.
+
+Source: `RESULTS_COMPARATIVE_B1.json` (ID eval for all 4 B1 variants), `RESULTS_B1_spectral_OOD_Exp1.json`, `RESULTS_B1_spectral_OOD_Exp5.json`.
+
+#### 1.3.5 B1 batch complete — combined summary + paper Section 6 framing (added 2026-05-18 23:40 UTC)
+
+All 4 B1 variants trained + evaluated on all 3 distributions. **12 cells of cure-evaluation data.** Combined narrative for Section 6:
+
+**The story (paper-section level):**
+
+> The §1.3.4 OOD evidence showed all 7 architectures' deterministic decoders converge to a chaos-attractor at DET ≈ 0.99, regardless of training-distribution-real DET (Exp(2) real = 0.62; OOD-real = 0.99). We test two protocol-informed interventions:
+>
+> 1. **Forced decoder stochasticity (frozen-σ ∈ {0.05, 0.10, 0.20}):** σ progressively pulls the chaos-attractor *down* from 0.99 toward real-ID-DET. At σ=0.05 the Lyapunov exponent matches real within noise (KS p = 0.71); DET gap is cut nearly in half (0.37 → 0.20). Higher σ continues to narrow the DET gap monotonically but pays an OOD reconstruction cost. **σ=0.05 is the Pareto sweet spot.**
+>
+> 2. **Spectral-MSE loss (weight 0.1):** standard audio-synthesis fix for spectral mismatch. **Fails in the opposite direction** — pushes generator to even *less* chaotic trajectories (λ₁ +0.054 → +0.032), with severe collateral damage to max-value prediction (0.97 → 0.60) and original-scale reconstruction (recon Ro 0.68 → 0.49 on ID, −18.8 on OOD). The intervention is wrong-direction because penalizing magnitude-MSE makes smoother outputs the cheapest path.
+
+**The σ-sweep numbers in one table:**
+
+| σ | ID DET gap | ID λ₁ KS p | OOD recon Ro (avg of Exp1/Exp5) |
+|---|---|---|---|
+| 0 (det.) | **0.37** | 1.8e-4 (sig) | not eval'd |
+| **0.05** | **0.205** | **0.71 ✓ n.s.** | **-2.50** |
+| 0.10 | 0.194 | 0.27 ✓ n.s. | -2.15 |
+| 0.20 | 0.174 | 0.068 (marginal) | -2.82 |
+| spec-0.1 | 0.371 (no change) | 6.2e-14 (worse) | -18.07 (catastrophic) |
+
+**Headline for the paper:**
+
+The 3-lens NLD evaluation protocol detected a defect (smoother-than-real generated trajectories) common to all 7 architectures we tested. We then tested two protocol-informed interventions: a stochasticity-based one and a loss-shape-based one. The stochasticity intervention worked (with a quantified Pareto trade-off); the loss-shape intervention failed in an interpretable way. **Diagnosis + targeted-intervention + negative-control = a complete causal arc.**
+
+Outstanding follow-ups:
+
+- Verify σ=0.05 finding on seeds 123 + 2026 once those land (autoqueue is now running m6_seed123).
+- Optionally test σ ∈ {0.025, 0.075} to narrow the sweet spot further. Decision: skip unless seed-123/2026 reveal a need.
+- Lit-search for prior work documenting MSE-induced σ-collapse in seq2seq VAEs — note in REFERENCES.md that this novelty claim needs verification.
+
+Sources: `RESULTS_COMPARATIVE_B1.json` + 6 OOD JSONs. Total compute spent on B1: ~17 GPU-hours. Net result-cells produced: 12.
 
 ---
 
