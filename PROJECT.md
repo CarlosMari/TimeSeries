@@ -268,6 +268,50 @@ User flagged the §1.3 finding as suspicious. Systematic-debugging audit run on 
 
 Source: this audit traced through `parameter_recoverability.py` (`tmax=20`) → `train_glv_regression.py` (`x0 = train_ds.X[:, :, 0]`) → `src/models/glv_regression.py` (`t_final=12.8`) and verified by direct re-integration.
 
+#### 1.3.3.2 ⚠️⚠️ Audit step 2 (2026-05-19, user follow-up): the VAE "DET = 0.99" finding is largely a teacher-forcing artifact
+
+User pushed: "couldn't the same bug also be at the VAEs?" Yes — *structurally analogous, not literal*. Re-tested by reconstructing real test data through m1's encoder-decoder under different teacher-forcing regimes:
+
+| Mode | DET (mean ± std) | MSE vs real |
+|---|---|---|
+| Real test data (input) | 0.664 ± 0.251 | — |
+| Recon at TF = 0 (eval harness path) | **0.990 ± 0.012** | 8.4e-3 |
+| Recon at TF = 1 (training-time path) | **0.766 ± 0.218** | 1.3e-3 |
+
+**The DET = 0.99 finding is largely caused by the train/test exposure-bias mismatch**, not by an intrinsic generator defect:
+
+- Training schedule decays TF from 1.0 → 0.025 over 200 epochs. The model spends ~97% of training time with teacher input, only 2.5% in fully-autoregressive mode.
+- Eval (`.eval()` mode) hard-codes TF=0 — fully autoregressive. The decoder then drifts to its plateau equilibrium because it's in a regime barely seen during training.
+- At TF=1, the decoder produces trajectories with DET 0.77 (close to real's 0.66) and MSE 7× better than at TF=0.
+- This is the classic **exposure-bias / schedule-sampling** problem in autoregressive sequence models (Ranzato et al. 2016, Bengio et al. 2015).
+
+**What this means for the paper:**
+
+1. **The "every architecture invariantly hits DET 0.99" finding is largely an artifact of evaluating autoregressive decoders in their train/test mismatch regime.** It's not a property of "MSE-trained generative models for dynamical systems." It's a property of "autoregressive decoders evaluated at TF=0 after being trained at TF ≈ 1."
+2. **The σ=0.05 cure (§1.3.4) works because adding noise to the hidden state at every step disrupts the autoregressive-drift fixed point** — that's the actual mechanism, not "decoder stochasticity breaks mode-covering." Still a valid cure, but the framing has to change.
+3. **The OOD finding (§1.3.2/§1.3.3) needs reinterpretation**. We said "training distribution Exp(2) is the outlier in DET" — but actually it's the only distribution where DET-mismatch is large, because Exp(2) real-DET (0.66) is far from the decoder-drift attractor (0.99), while Exp(1)/Exp(5) real-DET (0.99) is *coincidentally close* to the drift attractor. We weren't measuring distribution-fidelity; we were measuring "how close is real DET to 0.99."
+
+**What still survives:**
+
+- The **3-lens protocol itself** (Lens 1 MMD/density-coverage, Lens 2 RQA, Lens 3 Lyapunov) is fine. The metrics are valid.
+- The **σ=0.05 cure** still produces a model whose generations look better — DET 0.99 → 0.82, λ₁ KS p = 0.71. The mechanism is just different than I described.
+- The **spectral-loss negative result** still holds.
+
+**Honest paper framing now:**
+
+The paper is now better described as: "Standard autoregressive VAEs for dynamical-system generation suffer from exposure bias when evaluated in inference mode (no teacher forcing); the decoder drifts to a plateau attractor, producing trajectories with characteristically high RQA-DET regardless of training regime. We diagnose this with a 3-lens NLD protocol and show that injected decoder noise (σ=0.05 in the hidden state at every step) breaks the drift fixed point and restores Lyapunov-match with real data." That's a real, useful, narrower contribution.
+
+**Action items (higher priority than the §1.3.3.1 list):**
+
+1. Re-run B1 σ=0.05 eval with TF=1 to confirm the cure isn't another TF=0 artifact.
+2. Add TF-sweep eval rows to comparative table (TF=0, 0.025, 0.5, 1.0).
+3. Re-frame §1.3 / §1.3.3 / §1.3.4 / §1.3.5 with the exposure-bias mechanism as the central claim, not "every architecture has the same defect."
+4. Add Schedule-Sampling / Exposure-Bias citations to REFERENCES.md (Bengio 2015, Ranzato 2016).
+
+User's intuition was right twice: the m7 bug was real, and the VAE finding was confounded by a different but related bug class.
+
+Source: audit traced via direct reconstruction tests, comparing TF=0 vs TF=1 vs prior-sample paths on m1_seed42. Verified MSE asymmetry (7× difference) corresponds to DET asymmetry (0.99 vs 0.77).
+
 #### 1.3.4 ⭐ B1 partial result — decoder stochasticity IS the cure (2026-05-18 09:48 UTC)
 
 **Frozen-σ 0.05 finished training and was evaluated on the ID Exp(2) test set immediately.** This is the first B1 result and it is decisive.
