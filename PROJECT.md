@@ -79,8 +79,8 @@ Cost: ~14 GPU-hours total (revised upward from initial ~12 estimate — frozen-�
 | **Audit: VAE-implicit-denoiser root cause** | ✓ §1.3.0–§1.3.3.4.2; noise-addition test validated (KS p=0.11/0.99) |
 | Model 1 (scale-cond VAE) × 3 seeds | seed 42 + 123 + 2026 ✓ |
 | Model 2 (no-cond VAE) × 3 seeds | seed 42 + 123 + 2026 ✓ |
-| Model 3 (stochastic-decoder VAE) × 3 seeds | seed 42 + 123 ✓; ⚠️ seed-42 σ collapsed to 0.0004 (audit §1.3.1) — superseded by B1 frozen-σ variants. **seed 2026 training as of 08:06 UTC 2026-05-19** |
-| Model 4 (Latent-ODE) × 3 seeds | seed 42 + 123 ✓; seed 2026 queued |
+| Model 3 (stochastic-decoder VAE) × 3 seeds | seed 42 + 123 + 2026 ✓ (m3_seed2026 finished 12:31 UTC 2026-05-19); ⚠️ all seeds have learned σ that collapsed to ~0.0004 (audit §1.3.1) — these checkpoints are functionally deterministic. The B1 frozen-σ variants supersede them for the cure story. |
+| Model 4 (Latent-ODE) × 3 seeds | seed 42 + 123 ✓; **seed 2026 training as of 12:31 UTC 2026-05-19** |
 | Model 5 (Transformer-VAE) × 3 seeds | seed 42 + 123 ✓; seed 2026 queued |
 | Model 6 (KAN-VAE) | seed 42 ✓ only (paper notes n=1 per design doc fallback; seeds 123+2026 skipped due to autoqueue handoff after B1 SIGTERM) |
 | ~~Model 7 (Direct GLV regression)~~ | **dropped from paper** per audit §1.3.3.1 — integration tmax mismatch + the root-cause story doesn't need a physics-naive baseline |
