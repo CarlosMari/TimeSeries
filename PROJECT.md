@@ -233,6 +233,41 @@ Why this is paper-good (much better than the original §1.3 framing):
 
 Source: `RESULTS_COMPARATIVE_OOD_Exp5.json` + `RESULTS_COMPARATIVE_OOD_Exp1.json` + `RESULTS_COMPARATIVE.json`.
 
+#### 1.3.3.1 ⚠️ Audit (2026-05-19): the "every architecture lands at DET ≈ 0.99" claim partly survives, partly broken
+
+User flagged the §1.3 finding as suspicious. Systematic-debugging audit run on m1 (scale-cond VAE) and m7 (GLV-regression) — the two most extreme cases.
+
+**What I verified is correct:**
+
+1. **Real-data DET is genuinely ~0.61** on the species-averaged signal of original-scale GLV trajectories. Computed three ways (species-mean of raw, species-mean of original-scale, per-species DET averaged) — all give 0.60–0.65, std 0.21–0.25. Real data spans the full chaos-periodicity range.
+
+2. **m1 (LSTM scale-cond VAE) generated samples really do cluster at DET ≈ 0.99 ± 0.01.** Computed four ways including apples-to-apples on normalized [0,1] data: real-normalized DET = 0.66, gen-normalized DET = 0.99. The per-sample std of 0.01 across 200 different latent codes is the more striking finding — *every* generated sample has nearly identical RQA structure, regardless of `z`. The model has collapsed to a single chaos-attractor.
+
+**What I found broken — and which invalidates the m7 row of §1.3:**
+
+3. **m7 (GLV-regression) "generation" is fundamentally broken.** Two compounding bugs in `src/models/glv_regression.py` + `train_glv_regression.py`:
+   - **Wrong x0**: `x0 = train_ds.X[:, :, 0]` uses the *normalized* first-timestep (range ~[0, 1]) as initial condition, but the original data generation used `rng.exponential(scale=0.1, size=7)` (range ~0.01–0.5, very different distribution).
+   - **Wrong tmax**: `t_final = 12.8` hardcoded in `integrate_glv()`, but the actual data was integrated at `tmax = 20`.
+   - Result: m7's `solve_ivp` outputs are *not* GLV trajectories from the test family. They land at DET ≈ 0.99 because the wrong-x0/wrong-tmax combo systematically produces fast-transient + plateau patterns.
+   - **The §1.3 "m7 GLV-regression hits DET 0.99 like the VAEs" finding was therefore wrong** — m7 isn't a comparable "physics-naive baseline" as currently constructed, it's a misintegrated ODE solver.
+
+**What this means for the paper's §1.3 / §1.3.4 story:**
+
+- The σ=0.05 cure (§1.3.4) and the σ-Pareto-frontier (§1.3.4.3) results **still hold** — they were computed only on VAE-family ckpts (m1/m3/B1 frozen-σ) and don't depend on m7.
+- The spectral-loss negative result (§1.3.4.4) **still holds** — same reason.
+- The §1.3 headline "every architecture invariantly hits DET ≈ 0.99" is **partly invalid**. The 6 VAE-family architectures (m1, m2, m3, m4, m5, m6) really do cluster at DET 0.99; that's real. But the m7 row was a bug, not a coincidence.
+- The §1.3.3 "training distribution is the outlier" framing **stays** — real Exp(2) DET = 0.61, real Exp(1)/Exp(5) DET = 0.99, generators land at 0.99 across all distributions. The pattern is real for VAEs; m7 needs to be rerun.
+
+**Action items:**
+
+- **Fix m7** before the comparative table is finalized. Two-line fix: store the actual original-scale x0 (from the raw trajectories) during training, set `t_final = 20` to match data generation.
+- **Re-run m7 eval** on all 3 distributions after the fix.
+- **Update §1.3 + §1.3.3** to remove m7 from the "all-architectures-invariant" framing, OR restate as "6/7 VAE-family architectures + 1 physics-informed baseline (rerun pending)."
+- **Add std reporting** to the comparative table — the std of 0.01 across 200 generated samples is more impressive than the gap of 0.37 vs real, and the paper should lead with that.
+- **Verification of std=0.01 finding via independent eval call** is the highest-priority next step (re-run with different RNG seed for sample selection; if std stays tiny it's the model, if std changes it's the eval).
+
+Source: this audit traced through `parameter_recoverability.py` (`tmax=20`) → `train_glv_regression.py` (`x0 = train_ds.X[:, :, 0]`) → `src/models/glv_regression.py` (`t_final=12.8`) and verified by direct re-integration.
+
 #### 1.3.4 ⭐ B1 partial result — decoder stochasticity IS the cure (2026-05-18 09:48 UTC)
 
 **Frozen-σ 0.05 finished training and was evaluated on the ID Exp(2) test set immediately.** This is the first B1 result and it is decisive.
