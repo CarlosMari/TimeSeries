@@ -447,6 +447,46 @@ The honest paper framing has to acknowledge both:
 
 Source: clean-vs-noisy seed reproduction comparing `generate_curves_Mario` output (clean) to stored TEST_FINAL_FIXED (with σ=0.01 post-noise applied by `generate_family_FIXED.py` line 203).
 
+##### 1.3.3.4.2 Final root-cause clarification: the VAEs learned to DENOISE
+
+User asked where noise was applied. Verified: **noise is applied in `generate_family_FIXED.py:203`**, BEFORE both train and test data are saved. So both TRAIN and TEST data have σ=0.01 lognormal noise.
+
+| Source | Noise applied? | DET |
+|---|---|---|
+| `generate_curves_Mario` output | No (clean ODE) | 0.21–0.96 (varied, depending on dynamics) |
+| `generate_family_FIXED.py` (used for train AND test) | Yes (σ=0.01 lognormal multiplicative) | 0.61 ± 0.25 |
+| Train data on disk (TRAIN_FINAL_FIXED) | Yes — verified, visibly noisy | 0.602 ± 0.261 |
+| Test data on disk (TEST_FINAL_FIXED) | Yes — same code path | 0.607 ± 0.253 |
+| **VAE generations** | **NO — model produces clean trajectories** | **0.989 ± 0.012** |
+
+**The VAEs were trained on noisy data and chose to produce clean data.** That's the key insight.
+
+This is **the well-known VAE-as-denoiser phenomenon**:
+
+1. **MSE loss prefers smoothness when noise is unstructured.** For a noisy input, the MSE-optimal output is the smoothed underlying signal (the conditional mean of the clean signal given the noisy observation). Predicting the actual noise sample is impossible because noise is iid and unencodable.
+2. **30-D z can't store 7×65=455 noise samples.** The bottleneck compresses the signal to z, which by capacity argument can only encode smooth dynamical content. At generation time, sampling z and decoding gives clean trajectories.
+3. **This is a feature in image VAEs** (where denoising is desired) **but a bug in time-series generation when downstream evaluation expects noisy outputs.**
+
+**Paper framing — sharpest version yet:**
+
+> "Standard VAEs trained on noisy dynamical-system data act as implicit denoisers: they learn the smooth underlying trajectory and discard observation noise. This is invisible to reconstruction-R² (which is dominated by the smooth signal mean and tolerates the noise as residual error). But it's caught immediately by the 3-lens NLD protocol — RQA-DET and Lyapunov exponent are exquisitely sensitive to the high-frequency variation that the model fails to reproduce."
+>
+> "We demonstrate this with a controlled noise-addition experiment: adding lognormal σ=0.01 noise (matching the data-generation noise level) to the VAE's clean generations makes them statistically indistinguishable from real test data on both RQA-DET (KS p = 0.11) and Lyapunov exponent (KS p = 0.99). The σ=0.05 hidden-state-noise intervention works because it's a learned analogue of this — the decoder produces output with reasonable per-timestep variance."
+>
+> "The protocol is therefore detecting and quantifying VAE-implicit-denoising: a real, well-known failure mode of MSE-trained generative models, but one that has been under-characterized in dynamical-system applications where the missing noise carries dynamically-relevant information (e.g., perturbing chaotic attractors, modeling measurement uncertainty)."
+
+This is now the cleanest, most honest, most paper-publishable framing. It's a *known* phenomenon, but characterized in a *new* setting (dynamical systems) with a *new diagnostic methodology* (the 3-lens NLD protocol) that catches it where standard metrics don't.
+
+**This is publishable.** The contribution is:
+1. The 3-lens NLD protocol → detects implicit-denoising in dynamical-system VAEs
+2. Quantitative characterization on GLV across 6 architectures
+3. Simple intervention (decoder noise) demonstrates the cure mechanism
+4. Useful negative control (spectral loss) shows why some natural ideas don't work
+
+**Future work direction (mentioned in paper):** proper heteroscedastic-noise VAEs (NLL loss with per-timestep predicted σ; explicit observation-noise modeling à la VAE-with-noise-head). This is a clean follow-up paper / discussion-section future-work bullet.
+
+Source: this empirical chain: train data verified noisy (DET 0.602 matches test 0.607), VAE generations verified clean (DET 0.989), noise-addition closes both DET and λ₁ gaps to non-significance.
+
 #### 1.3.4 ⭐ B1 partial result — decoder stochasticity IS the cure (2026-05-18 09:48 UTC)
 
 **Frozen-σ 0.05 finished training and was evaluated on the ID Exp(2) test set immediately.** This is the first B1 result and it is decisive.
