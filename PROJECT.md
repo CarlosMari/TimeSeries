@@ -230,7 +230,7 @@ Five sanity / extension checks before committing the ~40 GPU-hr remaining multi-
 
 The A1 and A2 results substantially **strengthen** the paper's headline (the protocol works, the defect is visible). The B3 result substantially **weakens** one of the four supporting claims (decoder stochasticity → null) and forces a real retrain to settle the hypothesis. Net: better paper after the validation than before.
 
-#### 1.3.2 OOD Exp(1) result — major reframe of the §1.3 "architecture-invariant defect" story (2026-05-17)
+#### 1.3.2 OOD Exp(1) result (2026-05-17) — initial framing as "regime-locked generators"; now read through §1.3.0 lens as consistent with VAE-as-denoiser
 
 **Ran the unified eval on all 7 seed-42 checkpoints against `data/TEST_OOD_Exp1.pkl`** (5000 trajectories generated with `r ~ Exp(1)` — faster growth rates than the training distribution Exp(2)).
 

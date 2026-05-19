@@ -116,7 +116,7 @@ Living document. Each entry: bibtex-able key, full reference, **what we cite it 
 
 These need a specific reference; will be filled in during the lit-search phase:
 
-- A canonical inverse-Volterra-problem paper for model 7's motivation.
+- ~~A canonical inverse-Volterra-problem paper for model 7's motivation~~ — m7 dropped from paper per audit §1.3.3.1; reference no longer needed.
 - One KAN-as-generative-component paper (or confirm we are one of the first).
 - ~~One reference on perceptual / spectral losses for time-series generation~~ ✓ Engel/Yamamoto/Steinmetz added 2026-05-18 (used by B1 spectral-loss variant).
 - "Generative-model fidelity in scientific simulators" — find the closest equivalent in physics ML (cosmology emulators? climate emulators?) to position our protocol.
