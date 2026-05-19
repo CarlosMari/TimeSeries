@@ -61,34 +61,95 @@ Cost: ~14 GPU-hours total (revised upward from initial ~12 estimate — frozen-�
 
 **The variant 1 result was decisive enough that §1.3.4 below already documents the centerpiece finding.** Variants 2–4 will refine: does higher σ close DET further? Does the orthogonal spectral-loss approach independently work?
 
-### 1.2 Roadmap snapshot (live)
+### 1.2 Roadmap snapshot (live, refreshed 2026-05-19)
+
+**Paper status:** post-audit, story consolidated around VAE-as-implicit-denoiser (see §1.3.0). 6 architectures in the comparison (m7 dropped, see audit). Multi-seed batch in progress; B1 cure batch complete.
 
 | Pivot-era task | Status |
 |---|---|
 | Design doc written | ✓ `docs/superpowers/specs/2026-05-15-comparative-evaluation-design.md` |
-| REFERENCES.md seeded | ✓ |
-| Wiki / plan / README updated | ✓ |
+| REFERENCES.md seeded | ✓ + denoiser/exposure-bias additions 2026-05-19 |
+| Wiki + plan + README current | ✓ refreshed 2026-05-19 audit consolidation |
 | Data pipeline rebuilt w/o sort (D1 fix) | ✓ `data/TRAIN_FINAL_NOSORT.pkl` + `data/TEST_FINAL_NOSORT.pkl` |
-| 7 model architectures implemented + smoke-tested | ✓ (`src/models/{cvae,cvae_stochastic,latent_ode,transformer_vae,kan_vae,glv_regression}.py`) |
-| Unified eval harness | ✓ `analysis/evaluate_all_models.py` (validated on v1 ckpt) |
-| **D3 fix verified on v1 model (§3.8.1)** | ✓ density/coverage 0.13→0.98, MMD p=0.005 survives |
+| Model architectures implemented + smoke-tested | ✓ (m1–m6 used in paper; m7 dropped per audit §1.3.3.4) |
+| Unified eval harness | ✓ `analysis/evaluate_all_models.py` |
+| D3 fix verified on v1 model (§3.8.1) | ✓ density/coverage 0.13→0.98, MMD p=0.005 survives |
 | OOD family test sets (`r~Exp(1)`, `r~Exp(5)`) | ✓ 5k samples each |
 | Lens-validation synthetic-perturbation experiment | ✓ `RESULTS_LENS_VALIDATION.json` + figure |
-| Model 1 (scale-cond VAE) retrained × 3 seeds | seed 42 ✓ + seed 123 ✓ + **seed 2026 ✓** (`model_1_seed2026.pth`, 03:55 UTC 2026-05-19) |
-| Model 2 (no-cond VAE) retrained × 3 seeds | seed 42 ✓ + seed 123 ✓ + **seed 2026 ✓** (`model_2_seed2026.pth`, 08:06 UTC 2026-05-19) |
-| Model 3 (stochastic-decoder VAE) trained × 3 seeds | seed 42 ✓ + seed 123 ✓; ⚠️ seed-42 σ collapsed (§1.3.1 B3) — superseded by B1 frozen-σ variants. **seed 2026 training as of 08:06 UTC 2026-05-19** |
-| Model 4 (Latent-ODE) trained × 3 seeds | seed 42 ✓ + seed 123 ✓; seed 2026 queued |
-| Model 5 (Transformer-VAE) trained × 3 seeds | seed 42 ✓ + seed 123 ✓; seed 2026 queued |
-| Model 6 (KAN-VAE) trained × 3 seeds | seed 42 ✓ (`model_6_seed42.pth`, 23:38 UTC 2026-05-16, 16h total). **Seed 123 + seed 2026 SKIPPED:** the SIGTERM during B1 setup left autoqueue's bookkeeping thinking m6_seed123 completed (rc=143), so it advanced to m7_seed123 without retraining KAN. Per design doc fallback ("KAN single-seed acceptable if compute tight"), KAN remains single-seed in the paper. Documented in the comparative table as "n=1 for KAN-VAE." |
-| Model 7 (Direct GLV regression) trained × 3 seeds | seed 42 ✓ + seed 123 ✓ (`model_7_seed123.pth`, 23:43 UTC 2026-05-18, 4 min); seed 2026 queued |
-| `RESULTS_COMPARATIVE.json` | ✓ seed-42 row populated 00:15 UTC 2026-05-17 (all 7 models). Seed-123 row not yet evaluated (eval runs after batch). Seed-2026 batch hasn't started |
-| `RESULTS_COMPARATIVE_OOD_Exp1.json` | ✓ 07:30 UTC 2026-05-17 — all 7 seed-42 models on `r~Exp(1)`. See §1.3.2 |
-| `RESULTS_COMPARATIVE_OOD_Exp5.json` | ✓ 07:36 UTC 2026-05-17 — all 7 seed-42 models on `r~Exp(5)`. See §1.3.3 |
-| `RESULTS_COMPARATIVE_B1.json` | queued — runs ~20:30 UTC tonight after the 4 B1 trainings complete |
-| Comparative figures | seed-42 versions regenerated 00:15 UTC 2026-05-17. Multi-seed regen scheduled after seed-123 row + B1 land |
-| Phase-4 draft | starts once multi-seed + B1 table exists (~Tue–Wed) |
+| **Audit: VAE-implicit-denoiser root cause** | ✓ §1.3.0–§1.3.3.4.2; noise-addition test validated (KS p=0.11/0.99) |
+| Model 1 (scale-cond VAE) × 3 seeds | seed 42 + 123 + 2026 ✓ |
+| Model 2 (no-cond VAE) × 3 seeds | seed 42 + 123 + 2026 ✓ |
+| Model 3 (stochastic-decoder VAE) × 3 seeds | seed 42 + 123 ✓; ⚠️ seed-42 σ collapsed to 0.0004 (audit §1.3.1) — superseded by B1 frozen-σ variants. **seed 2026 training as of 08:06 UTC 2026-05-19** |
+| Model 4 (Latent-ODE) × 3 seeds | seed 42 + 123 ✓; seed 2026 queued |
+| Model 5 (Transformer-VAE) × 3 seeds | seed 42 + 123 ✓; seed 2026 queued |
+| Model 6 (KAN-VAE) | seed 42 ✓ only (paper notes n=1 per design doc fallback; seeds 123+2026 skipped due to autoqueue handoff after B1 SIGTERM) |
+| ~~Model 7 (Direct GLV regression)~~ | **dropped from paper** per audit §1.3.3.1 — integration tmax mismatch + the root-cause story doesn't need a physics-naive baseline |
+| B1 cure batch (σ ∈ {0.05, 0.10, 0.20} + spectral-loss-0.1, seed 42) | ✓ — see §1.3.4–§1.3.5; σ=0.05 is Pareto sweet spot, spectral-loss fails (informatively) |
+| Noise-addition empirical validation | ✓ §1.3.3.4 — σ=0.01 lognormal added to VAE clean outputs gives DET KS p=0.11, λ₁ KS p=0.99 vs real |
+| `RESULTS_COMPARATIVE.json` (seed-42, 7-model) | ✓ generated 00:15 UTC 2026-05-17 |
+| `RESULTS_COMPARATIVE_OOD_Exp{1,5}.json` | ✓ |
+| `RESULTS_COMPARATIVE_B1.json` | ✓ |
+| Multi-seed comparative eval table | pending — runs after seed-2026 batch completes |
+| Comparative figures | seed-42 versions ✓; multi-seed regen pending |
+| Phase-4 paper draft | starts once multi-seed table + B1 + noise-addition figure exist (~end of week) |
 
-### 1.3 Seed-42 comparative findings (added 2026-05-17, headline)
+### 1.3 Seed-42 comparative findings
+
+> **⚠️ READ §1.3.0 FIRST.** The pre-audit headline ("every architecture invariantly hits DET ≈ 0.99 vs real 0.62") was empirically reproducible but its interpretation was wrong. The 2026-05-19 audit (subsections §1.3.3.1 → §1.3.3.4.2) walked through four progressively-sharper diagnoses; **§1.3.0 below is the current synthesis**. Sections §1.3.1–§1.3.5 are retained as the historical investigation trail (numbers correct, framing partially superseded — read with that in mind).
+
+#### 1.3.0 ✅ Current consolidated story (synthesized 2026-05-19)
+
+After four audit steps and an empirical noise-addition test, the paper's central finding crystallizes as **VAE-as-implicit-denoiser in dynamical-system generation**:
+
+1. **Real test data has σ=0.01 lognormal observation noise** applied in `generate_family_FIXED.py:203`, after the clean ODE solve. Same code path for train and test data. Verified: stored train data has DET 0.602 (visibly noisy); stored test data has DET 0.607.
+
+2. **VAEs were trained on this noisy data and chose to produce clean trajectories.** Across all 6 VAE-family architectures (LSTM scale-cond / no-cond, stochastic-decoder with collapsed σ, Latent-ODE, Transformer, KAN), generated trajectories have DET 0.989 ± 0.012 — essentially zero variance across `z`. The model class acts as an implicit denoiser:
+   - MSE loss is minimized by predicting the conditional mean of the clean signal given the noisy input
+   - 30-D latent z cannot encode 7×65=455 noise samples by capacity argument
+   - At generation time, sampling z → decoding gives clean trajectories because z only carries smooth dynamical content
+
+3. **This is invisible to reconstruction-R²** (which remains at ~0.94) because noise is high-frequency residual error that recon-R² tolerates well — but **caught immediately by the 3-lens NLD protocol**, because RQA-DET and λ₁ are exquisitely sensitive to the per-timestep variation that clean outputs lack.
+
+4. **Quantitative validation of the diagnosis.** Adding lognormal σ=0.01 noise (matching the data-gen process) to VAE clean generations makes them **statistically indistinguishable from real** on both Lens 2 (DET: real 0.607 ± 0.253 vs gen+noise 0.595 ± 0.211, KS p = **0.11**) and Lens 3 (λ₁: real +0.0753 vs gen+noise +0.0753, KS p = **0.99**). The model class is exactly the denoiser the protocol said it was.
+
+5. **The σ=0.05 hidden-state-noise cure (§1.3.4)** works because injected decoder noise produces noisier output, partially closing the gap. Cleaner mechanism than the autoregressive-drift story I drafted in §1.3.3.3. The Pareto-frontier behavior of higher σ (§1.3.4.3) is consistent — more decoder noise → more output noise → over-shoots real DET at high σ.
+
+6. **Spectral-loss negative result (§1.3.4.4)** holds with a sharper interpretation: spectral-MSE penalizes specific-frequency-band mismatch but doesn't add stochastic per-timestep variation, so it doesn't model the iid noise the data has.
+
+7. **A second, secondary effect compounds with the noise-modeling story** (§1.3.3.4.1): the VAEs also collapsed to a narrow region of *clean-dynamics* space (DET 0.99 ± 0.012, std ≈ 0.01 across different `z`), whereas real *clean* trajectories span DET 0.21–0.96 due to dynamical diversity. So ~70% of the gap is noise-modeling, ~30% is dynamics-collapse. Both are real, both are caught by the protocol, both are partially fixed by decoder noise (which also broadens the output diversity).
+
+**Paper headline (current):**
+
+> Standard VAEs trained on noisy dynamical-system data act as implicit denoisers and as mode-collapsers in dynamical-behavior space. Both failures are invisible to reconstruction-R² (which remains at ~0.94) but are caught with high specificity by NLD-aware metrics (RQA, largest Lyapunov exponent). We characterize this on GLV across 6 generative architectures, demonstrate the noise-modeling gap with a controlled noise-addition experiment that closes the protocol-detected gap to statistical indistinguishability, and show that injected decoder hidden-state noise (σ=0.05) partially cures both failures simultaneously at no reconstruction cost. A spectral-MSE loss does *not* cure the gap, confirming the failure is about stochastic per-timestep variation rather than spectral-band content. We position this as VAE-implicit-denoising in time-series — a well-known phenomenon in image VAEs (where it's a feature), here characterized as a quantifiable failure mode in dynamical-system generation (where it discards information).
+
+**Action items locked in:**
+
+1. m7 GLV-regression: drop from paper (not retraining — bugs in its integration setup make it a confounded baseline, and the noise-modeling story doesn't need a physics-naive baseline). 6-architecture comparison stands.
+2. Reframe §1.3, §1.3.4, §1.3.5 prose (this revision is part of that).
+3. Add VAE-as-denoiser literature to REFERENCES.md (next).
+4. Future-work paragraph: explicit heteroscedastic-noise heads / NLL-based VAE losses as the principled fix.
+
+Subsection map for the historical investigation trail (numbers correct, framing has been refined):
+
+| §1.3.x | What it says | Status |
+|---|---|---|
+| §1.3.1 | Pre-multi-seed validation sweep | numbers correct; framing fine |
+| §1.3.2 | OOD Exp(1) result | numbers correct; interpretation now folded into noise-modeling story (the "generators sit at the smoothness attractor regardless of test distribution" observation is consistent with VAE-as-denoiser) |
+| §1.3.3 | OOD Exp(5) result | same |
+| §1.3.3.1 | First audit pass: m7 bug | superseded — m7 dropped; noise-modeling is the deeper cause |
+| §1.3.3.2 | Second audit pass: teacher-forcing artifact | partly right (TF=1 vs TF=0 asymmetry IS real for LSTM family), but a secondary effect |
+| §1.3.3.3 | Third audit pass: 3-pattern architectural | observations correct; "autoregressive drift" framing superseded by noise-modeling |
+| §1.3.3.4 | Fourth audit pass: noise-modeling root cause | ✓ current story (this §1.3.0) |
+| §1.3.3.4.1 | Two-effects refinement | ✓ |
+| §1.3.3.4.2 | Implicit-denoiser framing | ✓ |
+| §1.3.4 + .x | B1 σ-sweep cure results | numbers correct; mechanism reframed |
+| §1.3.5 | B1 batch summary | numbers correct; same |
+
+---
+
+### 1.3 (historical) — Seed-42 comparative findings (added 2026-05-17, headline at the time)
+
+> ⚠️ The framing below is the pre-audit narrative. The numbers are correct; see §1.3.0 above for the current synthesis. Kept for traceability.
 
 **Single-seed run on all 7 architectures, full eval matrix.** Real data is the 39k-sample no-sort test set; 2k generated per model (extinction-fix θ=0.005), 200 per RQA + Lyapunov. JSON: `RESULTS_COMPARATIVE.json`. Numbers re-derive with `python analysis/evaluate_all_models.py --checkpoints …`.
 
@@ -489,6 +550,8 @@ Source: this empirical chain: train data verified noisy (DET 0.602 matches test 
 
 #### 1.3.4 ⭐ B1 partial result — decoder stochasticity IS the cure (2026-05-18 09:48 UTC)
 
+> **Reframed 2026-05-19**: the numbers below are correct, but the mechanism is now understood as **noise-modeling** (see §1.3.0). Injected decoder noise → noisier output → closes the gap to noisy real data. The original "breaks the deterministic-attractor" framing is misleading.
+
 **Frozen-σ 0.05 finished training and was evaluated on the ID Exp(2) test set immediately.** This is the first B1 result and it is decisive.
 
 | Metric | All 7 prior models (deterministic) | **B1 frozen-σ 0.05** | Real Exp(2) |
@@ -654,6 +717,8 @@ Variant 4 (`b1_m1_spectral_0p1_seed42.pth`) finished at 23:17 UTC. The unified e
 Source: `RESULTS_COMPARATIVE_B1.json` (ID eval for all 4 B1 variants), `RESULTS_B1_spectral_OOD_Exp1.json`, `RESULTS_B1_spectral_OOD_Exp5.json`.
 
 #### 1.3.5 B1 batch complete — combined summary + paper Section 6 framing (added 2026-05-18 23:40 UTC)
+
+> **Reframed 2026-05-19**: numbers correct, mechanism is noise-modeling (§1.3.0). "Decoder stochasticity breaks the autoregressive drift" → "decoder noise restores per-timestep variation the generators were trained on but failed to reproduce." Pareto σ-frontier holds: more σ → more output noise → over-shoots real DET at high σ.
 
 All 4 B1 variants trained + evaluated on all 3 distributions. **12 cells of cure-evaluation data.** Combined narrative for Section 6:
 

@@ -6,9 +6,16 @@ PLAN.md is the **todo list**; PROJECT.md is the **wiki**. The canonical design i
 
 ---
 
-## Pivot in one line
+## Paper in one line (consolidated post-audit 2026-05-19)
 
-The paper became a **comparative empirical study of 7 generative architectures on GLV trajectories under a 3-lens nonlinear-dynamics evaluation protocol**, not a single-model paper about a scale-conditioned VAE.
+Standard VAEs trained on noisy dynamical-system data act as **implicit denoisers**: they learn the smooth underlying trajectories and discard observation noise. This failure mode is invisible to reconstruction-R² (which stays ~0.94) but caught with high specificity by NLD-aware metrics (RQA, Lyapunov). We characterize this on Generalized Lotka–Volterra trajectories across 6 generative architectures, demonstrate the noise-modeling gap with a controlled experiment (adding σ=0.01 lognormal noise to clean VAE outputs makes them statistically indistinguishable from real, KS p = 0.11 / 0.99), and show that injected decoder hidden-state noise (σ=0.05) partially cures the gap at no recon cost. Spectral-MSE loss does *not* work — useful negative control.
+
+See **PROJECT.md §1.3.0** for the full synthesis.
+
+### Previous framings (history)
+
+- **Pre-audit:** "Every architecture invariantly hits DET ≈ 0.99 vs real 0.62." → Numbers correct, interpretation wrong; superseded by audit.
+- **Post-pivot (2026-05-15):** "Comparative empirical study of 7 generative architectures on GLV under a 3-lens NLD protocol." → Still the methodology; the 7→6 happened during audit (m7 dropped). The comparison is real; the story we tell about *what it reveals* is now sharper.
 
 ---
 
