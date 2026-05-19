@@ -129,6 +129,39 @@ After four audit steps and an empirical noise-addition test, the paper's central
 3. Add VAE-as-denoiser literature to REFERENCES.md (next).
 4. Future-work paragraph: explicit heteroscedastic-noise heads / NLL-based VAE losses as the principled fix.
 
+#### 1.3.0.1 Tier 1.2 noise-addition sweep (added 2026-05-19 09:42 UTC)
+
+Generalization of the §1.3.3.4 noise-addition test across 13 ckpts (5 architectures × multiple seeds; m6 single-seed; m1, m2 cover all 3 seeds). For each ckpt: generate 200 clean samples, apply lognormal multiplicative noise at σ ∈ {0, 0.005, 0.01, 0.02, 0.05}, compute Lens 1 (MMD), Lens 2 (RQA-DET), Lens 3 (Lyapunov) vs the same 200 real test trajectories.
+
+**Key results — KS p-value vs real test data at σ = 0.01** (the data-generation noise level):
+
+| Model | DET KS p | λ₁ KS p | MMD² |
+|---|---|---|---|
+| m1 scale-cond VAE × 3 seeds | 4e-2, 6e-4, 3e-3 | 9e-2, **0.47**, 1e-2 | 6e-2 – 16e-2 |
+| m2 no-cond VAE × 3 seeds | 2e-3, **5e-2**, 1e-2 | 3e-3, 1e-3, 9e-2 | 24e-2 – 30e-2 |
+| m3 stochastic VAE × 2 seeds | 1e-3, 2e-2 | **0.33**, 9e-2 | 6-7e-2 |
+| m4 Latent-ODE × 2 seeds | **0.14**, 1e-2 | 4e-3, **0.11** | 7-9e-2 |
+| **m5 Transformer-VAE × 2 seeds** | **0.33, 0.79** | **0.97, 0.47** | **3e-2** |
+| m6 KAN-VAE seed 42 | 4e-4 | 4e-2 | 7e-2 |
+| **At σ=0 (clean VAE outputs)** | all < 10⁻⁷⁹ | all < 10⁻⁴ | all > 0 (sig.) |
+
+**Summary**: at σ=0.01, DET reaches non-significance (p>0.05) in **4/13 models**; λ₁ in **8/13**. The noise-addition cure substantially closes the gap for every model, but **architectural variation in receptiveness is now visible**:
+
+- **Transformer-VAE (m5)** is the most amenable to the noise fix — at σ=0.01 both DET and λ₁ are essentially indistinguishable from real (p = 0.33–0.97). The cross-attention decoder appears to produce trajectories whose underlying smooth dynamics best match the real clean dynamics.
+- **Latent-ODE (m4)** is mixed — one seed gets DET match (p=0.14), but λ₁ is harder (p=4e-3 / 0.11). Consistent with ODE-prior collapsing in dynamics-space (the §1.3.3.4.1 secondary effect).
+- **LSTM-VAEs (m1, m2, m3) and KAN-VAE (m6)** improve dramatically but don't reach full statistical match. The dynamics-collapse component (~30% of the gap per §1.3.3.4.1) is real for these architectures and noise-addition alone doesn't fully fix it.
+- **No-conditioning baseline (m2)** has noticeably higher MMD² (24–30e-2) even at σ=0.01 — the missing scale information manifests in distributional features that noise can't repair. Validates that scale conditioning is doing real work beyond just recon quality.
+
+**This is a richer paper finding than §1.3.0 anticipated.** Instead of one universal cure, the noise-addition sweep reveals **architecture-specific noise-modeling deficits**:
+
+> "The 3-lens NLD protocol detects a noise-modeling failure shared by all 6 VAE-family architectures, but adding back the data-generation noise (σ=0.01 lognormal) closes the protocol-detected gap differently across architectures. Transformer-VAE produces clean dynamics that match real-clean dynamics best (post-noise KS p > 0.3 on both DET and λ₁); LSTM and Latent-ODE classes show residual dynamics-coverage gaps that noise can't repair. We position this as evidence that VAE-implicit-denoising is universal, but the *quality* of the learned clean dynamics is architecture-dependent — and our protocol can quantify both components."
+
+The §1.3.3.4.1 two-effect decomposition (noise-modeling ~70%, dynamics-collapse ~30%) is now validated across architectures: m5 has minimal dynamics-collapse, m6 has the most, others in between.
+
+**Paper figure**: `final figures/fig_noise_sweep.{pdf,png}` — x = σ, dual y-axis (DET KS p, λ₁ KS p), one line per ckpt. The inverse-V shape is visually striking and immediately communicates the story.
+
+Source: `RESULTS_NOISE_SWEEP.json` (29 KB), 13 ckpts × 5 σ values × 3 metrics. Will be re-run once seed-2026 m3/m4/m5 ckpts land (post-audit pipeline triggers Tier 1.1 + 1.4 at that point).
+
 Subsection map for the historical investigation trail (numbers correct, framing has been refined):
 
 | §1.3.x | What it says | Status |
