@@ -82,7 +82,7 @@ Cost: ~14 GPU-hours total (revised upward from initial ~12 estimate — frozen-�
 | Model 3 (stochastic-decoder VAE) × 3 seeds | seed 42 + 123 + 2026 ✓ (m3_seed2026 finished 12:31 UTC 2026-05-19); ⚠️ all seeds have learned σ that collapsed to ~0.0004 (audit §1.3.1) — these checkpoints are functionally deterministic. The B1 frozen-σ variants supersede them for the cure story. |
 | Model 4 (Latent-ODE) × 3 seeds | seed 42 + 123 ✓; seed 2026 ✓ (m4_seed2026 finished 15:36 UTC 2026-05-19) |
 | Model 5 (Transformer-VAE) × 3 seeds | seed 42 + 123 ✓; seed 2026 ✓ (m5_seed2026 finished 23:34 UTC 2026-05-19) |
-| Model 6 (KAN-VAE) | seed 42 ✓; **seed 2026 training as of 23:34 UTC 2026-05-19** (autoqueue spawned 1s before post-audit watcher SIGSTOPed it — letting it run because KAN-VAE multi-seed was previously n=1); seed 123 still skipped |
+| Model 6 (KAN-VAE) | seed 42 ✓; **seed 2026 training as of 23:34 UTC 2026-05-19** (autoqueue spawned 1s before post-audit watcher SIGSTOPed it — letting it run because KAN-VAE multi-seed was previously n=1); ETA ~15h (per-iter ≈113s, much slower than other models) → finishes ~15:18 UTC 2026-05-20; seed 123 still skipped |
 | ~~Model 7 (Direct GLV regression)~~ | **dropped from paper** per audit §1.3.3.1 — integration tmax mismatch + the root-cause story doesn't need a physics-naive baseline. seed 2026 successfully preempted by watcher (autoqueue SIGSTOPed at 23:35 UTC 2026-05-19 before m7 could spawn) |
 | B1 cure batch (σ ∈ {0.05, 0.10, 0.20} + spectral-loss-0.1, seed 42) | ✓ — see §1.3.4–§1.3.5; σ=0.05 is Pareto sweet spot, spectral-loss fails (informatively) |
 | Noise-addition empirical validation | ✓ §1.3.3.4 — σ=0.01 lognormal added to VAE clean outputs gives DET KS p=0.11, λ₁ KS p=0.99 vs real |
