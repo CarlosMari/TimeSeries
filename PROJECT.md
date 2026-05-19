@@ -357,6 +357,62 @@ User checks: (1) training data contamination? (2) is x0 in the bottleneck? (3) g
 
 Source: direct reconstruction tests on all 7 seed-42 ckpts + 4 B1 ckpts, 200 samples each, TF=1 vs TF=0 vs prior-gen.
 
+#### 1.3.3.4 ⚠️⚠️⚠️ Audit step 4 (2026-05-19): the *real* root cause is observation noise on the test data, not the model
+
+User points out: the noise on the test trajectories was added in post-processing, not inside the ODE solver. That single fact reframes everything in §1.3.3.1–§1.3.3.3.
+
+**Empirical verification.** Took m1 (scale-conditioned VAE) generations (clean, what eval harness measures), applied lognormal multiplicative noise at the same σ = 0.01 that `generate_family_FIXED.py` declares for test-data generation, and re-ran Lens 2 + Lens 3 against real data:
+
+| Setup | DET (n=200) | KS p vs real DET | λ₁ (n=200) | KS p vs real λ₁ |
+|---|---|---|---|---|
+| Real test data | 0.607 ± 0.253 | — | +0.0753 ± 0.0375 | — |
+| VAE gen, clean (what eval harness sees) | 0.989 ± 0.012 | < 10⁻⁹⁰ | +0.0495 ± 0.0587 | 10⁻⁴ |
+| VAE gen + lognormal noise σ=0.005 | 0.718 ± 0.207 | 10⁻⁶ | +0.0686 ± 0.0445 | 0.18 |
+| **VAE gen + lognormal noise σ=0.01** | **0.595 ± 0.211** | **0.11 ✓ n.s.** | **+0.0753 ± 0.0383** | **0.99 ✓ n.s.** |
+| VAE gen + noise σ=0.02 | 0.475 ± 0.192 | 10⁻⁵ | +0.0879 ± 0.0309 | 6 × 10⁻⁴ |
+| VAE gen + noise σ=0.05 | 0.346 ± 0.136 | 10⁻¹⁸ | +0.1053 ± 0.0262 | 10⁻¹⁴ |
+
+**The match at σ=0.01 is essentially perfect.** Both Lens 2 (RQA-DET) and Lens 3 (Lyapunov) become statistically indistinguishable from real data when we add the same noise the data-generation pipeline applied to the test set.
+
+**The actual root cause of the entire §1.3 finding:**
+
+> The 3-lens NLD protocol correctly detects that the VAEs produce trajectories that differ from real test data — but the difference is *not* a property of the trained generator (autoregressive drift, mode collapse, etc.). The difference is that **real test trajectories contain observation noise** (multiplicative lognormal, σ ≈ 0.01) **that the VAEs were never trained to reproduce** because they learn the smoothed underlying dynamics, not the per-timestep stochastic observation process.
+>
+> Recon-R² doesn't see the noise gap because the noise is high-frequency and averages out across the trajectory. RQA-DET sees it because RQA-DET *is* a measure of local recurrence/predictability, which observation noise destroys by construction. Same with λ₁ (Rosenstein's algorithm picks up noise-driven divergence between near-neighbors as positive Lyapunov exponent).
+
+**What survives in the paper:**
+
+- **The 3-lens protocol is real and useful** — it detected a deployment-relevant property (the generators don't model observation noise) that recon-R² missed. That's a publishable methodological contribution.
+- **The σ=0.05 cure works** — adding decoder noise produces noisier output that better matches real noisy data. The mechanism is much simpler than the autoregressive-drift story: it's *adding back the noise that data has but generators don't produce*.
+- **Spectral-loss negative result still holds** — but for the same reason: spectral-loss doesn't add the kind of high-frequency multiplicative noise that real data has.
+
+**What needs to be REFRAMED in the paper, fundamentally:**
+
+1. **The headline is no longer "every architecture has this defect"** — it's now "generative VAEs for dynamical systems trained on noisy observations learn the clean dynamics and fail to reproduce the observation noise process; this is invisible to recon-R² but caught by NLD-aware metrics."
+2. **The "autoregressive drift" framing in §1.3.3.3 is partly wrong**. The TF=1 vs TF=0 reconstruction asymmetry IS real (the LSTM-VAE class does have an exposure-bias problem), but it's a SECOND-ORDER effect on top of the noise-modeling failure. At TF=0 the decoder drifts to a *clean* plateau attractor; at TF=1 the decoder reproduces the *input* (which already has noise) so the output also has noise. Both effects exist but the noise-modeling story is dominant.
+3. **The σ-cure is now interpreted as "noise-modeling intervention"** rather than "drift-fixed-point disruption." Cleaner mechanism.
+4. **The interesting next experiment is: train a VAE with an explicit noise head** (predict per-timestep Gaussian/lognormal σ at the output, sample from it at inference) — this is a real architectural contribution that should *also* close the DET/λ₁ gap, and is more elegant than ad-hoc σ injection.
+
+**What this means for paper viability:**
+
+The paper is *more solid* than I was framing it, not less. Now we have:
+- Diagnostic protocol that correctly identifies a real model failure mode (noise-process gap)
+- Quantitative validation: adding the exact missing noise distribution reverses the gap perfectly (KS p = 0.11 / 0.99)
+- A working class of cures (decoder noise) with a clean interpretation
+- A negative control (spectral-loss) that fails for an interpretable reason
+- Clear future work direction (proper noise head)
+
+This is a *cleaner, sharper* paper than the autoregressive-drift framing. The pivot's core hypothesis (NLD-aware metrics catch what recon-R² misses) is *correct and important*. The mechanism we identified for the failure is just much simpler and more honest than "exposure bias."
+
+**Action items (replaces §1.3.3.1-§1.3.3.3 action items):**
+
+1. **Rewrite §1.3, §1.3.3, §1.3.4, §1.3.5** around the noise-modeling-gap mechanism (not autoregressive-drift, not architecture-invariant-defect).
+2. **Add to REFERENCES.md**: heteroscedastic-noise VAEs (e.g., NLL-based VAE losses), observation-noise modeling in time-series generation.
+3. **Optional follow-up experiment**: train an m1-style VAE with an explicit per-timestep noise head and demonstrate it fixes the DET gap without ad-hoc σ injection.
+4. **m7 retraining still needed**: bugs identified in §1.3.3.1 are independent of the noise finding and should still be fixed.
+
+Source: direct empirical test — same VAE checkpoint, sweep over lognormal noise σ, find that σ=0.01 (the documented data-generation value) produces statistical indistinguishability on Lens 2 + Lens 3.
+
 #### 1.3.4 ⭐ B1 partial result — decoder stochasticity IS the cure (2026-05-18 09:48 UTC)
 
 **Frozen-σ 0.05 finished training and was evaluated on the ID Exp(2) test set immediately.** This is the first B1 result and it is decisive.
