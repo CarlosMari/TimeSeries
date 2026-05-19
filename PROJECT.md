@@ -75,8 +75,8 @@ Cost: ~14 GPU-hours total (revised upward from initial ~12 estimate — frozen-�
 | OOD family test sets (`r~Exp(1)`, `r~Exp(5)`) | ✓ 5k samples each |
 | Lens-validation synthetic-perturbation experiment | ✓ `RESULTS_LENS_VALIDATION.json` + figure |
 | Model 1 (scale-cond VAE) retrained × 3 seeds | seed 42 ✓ + seed 123 ✓ + **seed 2026 ✓** (`model_1_seed2026.pth`, 03:55 UTC 2026-05-19) |
-| Model 2 (no-cond VAE) retrained × 3 seeds | seed 42 ✓ + seed 123 ✓; **seed 2026 training as of 03:55 UTC 2026-05-19** |
-| Model 3 (stochastic-decoder VAE) trained × 3 seeds | seed 42 ✓ + seed 123 ✓; ⚠️ seed-42 σ collapsed (§1.3.1 B3) — superseded by B1 frozen-σ variants. Seed 2026 queued |
+| Model 2 (no-cond VAE) retrained × 3 seeds | seed 42 ✓ + seed 123 ✓ + **seed 2026 ✓** (`model_2_seed2026.pth`, 08:06 UTC 2026-05-19) |
+| Model 3 (stochastic-decoder VAE) trained × 3 seeds | seed 42 ✓ + seed 123 ✓; ⚠️ seed-42 σ collapsed (§1.3.1 B3) — superseded by B1 frozen-σ variants. **seed 2026 training as of 08:06 UTC 2026-05-19** |
 | Model 4 (Latent-ODE) trained × 3 seeds | seed 42 ✓ + seed 123 ✓; seed 2026 queued |
 | Model 5 (Transformer-VAE) trained × 3 seeds | seed 42 ✓ + seed 123 ✓; seed 2026 queued |
 | Model 6 (KAN-VAE) trained × 3 seeds | seed 42 ✓ (`model_6_seed42.pth`, 23:38 UTC 2026-05-16, 16h total). **Seed 123 + seed 2026 SKIPPED:** the SIGTERM during B1 setup left autoqueue's bookkeeping thinking m6_seed123 completed (rc=143), so it advanced to m7_seed123 without retraining KAN. Per design doc fallback ("KAN single-seed acceptable if compute tight"), KAN remains single-seed in the paper. Documented in the comparative table as "n=1 for KAN-VAE." |
