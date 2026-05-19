@@ -74,8 +74,8 @@ Cost: ~14 GPU-hours total (revised upward from initial ~12 estimate — frozen-�
 | **D3 fix verified on v1 model (§3.8.1)** | ✓ density/coverage 0.13→0.98, MMD p=0.005 survives |
 | OOD family test sets (`r~Exp(1)`, `r~Exp(5)`) | ✓ 5k samples each |
 | Lens-validation synthetic-perturbation experiment | ✓ `RESULTS_LENS_VALIDATION.json` + figure |
-| Model 1 (scale-cond VAE) retrained × 3 seeds | seed 42 ✓ + seed 123 ✓; **seed 2026 training as of 23:43 UTC 2026-05-18** |
-| Model 2 (no-cond VAE) retrained × 3 seeds | seed 42 ✓ + seed 123 ✓; seed 2026 queued |
+| Model 1 (scale-cond VAE) retrained × 3 seeds | seed 42 ✓ + seed 123 ✓ + **seed 2026 ✓** (`model_1_seed2026.pth`, 03:55 UTC 2026-05-19) |
+| Model 2 (no-cond VAE) retrained × 3 seeds | seed 42 ✓ + seed 123 ✓; **seed 2026 training as of 03:55 UTC 2026-05-19** |
 | Model 3 (stochastic-decoder VAE) trained × 3 seeds | seed 42 ✓ + seed 123 ✓; ⚠️ seed-42 σ collapsed (§1.3.1 B3) — superseded by B1 frozen-σ variants. Seed 2026 queued |
 | Model 4 (Latent-ODE) trained × 3 seeds | seed 42 ✓ + seed 123 ✓; seed 2026 queued |
 | Model 5 (Transformer-VAE) trained × 3 seeds | seed 42 ✓ + seed 123 ✓; seed 2026 queued |
