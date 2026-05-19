@@ -27,6 +27,12 @@ Living document. Each entry: bibtex-able key, full reference, **what we cite it 
 - **Fraccaro et al. 2016** — Fraccaro, M., Sønderby, S.K., Paquet, U., Winther, O. "Sequential Neural Models with Stochastic Layers." *NeurIPS* 2016. — alternative stochastic-decoder formulation; methods comparison.
 - *(Note: the B1 finding — that MSE recon collapses learned σ to zero, motivating the frozen-σ ablation — is, to our knowledge, novel; if a prior paper documents the same σ-collapse failure mode in seq2seq VAEs, we'll add it during the literature search before submission.)*
 
+### Exposure bias / autoregressive train-test mismatch (the actual mechanism for §1.3 finding, post-audit)
+- **Williams & Zipser 1989** — Williams, R.J., Zipser, D. "A Learning Algorithm for Continually Running Fully Recurrent Neural Networks." *Neural Computation* 1(2):270–280 (1989). — original definition of teacher forcing; useful for paper framing of TF=1 vs TF=0.
+- **Bengio et al. 2015** — Bengio, S., Vinyals, O., Jaitly, N., Shazeer, N. "Scheduled Sampling for Sequence Prediction with Recurrent Neural Networks." *NeurIPS* 2015. arXiv:1506.03099. — **the canonical exposure-bias / autoregressive-drift paper**; introduces gradual TF decay schedules (which v1 used). Our finding is that even with TF decay to 0.025, eval at TF=0 still falls in the model's untrained regime → drift to plateau.
+- **Ranzato et al. 2016** — Ranzato, M., Chopra, S., Auli, M., Zaremba, W. "Sequence Level Training with Recurrent Neural Networks." *ICLR* 2016. arXiv:1511.06732. — RL-based fix for exposure bias; positions our σ-noise intervention as a different (cheaper) class of fix.
+- **Goyal et al. 2017** — *(already in our §"Stochastic decoder" subsection above)* "Z-Forcing" — most directly relevant prior work on injecting stochasticity to break autoregressive drift.
+
 ### Spectral / FFT-domain losses (B1 spectral-loss variant)
 - **Engel et al. 2020** — Engel, J., Hantrakul, L., Gu, C., Roberts, A. "DDSP: Differentiable Digital Signal Processing." *ICLR* 2020. arXiv:2001.04643. — popularized multi-resolution STFT-magnitude loss for audio synthesis; our full-FFT magnitude-MSE (T=65, no windowing) is the simplest case of this family.
 - **Yamamoto et al. 2020** — Yamamoto, R., Song, E., Kim, J.-M. "Parallel WaveGAN: A fast waveform generation model based on adversarial networks with multi-resolution spectrogram." *ICASSP* 2020. — multi-resolution spectrogram MSE; precedent for adding spectral terms to non-adversarial losses too.

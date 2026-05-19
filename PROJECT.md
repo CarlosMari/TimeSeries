@@ -312,6 +312,51 @@ User's intuition was right twice: the m7 bug was real, and the VAE finding was c
 
 Source: audit traced via direct reconstruction tests, comparing TF=0 vs TF=1 vs prior-sample paths on m1_seed42. Verified MSE asymmetry (7× difference) corresponds to DET asymmetry (0.99 vs 0.77).
 
+#### 1.3.3.3 ✅ Audit step 3 (2026-05-19, user follow-up 3): finding holds up, but with better mechanism. Paper angle is intact and arguably stronger
+
+User checks: (1) training data contamination? (2) is x0 in the bottleneck? (3) get results without the bug. (4) do we still have a paper?
+
+**(1) Training data is clean.** Train DET = 0.61 ± 0.26, test DET = 0.62 ± 0.26 (matched). 117k unique trajectories. 0/5 random test samples found in train. Seed ranges separated by 865M. No contamination.
+
+**(2) x0 is NOT in the bottleneck — and arguably should be.** The decoder starts from `torch.zeros(batch, 1, n_curves)` as a fake initial autoregressive input; the only x0-like signal that reaches the decoder is implicit via the latent z (encoded from full input + max_vals). No direct x0 input slot. This is a design choice that exacerbates the autoregressive-drift problem (see below) — if x0 were directly conditioned, the decoder would have a physical anchor at t=0 rather than having to drift away from `zeros`.
+
+**(3) Reran results without the bug.** Three TF regimes × 6 VAE-family seed-42 models + B1 variants:
+
+| Model | Real | TF=1 recon | TF=0 recon | TF=0 prior gen | Interpretation |
+|---|---|---|---|---|---|
+| (real) | 0.66 ± 0.25 | — | — | — | — |
+| m1 scale-cond | — | 0.77 ± 0.22 | **0.99 ± 0.01** | 0.99 ± 0.01 | LSTM drift-to-plateau |
+| m2 no-cond | — | 0.78 ± 0.21 | 0.99 ± 0.01 | 0.99 ± 0.01 | Same |
+| m3 stochastic (σ→0 collapsed) | — | 0.76 ± 0.22 | 0.99 ± 0.02 | 0.99 ± 0.02 | Same |
+| m4 Latent-ODE | — | **0.99 ± 0.01** | 0.99 ± 0.01 | 0.99 ± 0.01 | **Different bug**: ODE-prior collapse (TF=1 doesn't help) |
+| m5 Transformer | — | **0.53 ± 0.22** | 0.99 ± 0.01 | 0.98 ± 0.02 | **Different bug**: TF=1 over-mixes (DET lower than real); TF=0 still drifts |
+| m6 KAN | — | 0.76 ± 0.23 | 0.99 ± 0.01 | 0.99 ± 0.01 | Same as LSTM family |
+| b1 σ=0.05 | — | 0.74 ± 0.22 | **0.81 ± 0.18** | **0.83 ± 0.15** | Cure: breaks drift in deployment mode |
+| b1 σ=0.10 | — | 0.71 ± 0.23 | 0.80 ± 0.17 | 0.82 ± 0.14 | Same direction, slightly stronger |
+| b1 σ=0.20 | — | 0.67 ± 0.23 | 0.77 ± 0.17 | 0.79 ± 0.15 | Continued, but TF=1 starts to overshoot |
+| b1 spectral | — | 0.83 ± 0.18 | 0.98 ± 0.01 | 0.99 ± 0.01 | Negative control: smooths uniformly, doesn't fix drift |
+
+**Three distinct architectural patterns emerge** — much richer than "all-architectures-identical":
+
+1. **LSTM family (m1, m2, m3, m6)**: classic autoregressive exposure bias. TF=1 recon DET ≈ 0.77 (close to real 0.66), TF=0 drifts to 0.99. The cure (σ noise) targets the autoregressive feedback loop directly.
+2. **Latent-ODE (m4)**: collapses to constant trajectory regardless of TF. The latent ODE integrates to a fixed-point in latent space and the decoder reproduces it. Not a TF problem — a fundamental ODE-prior collapse.
+3. **Transformer (m5)**: over-mixes via cross-attention at TF=1 (DET 0.53 — *more* oscillatory than real), but still drifts to 0.99 at TF=0. Different failure mode again.
+
+**(4) Yes, we still have a paper — arguably a stronger one.** The headline becomes:
+
+> "Standard autoregressive VAEs for dynamical-system generation suffer from autoregressive-drift exposure bias in deployment mode: the decoder drifts to a plateau attractor when run autoregressively (the only mode that matters at deployment), producing trajectories whose RQA-determinism is 50%+ higher than real. This is invisible to reconstruction-R² (which remains at 0.94) but is detected by our 3-lens NLD protocol. We test two interventions: (a) decoder hidden-state noise at every step — works, cuts the DET gap by 60% at zero recon cost; (b) spectral-MSE loss — fails (uniformly smooths the decoder but doesn't disrupt the autoregressive drift loop), confirming the issue is feedback-dynamics-related, not spectral-content-related. We additionally find that this failure manifests differently across architectures: ODE-prior models (Latent-ODE) collapse in latent space regardless of TF mode; attention-based decoders (Transformer-VAE) over-mix at TF=1 and still drift at TF=0; LSTM-VAEs exhibit canonical autoregressive exposure bias. Each architecture requires different mitigation."
+
+**This is a better paper than the one I wrote in §1.3-§1.3.5.** It diagnoses a real deployment failure with a quantified cause (exposure bias), provides a working cure with a clean mechanism (state noise breaks the drift fixed point), provides a useful negative control (spectral loss), and gives architecture-specific intuition rather than treating all generators as identical.
+
+**On user's TF=1 question:** correct — TF=1 is only for early training. At deployment time (TF=0) you don't have ground truth, so it's the only mode that matters. The TF=1 vs TF=0 split is *diagnostic* (it isolates the failure mechanism); the *evaluation* metric is always TF=0 because that's what users see. The σ=0.05 cure IS a real TF=0 improvement (0.99 → 0.83), not a TF=1 artifact.
+
+**Citations needed in REFERENCES.md (added next):**
+- Bengio et al. 2015 "Scheduled Sampling for Sequence Prediction with Recurrent Neural Networks" — the canonical exposure-bias paper
+- Ranzato et al. 2016 "Sequence Level Training with Recurrent Neural Networks"
+- Williams & Zipser 1989 (original teacher-forcing paper) for completeness
+
+Source: direct reconstruction tests on all 7 seed-42 ckpts + 4 B1 ckpts, 200 samples each, TF=1 vs TF=0 vs prior-gen.
+
 #### 1.3.4 ⭐ B1 partial result — decoder stochasticity IS the cure (2026-05-18 09:48 UTC)
 
 **Frozen-σ 0.05 finished training and was evaluated on the ID Exp(2) test set immediately.** This is the first B1 result and it is decisive.
