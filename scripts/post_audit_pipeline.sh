@@ -7,10 +7,18 @@
 #
 # Tier 1 work after m5_seed2026 lands:
 #   1.1  multi-seed unified eval (all 6 architectures × 3 seeds × 3 distributions)
-#   1.2  noise-addition sweep figure
+#   1.2  noise-addition sweep figure (run separately, not here)
 #   1.3  B1 σ=0.05 cure multi-seed verification (train m1_stoch frozen 0.05 on
 #        seeds 123 + 2026, eval)
 #   1.4  regenerate comparative figures from multi-seed JSON
+#   T1   OOD power-analysis re-eval (N_CHAOS=1000)
+#   T2   cross-distribution real-stats characterization
+#   T3   multi-seed noise-addition sweep (17 ckpts)
+#
+# Note: when this script was edited after the in-flight watcher (PID 2332367)
+# had already started, the running bash kept the OLD file open as FD 255
+# (file inode replaced). T1/T2/T3 additions never executed via this script;
+# they were spun off into scripts/post_pipeline_followup.sh instead.
 #
 # Order rationale:
 #   - 1.2 needs only ckpts on disk → can run RIGHT NOW in parallel with autoqueue
@@ -142,6 +150,69 @@ log "=== Tier 1.4: regenerate comparative figures ==="
 if [[ -f RESULTS_COMPARATIVE_MULTISEED_FINAL_NOSORT.json ]]; then
   python analysis/make_comparative_figures.py --results RESULTS_COMPARATIVE_MULTISEED_FINAL_NOSORT.json 2>&1
 fi
+log "=== Tier 1.4 done ==="
+
+# ----- T1: OOD power-analysis re-eval (N_CHAOS=1000 instead of 200) -----
+# Disambiguates: are OOD non-significant DET p-values from low power, or substantive?
+# Same 17-ckpt × 3-distribution eval, but with 5× sample size for KS tests.
+log "=== T1: OOD power-analysis (N_CHAOS=1000) ==="
+for tset in TEST_FINAL_NOSORT TEST_OOD_Exp1 TEST_OOD_Exp5; do
+  out_suffix="${tset#TEST_}"
+  out_path="RESULTS_COMPARATIVE_MULTISEED_N1000_${out_suffix}.json"
+  log "Eval N_CHAOS=1000 on $tset → $out_path"
+  python analysis/evaluate_all_models.py \
+    --checkpoints $(build_ckpts) \
+    --test-path "data/${tset}.pkl" \
+    --out "$out_path" --force \
+    --n-chaos 1000 2>&1 || log "  (eval failed, continuing)"
+done
+log "=== T1 done ==="
+
+# ----- T2: Cross-distribution real-stats characterization -----
+# Computes real DET/λ₁/MMD stats across all 3 distributions (CPU-only, fast).
+# Provides the "smooth-dynamics attractor" subsection's quantitative backbone.
+log "=== T2: cross-distribution real-stats ==="
+python -u <<'PYEOF' || log "T2 failed"
+import json
+import pickle
+import sys
+sys.path.insert(0, '.')
+import numpy as np
+from analysis.chaos_diagnostics import rqa_measures, rosenstein_lyapunov
+
+out = {}
+for tset in ['TEST_FINAL_NOSORT', 'TEST_OOD_Exp1', 'TEST_OOD_Exp5']:
+    with open(f'data/{tset}.pkl', 'rb') as f: pkg = pickle.load(f)
+    rng = np.random.default_rng(20260520)
+    N = pkg['data'].shape[0]
+    idx = rng.choice(N, size=min(500, N), replace=False)
+    real = (pkg['data'][idx]
+            * pkg['reconstruction_max_values'][idx][:, :, None]
+            * pkg['family_max_values'][idx][:, None, None])
+    dets, lyaps = [], []
+    for t in real:
+        sig = t.mean(axis=0)
+        dets.append(rqa_measures(sig)['DET'])
+        lyaps.append(rosenstein_lyapunov(sig))
+    dets, lyaps = np.array(dets), np.array(lyaps)
+    out[tset] = {
+        'n': int(len(dets)),
+        'DET_mean': float(dets.mean()), 'DET_std': float(dets.std()), 'DET_median': float(np.median(dets)),
+        'lyap_mean': float(np.nanmean(lyaps)), 'lyap_std': float(np.nanstd(lyaps)), 'lyap_median': float(np.nanmedian(lyaps)),
+    }
+    print(f'{tset}: DET={dets.mean():.4f}±{dets.std():.4f}, λ₁={np.nanmean(lyaps):+.4f}±{np.nanstd(lyaps):.4f}')
+
+with open('RESULTS_REAL_STATS_CROSSDIST.json', 'w') as f:
+    json.dump(out, f, indent=2)
+print('Wrote RESULTS_REAL_STATS_CROSSDIST.json')
+PYEOF
+log "=== T2 done ==="
+
+# ----- T3: Multi-seed noise-addition sweep (re-run with 17 ckpts incl. seed-2026 + m6 seed-2026) -----
+# Earlier sweep covered 13 ckpts; this updates it with the full multi-seed set.
+log "=== T3: noise-addition sweep, all 17 ckpts ==="
+python analysis/noise_addition_sweep.py --out RESULTS_NOISE_SWEEP_MULTISEED.json 2>&1 || log "T3 failed"
+log "=== T3 done ==="
 
 # Resume autoqueue (it has nothing left to do, but cleanliness)
 log "Resuming autoqueue (SIGCONT $AUTOQUEUE_PID)..."

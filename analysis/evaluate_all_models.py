@@ -427,7 +427,14 @@ def main():
     ap.add_argument("--out", default="RESULTS_COMPARATIVE.json")
     ap.add_argument("--force", action="store_true",
                     help="re-evaluate even if a previous JSON is present")
+    ap.add_argument("--n-chaos", type=int, default=None,
+                    help="per-group sample size for RQA + Lyapunov KS tests (default 200; "
+                         "use 1000 for power-analysis re-eval)")
     args = ap.parse_args()
+
+    if args.n_chaos is not None:
+        global N_CHAOS
+        N_CHAOS = args.n_chaos
 
     print(f"Loading test set from {args.test_path}...")
     with open(args.test_path, "rb") as f:
