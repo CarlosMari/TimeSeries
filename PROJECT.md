@@ -193,7 +193,17 @@ Source: `RESULTS_NOISE_SWEEP.json` (29 KB), 13 ckpts × 5 σ values × 3 metrics
    
    **Suggested framing for the paper**: a "VAE smoothness attractor" subsection — "regardless of training/test distribution, MSE-VAEs collapse to a narrow ~DET=0.99 ± 0.012 region of dynamics-space. Whether this is a *detected* failure depends on whether the real-data distribution overlaps the attractor. RQA-DET + Lyapunov-λ₁ act as orthogonal probes — when one is coincidentally satisfied (OOD-DET), the other still catches the pathology."
 
-   **Power-analysis update (2026-05-21 — T1 N=1000 re-eval, dist 1 + 2 complete):** The N=200 OOD-DET non-significance for some arch+seed combos was a **low-power artifact**. At N=1000, all 17 ckpts reject DET on OOD Exp1 at p ∈ [10⁻³⁶, 10⁻¹¹] (gen DET 0.985–0.991 vs real 0.993 — gap as small as 0.003, but the KS test sees it). Lyapunov-λ₁ rejects at p<10⁻⁹ everywhere. So the pathology is *always* protocol-detected at adequate sample size — the "smoothness attractor" framing still holds, but the paper should report N=1000 as the headline (with N=200 noted as the original audit). Source: `RESULTS_COMPARATIVE_MULTISEED_N1000_OOD_Exp1.json` + `..._FINAL_NOSORT.json`. OOD Exp(5) running, ETA finish ~12:20 UTC.
+   **Power-analysis update (2026-05-21 — T1 N=1000 re-eval, FULLY complete 12:20 UTC):** The N=200 OOD-DET non-significance for some arch+seed combos was a **low-power artifact**. At N=1000, all 17 ckpts reject DET on every distribution at p ≪ 10⁻⁹ and Lyapunov-λ₁ at p ≪ 10⁻⁹ as well. Concretely:
+   - **ID (TEST_FINAL_NOSORT)**: DET KS p numerically 0 for all 17 (vs 10⁻⁷⁵–10⁻⁸⁸ at N=200)
+   - **OOD Exp1**: DET KS p ∈ [10⁻³⁶, 10⁻¹¹], λ₁ KS p < 10⁻⁹ (gen DET 0.985–0.991 vs real 0.993 — gap as small as 0.003 but still rejected)
+   - **OOD Exp5**: DET KS p ∈ [10⁻³⁸, 10⁻⁹], λ₁ KS p ∈ [10⁻²⁸, 10⁻¹³] — same pattern as Exp1
+   So the pathology is *always* protocol-detected at adequate sample size — the "smoothness attractor" framing still holds, and the paper should report **N=1000 as the headline** (with N=200 noted as the original audit). The N=200 marginal-significance story actually *strengthens* the paper: it shows the protocol is sensitive enough that even tiny mean-DET gaps (0.003) become decisively rejected at adequate N. Sources: `RESULTS_COMPARATIVE_MULTISEED_N1000_{FINAL_NOSORT,OOD_Exp1,OOD_Exp5}.json`.
+
+   **T2 cross-distribution real-stats (2026-05-21 12:20 UTC):**
+   - ID: real DET = 0.616 ± 0.267, λ₁ = +0.076 ± 0.045
+   - OOD Exp1: real DET = 0.994 ± 0.008, λ₁ = +0.049 ± 0.050
+   - OOD Exp5: real DET = 0.993 ± 0.008, λ₁ = +0.052 ± 0.046
+   Quantitative backbone for the "VAE-attractor" subsection. Source: `RESULTS_REAL_STATS_CROSSDIST.json`.
 
 6. **Transformer-VAE recon-vs-MMD tradeoff.** Best recon (R²=0.94 in-distribution) but **worst MMD on OOD Exp1** (0.17 vs 0.07 for next-worst). May have overfit the in-distribution feature manifold. Worth a sidebar paragraph on "scale conditioning + attention overfits features."
 
