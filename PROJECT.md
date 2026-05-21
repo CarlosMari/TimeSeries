@@ -193,6 +193,8 @@ Source: `RESULTS_NOISE_SWEEP.json` (29 KB), 13 ckpts × 5 σ values × 3 metrics
    
    **Suggested framing for the paper**: a "VAE smoothness attractor" subsection — "regardless of training/test distribution, MSE-VAEs collapse to a narrow ~DET=0.99 ± 0.012 region of dynamics-space. Whether this is a *detected* failure depends on whether the real-data distribution overlaps the attractor. RQA-DET + Lyapunov-λ₁ act as orthogonal probes — when one is coincidentally satisfied (OOD-DET), the other still catches the pathology."
 
+   **Power-analysis update (2026-05-21 — T1 N=1000 re-eval, dist 1 + 2 complete):** The N=200 OOD-DET non-significance for some arch+seed combos was a **low-power artifact**. At N=1000, all 17 ckpts reject DET on OOD Exp1 at p ∈ [10⁻³⁶, 10⁻¹¹] (gen DET 0.985–0.991 vs real 0.993 — gap as small as 0.003, but the KS test sees it). Lyapunov-λ₁ rejects at p<10⁻⁹ everywhere. So the pathology is *always* protocol-detected at adequate sample size — the "smoothness attractor" framing still holds, but the paper should report N=1000 as the headline (with N=200 noted as the original audit). Source: `RESULTS_COMPARATIVE_MULTISEED_N1000_OOD_Exp1.json` + `..._FINAL_NOSORT.json`. OOD Exp(5) running, ETA finish ~12:20 UTC.
+
 6. **Transformer-VAE recon-vs-MMD tradeoff.** Best recon (R²=0.94 in-distribution) but **worst MMD on OOD Exp1** (0.17 vs 0.07 for next-worst). May have overfit the in-distribution feature manifold. Worth a sidebar paragraph on "scale conditioning + attention overfits features."
 
 **Tier-3 / not story-driving (kept as appendix material):**
@@ -206,7 +208,7 @@ Source: `RESULTS_NOISE_SWEEP.json` (29 KB), 13 ckpts × 5 σ values × 3 metrics
 
 - [ ] **Tier 1.3 (auto, ~6 GPU-hr): B1 σ=0.05 cure × seeds 123+2026.** Currently queued behind Tier 1.1 distribution 3.
 - [ ] **Tier 1.4 (auto): regenerate `fig_comparative_table.{pdf,png}` from multi-seed JSONs.** Will fold the new tight CIs into the headline figure.
-- [ ] **OOD power-analysis followup (~1 day):** Re-run the 17-ckpt eval on OOD Exp1 + Exp5 with N=1000 samples instead of 200, to disambiguate the "passes DET on OOD without noise" finding.
+- [x] **OOD power-analysis followup — dist 1 + dist 2 done 2026-05-21 ~10:45 UTC.** N=1000 results: ID DET KS p = numerical 0 for all 17 ckpts (vs 10⁻⁷⁵-10⁻⁸⁸ at N=200), OOD Exp1 DET KS p ∈ [10⁻³⁶, 10⁻¹¹] (vs marginal/NS at N=200), λ₁ KS p < 10⁻⁹ everywhere. Confirms: protocol-detected gap is real, not a low-power artifact. OOD Exp3 (Exp5) running, ETA finish ~12:20 UTC.
 - [ ] **Mechanistic mini-section (~1 day):** Brief analysis of *what* in the latent-z space changes when noise is added — does it just smear z, or does it move samples into different dynamics-cluster regions? Cheap analysis using existing ckpts; provides a Section-6 deepening.
 - [ ] **Paper draft (~3-5 days):** §1 motivation, §2 methodology (3-lens NLD protocol), §3 setup (architectures + data), §4 main results (multi-seed table + noise-addition cure), §5 mechanism (σ-sweep + B1 frozen training), §6 cross-distribution behavior, §7 discussion + limitations + future heteroscedastic-noise heads.
 
