@@ -856,6 +856,36 @@ Sources: `RESULTS_COMPARATIVE_B1.json` + 6 OOD JSONs. Total compute spent on B1:
 
 ---
 
+#### 1.3.6 ⭐ M8 HeteroscedasticLSTMVAE — architectural cure attempt (added 2026-05-22 06:11 UTC)
+
+**Motivation (user pushback 2026-05-22):** "But is it really a cure if we are adding noise?" Correct framing. The Tier-1.5 σ-injection cure (§1.3.0.1, §1.3.4–§1.3.5) sprinkles σ=0.01 lognormal onto clean VAE outputs post-hoc; the B1 frozen-σ cure injects noise into the *hidden state* during training. Neither changes the *generative process* to be properly stochastic — they just patch the symptom.
+
+**Hypothesis:** the smoothness-attractor pathology is a direct consequence of the *homoscedastic Gaussian decoder* assumption that MSE recon loss implicitly imposes. MSE = −log p(x|μ) under a fixed-σ Gaussian. The encoder/decoder optimum is therefore the conditional *mean* — by construction. If we replace the output head with a **per-(t,c) heteroscedastic Gaussian** (predicts both μ and σ) and train under Gaussian NLL, the model is rewarded for correctly *predicting* the data's per-timestep variance. At generate-time we sample from N(μ_t, σ_t) per step.
+
+**Architecture (`src/models/cvae_heteroscedastic.py`):**
+- Subclasses LSTM_VAE; replaces `output_map: Linear(H, C)` with `Linear(H, 2C)` — first half = μ, second half = raw_log_σ (softplus + floor 1e-3 for stability).
+- Forward: returns `x_hat` of shape (N, 2C, T) — μ stacked with raw_log_σ along channel axis.
+- vae_loss: detects 2C-channel x_hat → Gaussian NLL branch `0.5·((x−μ)/σ)² + log(σ)`; else MSE (unchanged for m1–m7).
+- Generate: samples per step from N(μ_t, σ_t), feeds the sample back autoregressively.
+- Training: μ (not a sample) is fed forward to next step for stability (samples destabilize the autoregressive loop).
+
+**Smoke test (2026-05-22 06:08 UTC):** forward shape ✓, NLL backward ✓, 2-epoch training 21.4 → −0.18 (negative NLL is healthy: σ<1 with tight μ gives log σ<0). No NaN, no σ-collapse in early epochs.
+
+**In flight (launched 06:11 UTC):** `scripts/m8_train_and_eval.sh` — trains m8_seed{42,123,2026} sequentially (500 epochs each, ~83 min/seed, wandb project `Conditional_LV_VAE_pivot_m8`), then evals on TEST_FINAL_NOSORT + OOD_Exp{1,5} at N_CHAOS=1000. Output: `RESULTS_M8_{FINAL_NOSORT,OOD_Exp1,OOD_Exp5}.json`. ETA all done ~10:30 UTC 2026-05-22.
+
+**Decision criterion for the paper:**
+- **If m8 lands at real DET ≈ 0.62 (ID) and the protocol stops rejecting** → this becomes the headline architectural result. "MSE training induces a smoothness attractor; replacing the homoscedastic head with a heteroscedastic one fixes it." Demotes the σ-injection sections to diagnostic-probe status, not "cure."
+- **If m8 lands at DET ≈ 0.99 anyway** (e.g., σ collapses to floor or autoregressive μ-feeding still smooths) → confirms the problem is *deeper* than the output distribution — pointing at the autoregressive loop itself or the KL pressure on z. Worth a sidebar but doesn't change the headline.
+- **If m8 lands between (DET ≈ 0.80)** → partial-cure story; still a useful architectural finding but the paper has to be honest about residual gap.
+
+**Caveats to be honest about in the paper:**
+- σ-floor of 1e-3 is a regularizer; reviewers will ask about its choice. The Skafte 2019 paper on variance-network pathologies justifies it.
+- Even if m8 lands at correct DET, it's still implicitly assuming Gaussian noise — the real generator uses lognormal. A *future* paper extension would use a learned likelihood family (e.g., flow head).
+
+References added to REFERENCES.md §2: Nix & Weigend 1994 (original heteroscedastic NN), Kendall & Gal 2017 (aleatoric uncertainty), Skafte 2019 (variance-network training pathologies).
+
+---
+
 ## 2. What We Built
 
 ### 2.1 Data pipeline (`data_generation/`)

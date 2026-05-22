@@ -1,6 +1,6 @@
 # PLAN.md — Path to submission (post-pivot)
 
-**Today:** 2026-05-18 (post-pivot mid-execution)  **Target:** submitted by end of August 2026 (slipped from end of July; quality > deadline per user direction).
+**Today:** 2026-05-22 (post-audit, post-T1/T2/T3, M8 architectural-cure experiment in flight)  **Target:** submitted by end of August 2026 (slipped from end of July; quality > deadline per user direction).
 
 PLAN.md is the **todo list**; PROJECT.md is the **wiki**. The canonical design is `docs/superpowers/specs/2026-05-15-comparative-evaluation-design.md`. Updated state and findings go into PROJECT.md first; this file gets pruned to reflect what remains.
 
@@ -161,9 +161,9 @@ The lenses are sensitive exactly where they should be (low-pass, HF noise — th
 
 ---
 
-## Anti-goals (post-pivot)
+## Anti-goals (post-pivot, updated 2026-05-22)
 
-- Train an 8th model unless we drop one first.
+- ~~Train an 8th model unless we drop one first.~~ **Relaxed 2026-05-22**: M8 (HeteroscedasticLSTMVAE) added as the architectural cure for the smoothness-attractor pathology (PROJECT.md §1.3.0.2). Per-(t,c) σ + Gaussian NLL instead of MSE. m7 was already dropped earlier, so we are still at 7 models on the table (m1, m2, m3, m4, m5, m6, m8) without expanding scope further. **Reviewers will ask whether the cure is architectural or just post-hoc noise injection; m8 is the answer to that question.** Training: 3 seeds, 500 epochs each, ETA done ~10:30 UTC 2026-05-22. Eval: same 3-lens × 3-distribution × N=1000 matrix as the rest. If m8 lands at real DET=0.62 *without* post-hoc noise, this becomes the headline architectural result.
 - Add a new dataset (different ODE system) before submitting.
 - Add new evaluation metrics beyond the locked eval matrix.
 - Refactor the codebase beyond what each model's implementation requires.
