@@ -260,6 +260,10 @@ def evaluate_model(model, model_type: str, test_pkg: dict, rng) -> dict:
             # use deterministic teacher-forcing-off pass
             out = model(X_real_norm, mv_real, teacher_forcing_ratio=0)
             X_hat, _, _, max_vals_pred, _ = out
+            # M8 heteroscedastic: forward returns (N, 2C, T) — μ stacked with log_σ.
+            # For reconstruction-R² we only use the μ channels.
+            if X_hat.shape[1] == 2 * X_real_norm.shape[1]:
+                X_hat = X_hat[:, :X_real_norm.shape[1], :]
         x_true = X_real_norm.cpu().numpy()
         x_hat = X_hat.cpu().numpy()
         mv_pred = max_vals_pred.cpu().numpy()
@@ -333,6 +337,21 @@ def evaluate_model(model, model_type: str, test_pkg: dict, rng) -> dict:
     F_real = F_real[:, keep]
     F_gen = F_gen[:, keep]
     feat_labels_kept = [feat_labels[i] for i in keep]
+
+    # Sanitize: heteroscedastic-sampled trajectories occasionally produce
+    # degenerate (constant-zero) species → NaN/Inf in slope or corrcoef.
+    # Replace non-finite cells with the column median over the combined real+gen
+    # block (median to avoid pulling MMD toward zero).
+    stacked = np.vstack([F_real, F_gen])
+    bad_mask = ~np.isfinite(stacked)
+    if bad_mask.any():
+        col_med = np.nanmedian(np.where(bad_mask, np.nan, stacked), axis=0)
+        col_med = np.where(np.isfinite(col_med), col_med, 0.0)
+        for j in range(stacked.shape[1]):
+            stacked[bad_mask[:, j], j] = col_med[j]
+        F_real = stacked[:F_real.shape[0]]
+        F_gen = stacked[F_real.shape[0]:]
+        print(f"  [sanitize] replaced {int(bad_mask.sum())} non-finite feature cells with column medians")
 
     scaler = StandardScaler().fit(np.vstack([F_real, F_gen]))
     F_real_z = scaler.transform(F_real)
