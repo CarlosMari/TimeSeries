@@ -88,8 +88,20 @@ def vae_loss(x_hat, x, mu, log_var, max_vals_pred, max_vals_true, beta, lambda_m
           This is the post-pivot 2026-05-17 experiment to test whether
           explicitly penalizing spectral mismatch closes the chaos-diagnostics
           gap that all 7 architectures hit identically.
+
+          M8 heteroscedastic-decoder convention: if x_hat has 2× the channels
+          of x, the second half is interpreted as raw_log_σ (pre-softplus). We
+          split, apply softplus + floor (matching HeteroscedasticLSTMVAE), and
+          compute Gaussian NLL instead of MSE.
     """
-    recon_loss = nn.functional.mse_loss(x_hat, x, reduction='mean')
+    if x_hat.shape[1] == 2 * x.shape[1]:
+        n_curves = x.shape[1]
+        x_mu = x_hat[:, :n_curves, :]
+        raw_log_sigma = x_hat[:, n_curves:, :]
+        sigma = nn.functional.softplus(raw_log_sigma) + 1e-3
+        recon_loss = (0.5 * ((x - x_mu) / sigma) ** 2 + torch.log(sigma)).mean()
+    else:
+        recon_loss = nn.functional.mse_loss(x_hat, x, reduction='mean')
     kl_divergence = -0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp(), dim=1).mean()
 
     # Compute loss ONLY on curves 1-6 (curve 0 is always 1.0)
@@ -122,7 +134,11 @@ def inference_reconstruction(model, test_dataset, step, device=DEVICE, iters=5):
             batched_X_gpu = single_X_gpu.expand(iters, -1, -1)
             batched_max_vals_gpu = max_vals_cpu.to(device).unsqueeze(0).expand(iters, -1)
             recons_norm_gpu, _, _, max_vals_pred_gpu,_ = model(batched_X_gpu, batched_max_vals_gpu, teacher_forcing_ratio=0)
-            
+            # M8 heteroscedastic: forward returns (N, 2C, T) — keep μ channels only for plotting.
+            n_curves_plot = X_cpu.shape[0]
+            if recons_norm_gpu.shape[1] == 2 * n_curves_plot:
+                recons_norm_gpu = recons_norm_gpu[:, :n_curves_plot, :]
+
             original_denorm_cpu = X_cpu * max_vals_cpu.unsqueeze(-1)
             
             # --- FIXED: Use PREDICTED scale, not true scale ---
@@ -249,9 +265,13 @@ def evaluate(model, test_loader, beta, lambda_max_val, device, num_samples=10):
             max_val_test_loss += max_val.item()
 
             # --- Calculate Coverage ---
-            lower_bound = mean_preds - 2 * std_preds
-            upper_bound = mean_preds + 2 * std_preds
-            
+            # M8 heteroscedastic: mean_preds/std_preds carry 2C channels — keep μ half only.
+            cov_n_curves = batch_X.shape[1]
+            cov_mean = mean_preds[:, :cov_n_curves, :] if mean_preds.shape[1] == 2 * cov_n_curves else mean_preds
+            cov_std = std_preds[:, :cov_n_curves, :] if std_preds.shape[1] == 2 * cov_n_curves else std_preds
+            lower_bound = cov_mean - 2 * cov_std
+            upper_bound = cov_mean + 2 * cov_std
+
             in_interval = (batch_X >= lower_bound) & (batch_X <= upper_bound)
             
             # Overall coverage

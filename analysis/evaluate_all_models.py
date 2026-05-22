@@ -42,6 +42,7 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from src.models.cvae import LSTM_VAE  # noqa: E402
 from src.models.cvae_stochastic import StochasticLSTMVAE  # noqa: E402
+from src.models.cvae_heteroscedastic import HeteroscedasticLSTMVAE  # noqa: E402
 from src.models.latent_ode import LatentODE  # noqa: E402
 from src.models.transformer_vae import TransformerVAE  # noqa: E402
 from src.models.kan_vae import KANVAE  # noqa: E402
@@ -92,6 +93,14 @@ def adapter_cvae_stochastic(checkpoint_path: Path, device) -> StochasticLSTMVAE:
            "decoder_noise_freeze": is_frozen}
     m = StochasticLSTMVAE(cfg).to(device)
     m.load_state_dict(sd)
+    m.eval()
+    return m
+
+
+def adapter_cvae_heteroscedastic(checkpoint_path: Path, device) -> HeteroscedasticLSTMVAE:
+    cfg = {**_common_config(), "use_scale_conditioning": True}
+    m = HeteroscedasticLSTMVAE(cfg).to(device)
+    m.load_state_dict(torch.load(checkpoint_path, map_location=device))
     m.eval()
     return m
 
@@ -412,6 +421,7 @@ ADAPTERS: dict[str, Callable] = {
     "cvae-scale-cond": lambda p, d: adapter_cvae(p, True, d),
     "cvae-no-scale-cond": lambda p, d: adapter_cvae(p, False, d),
     "cvae-stochastic": lambda p, d: adapter_cvae_stochastic(p, d),
+    "cvae-heteroscedastic": adapter_cvae_heteroscedastic,
     "latent-ode": adapter_latent_ode,
     "transformer-vae": adapter_transformer,
     "kan-vae": adapter_kan,

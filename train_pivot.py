@@ -31,18 +31,20 @@ import train_cvae  # noqa: E402  — module-level imports include wandb, model, 
 from src.utils.config import hp, model_config  # noqa: E402
 from src.models.cvae import LSTM_VAE  # noqa: E402
 from src.models.cvae_stochastic import StochasticLSTMVAE  # noqa: E402
+from src.models.cvae_heteroscedastic import HeteroscedasticLSTMVAE  # noqa: E402
 from src.models.latent_ode import LatentODE  # noqa: E402
 from src.models.transformer_vae import TransformerVAE  # noqa: E402
 from src.models.kan_vae import KANVAE  # noqa: E402
 
 
 MODEL_REGISTRY = {
-    "cvae": LSTM_VAE,                      # models 1 + 2 (with / without scale-cond)
-    "cvae-stochastic": StochasticLSTMVAE,  # model 3
-    "latent-ode": LatentODE,               # model 4
-    "transformer-vae": TransformerVAE,     # model 5
-    "kan-vae": KANVAE,                     # model 6
-    # "glv-regression": GLVRegressor,      # model 7 — uses train_glv_regression.py
+    "cvae": LSTM_VAE,                              # models 1 + 2 (with / without scale-cond)
+    "cvae-stochastic": StochasticLSTMVAE,          # model 3
+    "latent-ode": LatentODE,                       # model 4
+    "transformer-vae": TransformerVAE,             # model 5
+    "kan-vae": KANVAE,                             # model 6
+    # "glv-regression": GLVRegressor,              # model 7 — uses train_glv_regression.py
+    "cvae-heteroscedastic": HeteroscedasticLSTMVAE,  # model 8 — per-(t,c) σ + Gaussian NLL
 }
 
 
