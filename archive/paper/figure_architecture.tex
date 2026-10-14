@@ -1,0 +1,114 @@
+\documentclass[tikz,border=2mm]{standalone}
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta, shapes.geometric, fit, calc}
+\usepackage{amsmath,amssymb,bm}
+
+\begin{document}
+
+\definecolor{enccolor}{HTML}{2E86AB}
+\definecolor{latcolor}{HTML}{F18F01}
+\definecolor{deccolor}{HTML}{C73E1D}
+\definecolor{auxcolor}{HTML}{6A994E}
+\definecolor{graytext}{HTML}{495057}
+\definecolor{lightgray}{HTML}{ADB5BD}
+
+\begin{tikzpicture}[
+    node distance=1.2cm and 1.5cm,
+    >={Stealth[length=3mm]},
+    block/.style={
+        rectangle,
+        rounded corners=4pt,
+        minimum width=2cm,
+        minimum height=1.2cm,
+        text centered,
+        draw=white,
+        line width=1.5pt,
+        font=\sffamily\small
+    },
+    smallblock/.style={
+        rectangle,
+        rounded corners=3pt,
+        minimum width=1cm,
+        minimum height=0.7cm,
+        text centered,
+        draw=white,
+        line width=1pt,
+        font=\sffamily\small
+    },
+    circlenode/.style={
+        circle,
+        minimum size=0.9cm,
+        text centered,
+        draw=white,
+        line width=1.5pt,
+        font=\sffamily\bfseries
+    },
+    arr/.style={
+        ->,
+        line width=1.2pt,
+        color=graytext
+    },
+    label/.style={
+        font=\sffamily\bfseries\small
+    }
+]
+
+% === INPUT ===
+\node[font=\bfseries, text=graytext] (input) {$\mathbf{X}$};
+\node[below=0.1cm of input, font=\tiny, text=lightgray] {$(N, 7, 65)$};
+
+% === ENCODER ===
+\node[block, fill=enccolor, text=white, right=1.2cm of input] (encoder) {Encoder\\[-2pt]{\tiny Bi-LSTM}};
+
+% === MU/SIGMA ===
+\node[smallblock, fill=latcolor, text=white, above right=0.5cm and 1.2cm of encoder] (mu) {$\bm{\mu}$};
+\node[smallblock, fill=latcolor, text=white, below right=0.5cm and 1.2cm of encoder] (sigma) {$\bm{\sigma}$};
+
+% === LATENT Z ===
+\node[circlenode, fill=latcolor, text=white, right=2.8cm of encoder] (z) {$\mathbf{z}$};
+
+% === DECODER ===
+\node[block, fill=deccolor, text=white, right=1.5cm of z] (decoder) {Decoder\\[-2pt]{\tiny LSTM}};
+
+% === OUTPUT ===
+\node[font=\bfseries, text=graytext, right=1.2cm of decoder] (output) {$\hat{\mathbf{X}}$};
+\node[below=0.1cm of output, font=\tiny, text=lightgray] {$(N, 7, 65)$};
+
+% === SCALE PREDICTOR ===
+\node[block, fill=auxcolor, text=white, below=1.2cm of decoder, minimum height=0.9cm] (mlp) {MLP};
+\node[font=\bfseries, text=graytext, right=1.2cm of mlp] (scale) {$\hat{\mathbf{m}}$};
+\node[below=0.1cm of scale, font=\tiny, text=lightgray] {$(N, 7)$};
+
+% === ARROWS ===
+% Input to encoder
+\draw[arr] (input) -- (encoder);
+
+% Encoder to mu/sigma
+\draw[arr] (encoder.east) -- ++(0.3,0) |- (mu.west);
+\draw[arr] (encoder.east) -- ++(0.3,0) |- (sigma.west);
+
+% Mu/sigma to z
+\draw[arr] (mu.east) -- ++(0.3,0) |- (z);
+\draw[arr] (sigma.east) -- ++(0.3,0) |- (z);
+
+% Z to decoder
+\draw[arr] (z) -- (decoder);
+
+% Decoder to output
+\draw[arr] (decoder) -- (output);
+
+% Z to MLP
+\draw[arr] (z.south) -- ++(0,-0.4) -| (mlp.north);
+
+% MLP to scale output
+\draw[arr] (mlp) -- (scale);
+
+% === SECTION LABELS ===
+\node[label, text=enccolor, above=0.8cm of encoder] {Encoder};
+\node[label, text=latcolor, above=0.6cm of z] {Latent};
+\node[label, text=deccolor, above=0.8cm of decoder] {Decoder};
+\node[label, text=auxcolor, below=0.5cm of mlp] {Scale Predictor};
+
+\end{tikzpicture}
+
+\end{document}

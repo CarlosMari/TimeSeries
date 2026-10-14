@@ -1,0 +1,426 @@
+{
+  "schema_version": 1,
+  "purpose": "Byte-preservation record for repository cleanup; not scientific provenance.",
+  "relocations": [
+    {
+      "original_path": "CODEBASE_REFERENCE.md",
+      "archived_path": "archive/docs/CODEBASE_REFERENCE.md",
+      "bytes": 14828,
+      "sha256": "55d77ec3a7d6fcab2544a3fad143f8004580abfe0040867b72ac7bd5b159ecae"
+    },
+    {
+      "original_path": "CONTROLLED_GENERATION_GUIDE.md",
+      "archived_path": "archive/docs/CONTROLLED_GENERATION_GUIDE.md",
+      "bytes": 12451,
+      "sha256": "eff1dbae6b679ef6d80cd91f233fc4789d67aeffbf2c9fbd805c02f61c1fd179"
+    },
+    {
+      "original_path": "FAILURE_ANALYSIS_SUMMARY.md",
+      "archived_path": "archive/docs/FAILURE_ANALYSIS_SUMMARY.md",
+      "bytes": 6592,
+      "sha256": "0a4ff9899c222a99ad8c08c057d6cbc119141f2c2ac94f0c890b6a395f212f15"
+    },
+    {
+      "original_path": "FIGURES_QUICK_REFERENCE.md",
+      "archived_path": "archive/docs/FIGURES_QUICK_REFERENCE.md",
+      "bytes": 3855,
+      "sha256": "c7a3138f84a759bcc76fe37d09e7bc32006f5f91c1e877abd96f622eafd7f0d3"
+    },
+    {
+      "original_path": "LATENT_SPACE_INTERPRETATION_SUMMARY.md",
+      "archived_path": "archive/docs/LATENT_SPACE_INTERPRETATION_SUMMARY.md",
+      "bytes": 18581,
+      "sha256": "9bfe848bc9c9d164429db3e734404ada7cf113989df2239c4bff50c4c903333a"
+    },
+    {
+      "original_path": "METHODOLOGY_DOCUMENT.md",
+      "archived_path": "archive/docs/METHODOLOGY_DOCUMENT.md",
+      "bytes": 12909,
+      "sha256": "01fccc7509fb183df8a228e6974ddb6083a0c23aecde457332cfa6a120a5e569"
+    },
+    {
+      "original_path": "MODEL_COMPARISON_30D_vs_50D.md",
+      "archived_path": "archive/docs/MODEL_COMPARISON_30D_vs_50D.md",
+      "bytes": 11195,
+      "sha256": "e48db1eae796f73ad5e41deb690578dfa290c25da91d6199fbade7c60629b033"
+    },
+    {
+      "original_path": "PAPER_FIGURES_SUMMARY.md",
+      "archived_path": "archive/docs/PAPER_FIGURES_SUMMARY.md",
+      "bytes": 15562,
+      "sha256": "48a1a4641af69c0c64c565b5ad91cecbbe6a7f7c940f6cb114edb5aee94dd322"
+    },
+    {
+      "original_path": "PLAN.md",
+      "archived_path": "archive/docs/PLAN_2026-05.md",
+      "bytes": 15127,
+      "sha256": "4046b894fa8e4c4fd9359ea41f9dba9fa40ca7f91e81e6fdd5c50d54091e1dc6"
+    },
+    {
+      "original_path": "PROJECT.md",
+      "archived_path": "archive/docs/PROJECT_2026-05.md",
+      "bytes": 132416,
+      "sha256": "29b2e5d6122e16f9632e3eaee3ad7149fce40cdc802f25684a237dae8dc03654"
+    },
+    {
+      "original_path": "QUICK_START_30D.md",
+      "archived_path": "archive/docs/QUICK_START_30D.md",
+      "bytes": 2034,
+      "sha256": "95445dbe883b00d350f0bfcf2c95a779dd4c11fe41663d70a73a5fbbedf5492f"
+    },
+    {
+      "original_path": "README_future.md",
+      "archived_path": "archive/docs/README_future.md",
+      "bytes": 8480,
+      "sha256": "fbf009207ead3e3a9483aa4ebb4a210dedaa23573b00ced805753577f20bbeb7"
+    },
+    {
+      "original_path": "RESURRECTION_FIX_SUMMARY.md",
+      "archived_path": "archive/docs/RESURRECTION_FIX_SUMMARY.md",
+      "bytes": 4769,
+      "sha256": "454fa816b693a95954aa2084c0a3d3e63108ca3ea6e0fdfa4044c0263530e361"
+    },
+    {
+      "original_path": "SCALE_CONDITIONING_ANALYSIS.md",
+      "archived_path": "archive/docs/SCALE_CONDITIONING_ANALYSIS.md",
+      "bytes": 13477,
+      "sha256": "d6f0aeb492d3d181705d1d21372930c95416fe05d14b9ac00d36f259ec95c5de"
+    },
+    {
+      "original_path": "THRESHOLD_SWEEP_RESULTS.txt",
+      "archived_path": "archive/docs/THRESHOLD_SWEEP_RESULTS.txt",
+      "bytes": 1971,
+      "sha256": "88f4c9fa7b7d109a898658ed81576e4698e5470b1b80ad4ba0238fd19ce4261f"
+    },
+    {
+      "original_path": "docs/ANALYSIS_SUMMARY.md",
+      "archived_path": "archive/docs/notes/ANALYSIS_SUMMARY.md",
+      "bytes": 6870,
+      "sha256": "0231f3222df0e65d38f73fa4a700ede509417fad98466d1d82ee71b33ab630e5"
+    },
+    {
+      "original_path": "docs/ARCHITECTURE_FLOW.md",
+      "archived_path": "archive/docs/notes/ARCHITECTURE_FLOW.md",
+      "bytes": 4933,
+      "sha256": "32569308d2891a7b52f7937c15660e1647bf8a7fd333ad76676127a7d76e0593"
+    },
+    {
+      "original_path": "docs/CLAUDE.md",
+      "archived_path": "archive/docs/notes/CLAUDE.md",
+      "bytes": 6372,
+      "sha256": "d59614f4d6269bce2b3dfa389a1e164d6b3eaaf7fbe100f4465bfc8a26732485"
+    },
+    {
+      "original_path": "docs/CURVE0_OPTIMIZATION.md",
+      "archived_path": "archive/docs/notes/CURVE0_OPTIMIZATION.md",
+      "bytes": 6595,
+      "sha256": "7bdb0322612c5e5c40bc90701706801eb361b9c340262106d66dc6bf1fb006cc"
+    },
+    {
+      "original_path": "docs/FINAL_TRAINING_READY.md",
+      "archived_path": "archive/docs/notes/FINAL_TRAINING_READY.md",
+      "bytes": 8723,
+      "sha256": "84a249e22d7335d3f6313fa767aae38e37d3d13c805e12cd766c0d890e614f47"
+    },
+    {
+      "original_path": "docs/LOSS_FIX_SUMMARY.md",
+      "archived_path": "archive/docs/notes/LOSS_FIX_SUMMARY.md",
+      "bytes": 3889,
+      "sha256": "f9e30501f8eefe521bf6b0ea0442e999aeec617de358f6fad99fcfef69d96b54"
+    },
+    {
+      "original_path": "docs/RESPUESTAS_FIGURAS.md",
+      "archived_path": "archive/docs/notes/RESPUESTAS_FIGURAS.md",
+      "bytes": 7553,
+      "sha256": "ba2cf5c6d849092c0008f872598c636431f74d7bb7d4348080646066fdd246ff"
+    },
+    {
+      "original_path": "docs/SANITY_CHECK_REPORT.md",
+      "archived_path": "archive/docs/notes/SANITY_CHECK_REPORT.md",
+      "bytes": 9749,
+      "sha256": "3091f56ea61a635709347b9bd90f1a4078f98a4a2a269699088f56331ff94ba3"
+    },
+    {
+      "original_path": "docs/SEED_FIX_SUMMARY.md",
+      "archived_path": "archive/docs/notes/SEED_FIX_SUMMARY.md",
+      "bytes": 7271,
+      "sha256": "eaf3ba258566423b33bc608d5157acc3a8241ba1afca360a3c7297b1655ba7ca"
+    },
+    {
+      "original_path": "docs/SEED_ISSUES_REPORT.md",
+      "archived_path": "archive/docs/notes/SEED_ISSUES_REPORT.md",
+      "bytes": 4843,
+      "sha256": "8093e304863eb22b3fb718f9d7e2bfa417f4928ce3e650c87d06f71d53702ec3"
+    },
+    {
+      "original_path": "docs/TRAINING_FIXES_SUMMARY.md",
+      "archived_path": "archive/docs/notes/TRAINING_FIXES_SUMMARY.md",
+      "bytes": 6977,
+      "sha256": "932ed983d27122835ae479759be9b824ca0b72721ece6867b99da5f8e6013e70"
+    },
+    {
+      "original_path": "docs/output_interactions.txt",
+      "archived_path": "archive/docs/notes/output_interactions.txt",
+      "bytes": 7934,
+      "sha256": "c3c6553b5689b6d680e7005ec80e255107764cabdb5d430e7c8eb78dd6b40844"
+    },
+    {
+      "original_path": "docs/results2.txt",
+      "archived_path": "archive/docs/notes/results2.txt",
+      "bytes": 2606,
+      "sha256": "cad9d7eda03d0cb9a21d3e2f637412ecdaca0ec2c65ca1e052842a483883a6b5"
+    },
+    {
+      "original_path": "requirements.txt",
+      "archived_path": "archive/environment/requirements-legacy.txt",
+      "bytes": 2652,
+      "sha256": "0b20348fb3ddf8d9f2c0deb560f7b6a0d688831d751c37e585290921a646cb52"
+    },
+    {
+      "original_path": "EXTINCTION_FIX_SECTION.tex",
+      "archived_path": "archive/paper/EXTINCTION_FIX_SECTION.tex",
+      "bytes": 1471,
+      "sha256": "97a66de71a179233e3efe7d35fbae7e70993d2bf52ef0f9689a249489941ec13"
+    },
+    {
+      "original_path": "FIGURE_CAPTION_ARCHITECTURE_CONDITIONED.tex",
+      "archived_path": "archive/paper/FIGURE_CAPTION_ARCHITECTURE_CONDITIONED.tex",
+      "bytes": 2074,
+      "sha256": "b26cce2a557b0389f1dd03e6a2a3c721c573bce2fe7933ae6c9a7c087bb42136"
+    },
+    {
+      "original_path": "FIGURE_CAPTION_VARIANCE.tex",
+      "archived_path": "archive/paper/FIGURE_CAPTION_VARIANCE.tex",
+      "bytes": 1831,
+      "sha256": "65a852ac8a58430703dfd7dabe34a2bb6b9f6112d7fe18d7c2b5b10b2ee31624"
+    },
+    {
+      "original_path": "FIGURE_CAPTION_VARIANCE_CONCISE.tex",
+      "archived_path": "archive/paper/FIGURE_CAPTION_VARIANCE_CONCISE.tex",
+      "bytes": 984,
+      "sha256": "6956da01a037b1ae8c362d4afdbbd6f7fecfcf1d69a46e67edb747c3d4b42fec"
+    },
+    {
+      "original_path": "figure_architecture.pdf",
+      "archived_path": "archive/paper/figure_architecture.pdf",
+      "bytes": 74336,
+      "sha256": "fdf469eb6a7fb3d6f7ef595c682f9c7543a6bd8c80a5b349c97b3b373c656e8a"
+    },
+    {
+      "original_path": "figure_architecture.tex",
+      "archived_path": "archive/paper/figure_architecture.tex",
+      "bytes": 3311,
+      "sha256": "44276a0ca3a9408f75c0421a09198b3e9e0297339907cd893c2b74f75b13f3a0"
+    },
+    {
+      "original_path": "figure_architecture_conditioned.pdf",
+      "archived_path": "archive/paper/figure_architecture_conditioned.pdf",
+      "bytes": 103841,
+      "sha256": "1fe9fd5e54515c4739ec8f7d5ea26c80811a058e09141f8281949dc2e019f6a0"
+    },
+    {
+      "original_path": "figure_architecture_conditioned.tex",
+      "archived_path": "archive/paper/figure_architecture_conditioned.tex",
+      "bytes": 4812,
+      "sha256": "437839531396b6f8d88ad865e593981fa93100e6e8c214cd0e30a76313ec754a"
+    },
+    {
+      "original_path": "figure_architecture_conditioned_v2.pdf",
+      "archived_path": "archive/paper/figure_architecture_conditioned_v2.pdf",
+      "bytes": 136059,
+      "sha256": "0dc8906b610b31872250578e3102ef6b92f2edfc1984bdc8bebb13d5f5422521"
+    },
+    {
+      "original_path": "figure_architecture_conditioned_v2.tex",
+      "archived_path": "archive/paper/figure_architecture_conditioned_v2.tex",
+      "bytes": 5182,
+      "sha256": "5e077c32aaae66d6015ed89a082221d8e82e93b7c36fad119ef2103602a9ae85"
+    },
+    {
+      "original_path": "figure_architecture_cvae.pdf",
+      "archived_path": "archive/paper/figure_architecture_cvae.pdf",
+      "bytes": 24154,
+      "sha256": "b40c8ae8f197f075124d75c6a8b3976b3f3d4bb60fec99def51e48e9af479ddd"
+    },
+    {
+      "original_path": "paper_data_generation_section.txt",
+      "archived_path": "archive/paper/paper_data_generation_section.txt",
+      "bytes": 1303,
+      "sha256": "3110e2cf1cd609dd70a20743c9c828f0bcfc76a9b236e4d27f542cd6b914f68a"
+    },
+    {
+      "original_path": "analyze_failure_cases.py",
+      "archived_path": "archive/scripts/analyze_failure_cases.py",
+      "bytes": 14700,
+      "sha256": "56c014aa508c8916e3b7168d77d177b0f6d3a0299980735bd4cfa856db5b5788"
+    },
+    {
+      "original_path": "analyze_latent_space_families.py",
+      "archived_path": "archive/scripts/analyze_latent_space_families.py",
+      "bytes": 16486,
+      "sha256": "ecca81f64c29cfe7d4989f2195c785efb0db61f0d8e961c7d2632b0f05b4c764"
+    },
+    {
+      "original_path": "compare_extinction_fix_controlled.py",
+      "archived_path": "archive/scripts/compare_extinction_fix_controlled.py",
+      "bytes": 13188,
+      "sha256": "f9ae581388eff8fe24e0aa8fc831aa46bdd6a6a59b29ced687e02cf0a62fdc7f"
+    },
+    {
+      "original_path": "explore_oscillation_extrapolation.py",
+      "archived_path": "archive/scripts/explore_oscillation_extrapolation.py",
+      "bytes": 12724,
+      "sha256": "d73d2deb1b92cc3c27e43c5a4d05c7ba125981e94a4e425133af294a3a1ea74d"
+    },
+    {
+      "original_path": "generate_30d_figures.py",
+      "archived_path": "archive/scripts/generate_30d_figures.py",
+      "bytes": 18106,
+      "sha256": "97a1004507d05259e20607b5ce028be4614df60d8b1ddf71a6d19c7d03d718f4"
+    },
+    {
+      "original_path": "generate_all_figures_30d.py",
+      "archived_path": "archive/scripts/generate_all_figures_30d.py",
+      "bytes": 14465,
+      "sha256": "6e4bf86c173d0fbb0f358268434b595325cd37a8c1c3e900889563ef0af3616b"
+    },
+    {
+      "original_path": "generate_all_paper_figures.sh",
+      "archived_path": "archive/scripts/generate_all_paper_figures.sh",
+      "bytes": 3074,
+      "sha256": "2897695d28f34465ce025f78736a6e9b6befd4d9cd908ccf33d596830ddd9c6a"
+    },
+    {
+      "original_path": "generate_architecture_figure.py",
+      "archived_path": "archive/scripts/generate_architecture_figure.py",
+      "bytes": 5459,
+      "sha256": "01821ecee9bca18598f23a3a24032d9f77bbf75aaef9b0fa139edddec8f6ae7d"
+    },
+    {
+      "original_path": "generate_controlled_dynamics.py",
+      "archived_path": "archive/scripts/generate_controlled_dynamics.py",
+      "bytes": 19176,
+      "sha256": "a2e88774dbdd6fa885730f7cb7ab68f15b3ec88ae42580c7a740e54a4ebb0776"
+    },
+    {
+      "original_path": "generate_controlled_interpretability_figure.py",
+      "archived_path": "archive/scripts/generate_controlled_interpretability_figure.py",
+      "bytes": 13871,
+      "sha256": "04baf09706c4ed87a568ac524e56574dcd24fa7b173dbea88ed0981963290092"
+    },
+    {
+      "original_path": "generate_latent_interpolation_figure.py",
+      "archived_path": "archive/scripts/generate_latent_interpolation_figure.py",
+      "bytes": 12383,
+      "sha256": "f912d637db8f7fbc8a25620c8683be56101802a1d64df13317c32e37c7862ce8"
+    },
+    {
+      "original_path": "generate_lotka_volterra_validation_with_fix.py",
+      "archived_path": "archive/scripts/generate_lotka_volterra_validation_with_fix.py",
+      "bytes": 12663,
+      "sha256": "6018b4937e38872247e003c13acd2f63365f09a1880f0165cd49a1b7931dd60c"
+    },
+    {
+      "original_path": "generate_methodology_figures.py",
+      "archived_path": "archive/scripts/generate_methodology_figures.py",
+      "bytes": 19650,
+      "sha256": "6e3c134f298bc3f35e81bdd16b4f942186ec0d16eb7f85d710b0ccbf7f00c291"
+    },
+    {
+      "original_path": "generate_paper_figures_comprehensive.py",
+      "archived_path": "archive/scripts/generate_paper_figures_comprehensive.py",
+      "bytes": 22206,
+      "sha256": "e9459c6fa2afd65e9f407be68bdff9d42f21cb6badd390847006c685e69b355c"
+    },
+    {
+      "original_path": "generate_phase_space_comparison.py",
+      "archived_path": "archive/scripts/generate_phase_space_comparison.py",
+      "bytes": 10117,
+      "sha256": "627b4ed441c5a2c442e60ba9b79221b5523a447fd3cad668e4c2a10b2ae0e2af"
+    },
+    {
+      "original_path": "generate_professional_controlled_figure.py",
+      "archived_path": "archive/scripts/generate_professional_controlled_figure.py",
+      "bytes": 9974,
+      "sha256": "1db1850ea0f6f6bc0032c4a4efa70e99372ebe0d2db446796d053241c6011ccd"
+    },
+    {
+      "original_path": "generate_reconstruction_examples_with_fix.py",
+      "archived_path": "archive/scripts/generate_reconstruction_examples_with_fix.py",
+      "bytes": 6765,
+      "sha256": "7095d094127668febbfd5c2776fd91cba6a194d23d311aa9b15fa4ef25eda308"
+    },
+    {
+      "original_path": "generate_reconstruction_quality_figures.py",
+      "archived_path": "archive/scripts/generate_reconstruction_quality_figures.py",
+      "bytes": 28481,
+      "sha256": "fcba89d9dc53723da7f929135270b91bd3b7d56b889f2a1fa6eac1b7cb72966e"
+    },
+    {
+      "original_path": "generate_recurrence_dynamics_figure.py",
+      "archived_path": "archive/scripts/generate_recurrence_dynamics_figure.py",
+      "bytes": 11797,
+      "sha256": "457017cf352f41c264b38dda29123092490cdee5758ae4b9e49ca3c626781352"
+    },
+    {
+      "original_path": "generate_training_analysis_figure.py",
+      "archived_path": "archive/scripts/generate_training_analysis_figure.py",
+      "bytes": 12543,
+      "sha256": "ee5b8068f5ac4ce16a106147ec85bf4d1da183edeb7d51fe5603fe2e790bbe79"
+    },
+    {
+      "original_path": "generate_variance_explained_comparison.py",
+      "archived_path": "archive/scripts/generate_variance_explained_comparison.py",
+      "bytes": 10842,
+      "sha256": "c97919508439ef1c52858547fb5664b2b3d429e5e07f216516b231694536f5a5"
+    },
+    {
+      "original_path": "generate_variance_explained_figure.py",
+      "archived_path": "archive/scripts/generate_variance_explained_figure.py",
+      "bytes": 9838,
+      "sha256": "0c42e7cee77fa19081b965bc29798e70465569dcc5c4c52c32a0a57b6e669f3c"
+    },
+    {
+      "original_path": "investigate_latent_collapse.py",
+      "archived_path": "archive/scripts/investigate_latent_collapse.py",
+      "bytes": 8540,
+      "sha256": "3eb2b33c8718d64b130dfbff26c852ddea0de5ee461147bc6ea63ebd27b4f6d0"
+    },
+    {
+      "original_path": "investigate_latent_interpretability.py",
+      "archived_path": "archive/scripts/investigate_latent_interpretability.py",
+      "bytes": 24253,
+      "sha256": "de0a76b376ed362b32aa3d545ce67b4084a82fa81e9e10a035c0804e86a31f0d"
+    },
+    {
+      "original_path": "latent_interaction_mapping.py",
+      "archived_path": "archive/scripts/latent_interaction_mapping.py",
+      "bytes": 19528,
+      "sha256": "d42b39d9ded42e1143627400e34332df722de6f49c6bdc79633992ea124e680b"
+    },
+    {
+      "original_path": "regenerate_all_30d.sh",
+      "archived_path": "archive/scripts/regenerate_all_30d.sh",
+      "bytes": 2292,
+      "sha256": "5880887850a67acbac5263298c5baf7e30d83a6328d6275e141f6b68a39d098a"
+    },
+    {
+      "original_path": "search_latent_space_comprehensively.py",
+      "archived_path": "archive/scripts/search_latent_space_comprehensively.py",
+      "bytes": 10658,
+      "sha256": "c7f155807e0b78b6dc3b995d98931e8bade2d0386a18517108a3262dccb2b7d5"
+    },
+    {
+      "original_path": "sweep_extinction_threshold.py",
+      "archived_path": "archive/scripts/sweep_extinction_threshold.py",
+      "bytes": 15461,
+      "sha256": "d13838487e4214b1813963d1a6a029a45a821a77110ed042679f5245cc84c667"
+    },
+    {
+      "original_path": "visualize_ultra_oscillatory_samples.py",
+      "archived_path": "archive/scripts/visualize_ultra_oscillatory_samples.py",
+      "bytes": 8938,
+      "sha256": "bda747f1fc7a140dea43a4062f87df799d3c99353e4e391f8da9bfc273c48543"
+    }
+  ]
+}

@@ -1,0 +1,145 @@
+\documentclass[tikz,border=2mm]{standalone}
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta, shapes.geometric, fit, calc}
+\usepackage{amsmath,amssymb,bm}
+
+\begin{document}
+
+\definecolor{enccolor}{HTML}{2E86AB}
+\definecolor{scalecolor}{HTML}{9B59B6}
+\definecolor{latcolor}{HTML}{F18F01}
+\definecolor{deccolor}{HTML}{C73E1D}
+\definecolor{auxcolor}{HTML}{6A994E}
+\definecolor{graytext}{HTML}{495057}
+\definecolor{lightgray}{HTML}{ADB5BD}
+
+\begin{tikzpicture}[
+    node distance=1.2cm and 1.8cm,
+    >={Stealth[length=2.5mm]},
+    block/.style={
+        rectangle,
+        rounded corners=3pt,
+        minimum width=2.0cm,
+        minimum height=1.1cm,
+        text centered,
+        draw=white,
+        line width=1.2pt,
+        font=\sffamily\small
+    },
+    smallblock/.style={
+        rectangle,
+        rounded corners=2pt,
+        minimum width=1.3cm,
+        minimum height=0.7cm,
+        text centered,
+        draw=white,
+        line width=1pt,
+        font=\sffamily\footnotesize
+    },
+    circlenode/.style={
+        circle,
+        minimum size=0.9cm,
+        text centered,
+        draw=white,
+        line width=1.2pt,
+        font=\sffamily\bfseries
+    },
+    arr/.style={
+        ->,
+        line width=1pt,
+        color=graytext
+    },
+    label/.style={
+        font=\sffamily\bfseries\footnotesize
+    }
+]
+
+% === INPUTS ===
+\node[font=\bfseries, text=graytext] (input_x) at (0, 2.5) {$\mathbf{X}$};
+\node[below=0.08cm of input_x, font=\tiny, text=lightgray] {$(N, 7, 65)$};
+
+\node[font=\bfseries, text=graytext] (input_m) at (0, -2.5) {$\mathbf{m}$};
+\node[below=0.08cm of input_m, font=\tiny, text=lightgray] {$(N, 7)$};
+
+% === SHAPE ENCODER ===
+\node[block, fill=enccolor, text=white, right=2.0cm of input_x] (shape_enc) {Shape Enc.\\[-2pt]{\tiny Bi-LSTM}};
+
+% === SCALE ENCODER ===
+\node[block, fill=scalecolor, text=white, right=2.0cm of input_m] (scale_enc) {Scale Enc.\\[-2pt]{\tiny MLP}};
+
+% === Z_SHAPE / Z_SCALE ===
+\node[smallblock, fill=enccolor!80, text=white, right=1.8cm of shape_enc] (z_shape) {$\mathbf{z}_{\text{sh}}$};
+\node[smallblock, fill=scalecolor!80, text=white, right=1.8cm of scale_enc] (z_scale) {$\mathbf{z}_{\text{sc}}$};
+
+% === CONCATENATION NODE ===
+\node[circlenode, fill=lightgray, text=white, right=2.2cm of $(z_shape)!0.5!(z_scale)$] (concat) {$\oplus$};
+
+% === MU/SIGMA ===
+\node[smallblock, fill=latcolor, text=white, above right=0.4cm and 1.5cm of concat] (mu) {$\bm{\mu}$};
+\node[smallblock, fill=latcolor, text=white, below right=0.4cm and 1.5cm of concat] (sigma) {$\bm{\sigma}$};
+
+% === LATENT Z ===
+\node[circlenode, fill=latcolor, text=white, right=3.0cm of concat] (z) {$\mathbf{z}$};
+
+% === DECODER ===
+\node[block, fill=deccolor, text=white, right=2.2cm of z] (decoder) {Decoder\\[-2pt]{\tiny LSTM}};
+
+% === OUTPUT X_HAT ===
+\node[font=\bfseries, text=graytext, right=1.8cm of decoder] (output_x) {$\hat{\mathbf{X}}$};
+\node[below=0.1cm of output_x, font=\tiny, text=lightgray] {$(N, 7, 65)$};
+
+% === SCALE PREDICTOR ===
+\node[block, fill=auxcolor, text=white, below=2.2cm of decoder, minimum height=0.9cm] (mlp) {Predictor\\[-2pt]{\tiny MLP}};
+\node[font=\bfseries, text=graytext, right=1.8cm of mlp] (output_m) {$\hat{\mathbf{m}}$};
+\node[below=0.1cm of output_m, font=\tiny, text=lightgray] {$(N, 7)$};
+
+% === ARROWS ===
+% Inputs to encoders
+\draw[arr] (input_x) -- (shape_enc);
+\draw[arr] (input_m) -- (scale_enc);
+
+% Encoders to latent representations
+\draw[arr] (shape_enc) -- (z_shape);
+\draw[arr] (scale_enc) -- (z_scale);
+
+% Latent representations to concatenation
+\draw[arr] (z_shape.east) -- ++(0.3,0) |- (concat);
+\draw[arr] (z_scale.east) -- ++(0.3,0) |- (concat);
+
+% Concatenation to mu/sigma
+\draw[arr] (concat.east) -- ++(0.3,0) |- (mu.west);
+\draw[arr] (concat.east) -- ++(0.3,0) |- (sigma.west);
+
+% Mu/sigma to z (sampling)
+\draw[arr] (mu.east) -- ++(0.3,0) |- (z);
+\draw[arr] (sigma.east) -- ++(0.3,0) |- (z);
+
+% Z to decoder
+\draw[arr] (z) -- (decoder);
+
+% Decoder to output
+\draw[arr] (decoder) -- (output_x);
+
+% Z to predictor
+\draw[arr] (z.south) -- ++(0,-0.5) -| (mlp.north);
+
+% Predictor to scale output
+\draw[arr] (mlp) -- (output_m);
+
+% === ANNOTATIONS ===
+% Sampling notation
+\node[left=0.2cm of z, font=\normalsize, text=graytext] {$\sim$};
+
+% Training only label
+\node[above=0.15cm of input_m, font=\tiny, text=scalecolor!80, align=center] {\textit{(training)}};
+
+% === SECTION LABELS (Positioned to avoid overlap) ===
+\node[label, text=enccolor, above=0.6cm of shape_enc] {Shape Encoding};
+\node[label, text=scalecolor, above=0.6cm of scale_enc] {Scale Conditioning};
+\node[label, text=latcolor, above=1.8cm of z] {Latent Space};
+\node[label, text=deccolor, above=0.6cm of decoder] {Reconstruction};
+\node[label, text=auxcolor, below=0.5cm of mlp] {Scale Prediction};
+
+\end{tikzpicture}
+
+\end{document}

@@ -1,5 +1,10 @@
 # Design Spec — Comparative Evaluation of Generative Models of GLV Dynamics under a 3-Lens Nonlinear-Dynamics Protocol
 
+> **Historical design, superseded for current planning.** This preserves the May
+> 2026 research direction, not a validated statement of results. Start with
+> [PROJECT.md](../../../PROJECT.md), [PLAN.md](../../../PLAN.md), and the
+> [scientific audit](../../SCIENTIFIC_AUDIT.md) for current scope and blockers.
+
 **Date:** 2026-05-15
 **Status:** Approved (verbal; this doc supersedes the prior single-model paper plan)
 **Owners:** Carlos Mari Armengol (lead); two physics-professor advisors

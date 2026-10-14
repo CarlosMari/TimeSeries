@@ -1,5 +1,11 @@
 # REFERENCES.md — Citations for the paper
 
+> **Working bibliography, not citation-verified.** Entries marked TBC, placeholder,
+> or containing mechanistic interpretations require verification against the
+> original sources. Historical novelty claims and claims about denoising, chaos,
+> or a decoder "cure" are not current conclusions; see
+> [docs/SCIENTIFIC_AUDIT.md](docs/SCIENTIFIC_AUDIT.md).
+
 Living document. Each entry: bibtex-able key, full reference, **what we cite it for** in the paper. Sections track the paper structure under the 2026-05-15 pivot (`docs/superpowers/specs/2026-05-15-comparative-evaluation-design.md`).
 
 ---

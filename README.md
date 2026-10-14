@@ -1,57 +1,66 @@
-# Comparative Evaluation of Generative Models of GLV Dynamics under a Nonlinear-Dynamics Protocol
+# Generative Models of Generalized Lotka–Volterra Time Series
 
-A research codebase for the paper **"A three-lens nonlinear-dynamics evaluation protocol for generative models, applied to seven architectures on Generalized Lotka–Volterra trajectories"** (working title). Target venue: *Chaos, Solitons & Fractals* or similar.
+Research code for reconstructing and generating 7-species, 65-step ecological
+trajectories. The repository contains LSTM, latent-ODE, Transformer, and KAN VAE
+variants, an experimental GLV-regression baseline, and distributional diagnostics.
 
-## What this is
+**Status: scientific audit and repository cleanup, October 2026.** Existing
+results are research artifacts, not a validated final benchmark. The no-sort
+scale head, compound OOD shift, observation-noise comparisons, and interpretation
+of short-window divergence estimates need resolution before publication claims.
+Cleanup does not change model behavior or certify old results.
 
-We compare seven generative-model architectures on a controlled testbed (GLV time series, 7 species, 65 timesteps) under a three-lens evaluation protocol designed to detect dynamical-fidelity defects that recon-quality metrics miss:
+## Start here
 
-1. **Feature-space distributional fidelity** — MMD permutation test on dynamical features.
-2. **Recurrence Quantification Analysis** — DET, L_mean, L_max, LAM, TT.
-3. **Largest Lyapunov exponent** (Rosenstein) — chaos-sensitivity test.
+- [PROJECT.md](PROJECT.md): current scope and evidence status.
+- [PLAN.md](PLAN.md): bounded next steps and publication decision gate.
+- [docs/SCIENTIFIC_AUDIT.md](docs/SCIENTIFIC_AUDIT.md): concrete scientific blockers.
+- [docs/REPRODUCING.md](docs/REPRODUCING.md): environment, safe checks, and explicit
+  historical reproduction commands.
+- [docs/CLEANUP.md](docs/CLEANUP.md): what moved, what was preserved, and why.
+- [results/README.md](results/README.md): result families and provenance limitations.
 
-The seven models span recurrent, attention, continuous-time-ODE, novel-function-basis, and physics-informed inverse-problem inductive biases.
+## Safe checks (no training or artifact regeneration)
 
-## Status (live)
-
-This project is mid-pivot. As of **2026-05-15**, the codebase contains:
-
-- A working scale-conditioned LSTM-VAE pipeline (the "v1" model).
-- All v1 evaluation infrastructure (`analysis/produce_paper_metrics.py`, `analysis/novelty_coverage.py`, `analysis/chaos_diagnostics.py`).
-- The pivot design doc and the new pipeline scaffolding.
-
-The 7-model comparative training and unified eval harness are in progress. Track the roadmap in [`PROJECT.md`](PROJECT.md) §1.2 and [`PLAN.md`](PLAN.md).
-
-## Repository map
-
-- [`docs/superpowers/specs/2026-05-15-comparative-evaluation-design.md`](docs/superpowers/specs/2026-05-15-comparative-evaluation-design.md) — **the canonical pivot design doc.** Start here for context.
-- [`PROJECT.md`](PROJECT.md) — wiki of current state, v1 results, and pivot roadmap.
-- [`PLAN.md`](PLAN.md) — todo list / phase tracker.
-- [`REFERENCES.md`](REFERENCES.md) — living citations list grouped by paper section.
-- [`src/models/`](src/models/) — model implementations (currently: scale-conditioned LSTM-VAE; the other 6 will land here during phases A–B).
-- [`analysis/`](analysis/) — evaluation scripts. The protocol's three lenses live in `novelty_coverage.py` (MMD) and `chaos_diagnostics.py` (RQA + Lyapunov).
-- [`data_generation/`](data_generation/) — GLV simulator + preprocessing pipeline.
-- [`final figures/`](final%20figures/) — figures for the paper (v1 figures stay archival; pivot figures replace them as they land).
-
-## Reproducing v1 results
+These use only the Python standard library and run without CUDA or local data:
 
 ```bash
-source TimeSeries/bin/activate
-python train_cvae.py                              # canonical v1 VAE training
-python -c "from analysis.produce_paper_metrics import main; main()"
-python analysis/novelty_coverage.py               # Lens 1
-python analysis/chaos_diagnostics.py              # Lenses 2 + 3
-python analysis/evaluate_baseline.py              # v1 ablation
-python analysis/parameter_recoverability.py       # v1 parameter-recovery analysis
+python3 -m unittest discover -s tests -p 'test_*.py'
+python3 scripts/check_archive.py
+python3 scripts/run_legacy.py --list
+python3 scripts/catalog_artifacts.py --output results/manifest.json
+python3 scripts/catalog_artifacts.py --output results/manifest.json --check
 ```
 
-v1 outputs live in `RESULTS.json`, `RESULTS_BASELINE.json`, `RESULTS_NOVELTY.json`, `RESULTS_CHAOS.json`, `RESULTS_PARAM_RECOVERY.json`.
+The catalog command inventories existing artifacts; it does not load pickle files,
+load checkpoints, run models, or recompute scientific metrics. Paths and filenames
+can suggest provenance but cannot prove it.
 
-Reproducing pivot results requires the rebuilt no-sort preprocessing and the 21 new checkpoints — instructions to follow once Phases A–C complete.
+## Layout
 
-## Acknowledgments
+| Path | Purpose |
+|---|---|
+| `train_*.py` | Existing training entry points; CUDA required by current configuration |
+| `src/models/`, `src/utils/` | Model implementations and shared configuration |
+| `data_generation/` | Simulator and preprocessing; ID/OOD differences remain under audit |
+| `analysis/` | Existing evaluation and comparative figure code |
+| `scripts/` | Maintenance tools and historical training queues |
+| `tests/` | Lightweight automated tests plus separately named legacy checks |
+| `results/` | Artifact catalog and result-family documentation |
+| `RESULTS*.json` | Existing metrics, retained at their original paths for compatibility |
+| `data/`, `model_ckpts/` | Local datasets and checkpoints; not supplied by a clean clone |
+| `final figures/`, other figure directories | Preserved historical outputs, not a curated final paper |
+| `archive/` | Preserved historical documentation, exploratory scripts, and paper fragments |
 
+Historical exploratory scripts run through `scripts/run_legacy.py`; see
+[archive/README.md](archive/README.md) before executing anything. They may overwrite
+old outputs, use synthetic demonstrations, or depend on missing local artifacts.
 
-## License
+## Environment and licensing
 
-(TBD — to be set before submission.)
+Use `requirements.txt` for the numerical/training pipeline and
+`requirements-exploration.txt` for optional exploratory tools. The original broad
+environment snapshot is preserved under `archive/environment/`.
+
+A distribution license has not yet been selected. Resolve licensing, vendored-code
+attribution, and dataset/checkpoint availability before a public research release.

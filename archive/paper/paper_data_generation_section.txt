@@ -1,0 +1,13 @@
+\subsection{Data Generation and Preprocessing}
+
+We generate synthetic multivariate time series using a 7-species Generalized Lotka-Volterra (GLV) system:
+\begin{equation}
+    \frac{dx_i}{dt} = x_i \left( r_i + \sum_{j=1}^{N} A_{ij} x_j \right), \quad i = 1, \ldots, N
+\end{equation}
+where $x_i(t)$ denotes species $i$ population, $r_i$ the intrinsic growth rate, and $A_{ij}$ the interaction coefficients. Each sample comprises $N=7$ curves over $T=65$ time points. We apply multiplicative lognormal noise ($\sigma=0.01$) and filter samples requiring at least three curves with transient overshoot ($\max_t x_i > 1.2 \cdot \bar{x}_i^{\text{ss}}$), yielding 150,000 training and 50,000 test samples.
+
+The preprocessing pipeline applies three normalization stages. First, each family is normalized by its global maximum $M_{\text{family}} = \max_{i,t} X_{i,t}$ to preserve relative inter-curve magnitudes. Second, curves are sorted by descending peak value to establish canonical ordering. Third, each curve is individually normalized to $[0,1]$:
+\begin{equation}
+    \tilde{X}_{i,t} = \frac{X_{i,t}}{M_i \cdot M_{\text{family}}}, \quad M_i = \max_t X_{i,t}
+\end{equation}
+The scaling factors $M_i$ and $M_{\text{family}}$ are preserved to enable reconstruction of original magnitudes from model outputs.

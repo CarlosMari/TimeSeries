@@ -1,0 +1,4314 @@
+{
+  "artifacts": [
+    {
+      "bytes": 3243,
+      "caveats": [
+        {
+          "category": "legacy_sorted",
+          "message": "Species ordering is not established here. Some legacy protocols sorted species; do not assume comparability with no-sort results.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/checkpoint",
+          "value": "model_ckpts/model_final_30_conditioned.pth"
+        },
+        {
+          "source": "/model_config",
+          "value": {
+            "latent_dim": 30,
+            "n_curves": 7,
+            "rnn_hidden_size": 256,
+            "rnn_num_layers": 2,
+            "scale_prediction_mode": "log",
+            "seq_len": 65,
+            "use_scale_conditioning": true
+          }
+        },
+        {
+          "source": "/model_config/scale_prediction_mode",
+          "value": "log"
+        },
+        {
+          "source": "/novelty/n_gen",
+          "value": 1000
+        },
+        {
+          "source": "/reconstruction/N_test",
+          "value": 39189
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [],
+      "path": "RESULTS.json",
+      "references": [
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_final_30_conditioned.pth",
+          "provenance": "explicit",
+          "source": "/checkpoint",
+          "verified": false
+        }
+      ],
+      "sha256": "6f826aaa646e673ca23eafe3a882671286f1b1a5ea6dfebefd4a81e000ba7c6b"
+    },
+    {
+      "bytes": 7212,
+      "caveats": [
+        {
+          "category": "no_sort_scale_head",
+          "message": "A no-sort label does not establish whether the scale head preserves species order; inspect the evaluation and checkpoint configuration.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p05_seed123/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p05_seed123/reconstruction/N_recon",
+          "value": 5000
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [
+        "cvae-stochastic:b1_m3_frozen_0p05_seed123"
+      ],
+      "path": "RESULTS_B1_frozen_0p05_seed123_FINAL_NOSORT.json",
+      "references": [
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/b1_m3_frozen_0p05_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:b1_m3_frozen_0p05_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "dataset",
+          "path": "data/TEST_FINAL_NOSORT.pkl",
+          "provenance": "inferred",
+          "source": "filename/key RESULTS_B1_frozen_0p05_seed123_FINAL_NOSORT.json",
+          "verified": false
+        }
+      ],
+      "sha256": "40eb83aa159cc4ee3cd1bca8e488c2e489ab124a3876cd271fb2736c24bd2de1"
+    },
+    {
+      "bytes": 7193,
+      "caveats": [
+        {
+          "category": "legacy_sorted",
+          "message": "Species ordering is not established here. Some legacy protocols sorted species; do not assume comparability with no-sort results.",
+          "status": "review_required"
+        },
+        {
+          "category": "ood_compound_shift",
+          "message": "An OOD label alone does not isolate a single intervention; parameter, noise, and preprocessing shifts may be compounded.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p05_seed123/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p05_seed123/reconstruction/N_recon",
+          "value": 5000
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [
+        "cvae-stochastic:b1_m3_frozen_0p05_seed123"
+      ],
+      "path": "RESULTS_B1_frozen_0p05_seed123_OOD_Exp1.json",
+      "references": [
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/b1_m3_frozen_0p05_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:b1_m3_frozen_0p05_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "dataset",
+          "path": "data/TEST_OOD_Exp1.pkl",
+          "provenance": "inferred",
+          "source": "filename/key RESULTS_B1_frozen_0p05_seed123_OOD_Exp1.json",
+          "verified": false
+        }
+      ],
+      "sha256": "cd839523967e035b72ae9195cfb9ffddf23c57cd3ac2ab91c0b6ca0059893456"
+    },
+    {
+      "bytes": 7182,
+      "caveats": [
+        {
+          "category": "legacy_sorted",
+          "message": "Species ordering is not established here. Some legacy protocols sorted species; do not assume comparability with no-sort results.",
+          "status": "review_required"
+        },
+        {
+          "category": "ood_compound_shift",
+          "message": "An OOD label alone does not isolate a single intervention; parameter, noise, and preprocessing shifts may be compounded.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p05_seed123/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p05_seed123/reconstruction/N_recon",
+          "value": 5000
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [
+        "cvae-stochastic:b1_m3_frozen_0p05_seed123"
+      ],
+      "path": "RESULTS_B1_frozen_0p05_seed123_OOD_Exp5.json",
+      "references": [
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/b1_m3_frozen_0p05_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:b1_m3_frozen_0p05_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "dataset",
+          "path": "data/TEST_OOD_Exp5.pkl",
+          "provenance": "inferred",
+          "source": "filename/key RESULTS_B1_frozen_0p05_seed123_OOD_Exp5.json",
+          "verified": false
+        }
+      ],
+      "sha256": "2abd07096d4c9c41a9738e33631392205f63d494219ba1d4c02926df93af15a1"
+    },
+    {
+      "bytes": 7215,
+      "caveats": [
+        {
+          "category": "no_sort_scale_head",
+          "message": "A no-sort label does not establish whether the scale head preserves species order; inspect the evaluation and checkpoint configuration.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p05_seed2026/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p05_seed2026/reconstruction/N_recon",
+          "value": 5000
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [
+        "cvae-stochastic:b1_m3_frozen_0p05_seed2026"
+      ],
+      "path": "RESULTS_B1_frozen_0p05_seed2026_FINAL_NOSORT.json",
+      "references": [
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/b1_m3_frozen_0p05_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:b1_m3_frozen_0p05_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "dataset",
+          "path": "data/TEST_FINAL_NOSORT.pkl",
+          "provenance": "inferred",
+          "source": "filename/key RESULTS_B1_frozen_0p05_seed2026_FINAL_NOSORT.json",
+          "verified": false
+        }
+      ],
+      "sha256": "72ff1e5c10f4fbb5c4f1d700c49a69ae3d56f16a5c0c286486bf24d3a7bd763c"
+    },
+    {
+      "bytes": 7200,
+      "caveats": [
+        {
+          "category": "legacy_sorted",
+          "message": "Species ordering is not established here. Some legacy protocols sorted species; do not assume comparability with no-sort results.",
+          "status": "review_required"
+        },
+        {
+          "category": "ood_compound_shift",
+          "message": "An OOD label alone does not isolate a single intervention; parameter, noise, and preprocessing shifts may be compounded.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p05_seed2026/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p05_seed2026/reconstruction/N_recon",
+          "value": 5000
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [
+        "cvae-stochastic:b1_m3_frozen_0p05_seed2026"
+      ],
+      "path": "RESULTS_B1_frozen_0p05_seed2026_OOD_Exp1.json",
+      "references": [
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/b1_m3_frozen_0p05_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:b1_m3_frozen_0p05_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "dataset",
+          "path": "data/TEST_OOD_Exp1.pkl",
+          "provenance": "inferred",
+          "source": "filename/key RESULTS_B1_frozen_0p05_seed2026_OOD_Exp1.json",
+          "verified": false
+        }
+      ],
+      "sha256": "1100d843a1e4da1821706b72b2d4250347f3cbf891ed1e8570acbb873f8803eb"
+    },
+    {
+      "bytes": 7204,
+      "caveats": [
+        {
+          "category": "legacy_sorted",
+          "message": "Species ordering is not established here. Some legacy protocols sorted species; do not assume comparability with no-sort results.",
+          "status": "review_required"
+        },
+        {
+          "category": "ood_compound_shift",
+          "message": "An OOD label alone does not isolate a single intervention; parameter, noise, and preprocessing shifts may be compounded.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p05_seed2026/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p05_seed2026/reconstruction/N_recon",
+          "value": 5000
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [
+        "cvae-stochastic:b1_m3_frozen_0p05_seed2026"
+      ],
+      "path": "RESULTS_B1_frozen_0p05_seed2026_OOD_Exp5.json",
+      "references": [
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/b1_m3_frozen_0p05_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:b1_m3_frozen_0p05_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "dataset",
+          "path": "data/TEST_OOD_Exp5.pkl",
+          "provenance": "inferred",
+          "source": "filename/key RESULTS_B1_frozen_0p05_seed2026_OOD_Exp5.json",
+          "verified": false
+        }
+      ],
+      "sha256": "f2ee447ae05234fa5c08cfe49fe97fde292639708f2c239011c879eadf822334"
+    },
+    {
+      "bytes": 7215,
+      "caveats": [
+        {
+          "category": "no_sort_scale_head",
+          "message": "A no-sort label does not establish whether the scale head preserves species order; inspect the evaluation and checkpoint configuration.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p1_seed42/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p1_seed42/reconstruction/N_recon",
+          "value": 5000
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [
+        "cvae-stochastic:b1_m3_frozen_0p1_seed42"
+      ],
+      "path": "RESULTS_B1_frozen_0p1_FINAL_NOSORT.json",
+      "references": [
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/b1_m3_frozen_0p1_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:b1_m3_frozen_0p1_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "dataset",
+          "path": "data/TEST_FINAL_NOSORT.pkl",
+          "provenance": "inferred",
+          "source": "filename/key RESULTS_B1_frozen_0p1_FINAL_NOSORT.json",
+          "verified": false
+        }
+      ],
+      "sha256": "e9ee9c6f82193caa51e84c2473322a73519e680dd3e60a44ee55d528ccf35328"
+    },
+    {
+      "bytes": 7202,
+      "caveats": [
+        {
+          "category": "legacy_sorted",
+          "message": "Species ordering is not established here. Some legacy protocols sorted species; do not assume comparability with no-sort results.",
+          "status": "review_required"
+        },
+        {
+          "category": "ood_compound_shift",
+          "message": "An OOD label alone does not isolate a single intervention; parameter, noise, and preprocessing shifts may be compounded.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p1_seed42/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p1_seed42/reconstruction/N_recon",
+          "value": 5000
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [
+        "cvae-stochastic:b1_m3_frozen_0p1_seed42"
+      ],
+      "path": "RESULTS_B1_frozen_0p1_OOD_Exp1.json",
+      "references": [
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/b1_m3_frozen_0p1_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:b1_m3_frozen_0p1_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "dataset",
+          "path": "data/TEST_OOD_Exp1.pkl",
+          "provenance": "inferred",
+          "source": "filename/key RESULTS_B1_frozen_0p1_OOD_Exp1.json",
+          "verified": false
+        }
+      ],
+      "sha256": "ac4926f0916749b34583b4c9f3354dd8ff98b39f389d346315dc4631f8277478"
+    },
+    {
+      "bytes": 7182,
+      "caveats": [
+        {
+          "category": "legacy_sorted",
+          "message": "Species ordering is not established here. Some legacy protocols sorted species; do not assume comparability with no-sort results.",
+          "status": "review_required"
+        },
+        {
+          "category": "ood_compound_shift",
+          "message": "An OOD label alone does not isolate a single intervention; parameter, noise, and preprocessing shifts may be compounded.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p1_seed42/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p1_seed42/reconstruction/N_recon",
+          "value": 5000
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [
+        "cvae-stochastic:b1_m3_frozen_0p1_seed42"
+      ],
+      "path": "RESULTS_B1_frozen_0p1_OOD_Exp5.json",
+      "references": [
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/b1_m3_frozen_0p1_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:b1_m3_frozen_0p1_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "dataset",
+          "path": "data/TEST_OOD_Exp5.pkl",
+          "provenance": "inferred",
+          "source": "filename/key RESULTS_B1_frozen_0p1_OOD_Exp5.json",
+          "verified": false
+        }
+      ],
+      "sha256": "5f2443ae8f5a7e28bc787a098218e0c90772cbf928d9e028d1cdbfc7f5673b66"
+    },
+    {
+      "bytes": 7202,
+      "caveats": [
+        {
+          "category": "no_sort_scale_head",
+          "message": "A no-sort label does not establish whether the scale head preserves species order; inspect the evaluation and checkpoint configuration.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p2_seed42/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p2_seed42/reconstruction/N_recon",
+          "value": 5000
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [
+        "cvae-stochastic:b1_m3_frozen_0p2_seed42"
+      ],
+      "path": "RESULTS_B1_frozen_0p2_FINAL_NOSORT.json",
+      "references": [
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/b1_m3_frozen_0p2_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:b1_m3_frozen_0p2_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "dataset",
+          "path": "data/TEST_FINAL_NOSORT.pkl",
+          "provenance": "inferred",
+          "source": "filename/key RESULTS_B1_frozen_0p2_FINAL_NOSORT.json",
+          "verified": false
+        }
+      ],
+      "sha256": "3323bad222d74f784fc5ca1fad8da44e249cc2753fffd16fb91244d63932d547"
+    },
+    {
+      "bytes": 7191,
+      "caveats": [
+        {
+          "category": "legacy_sorted",
+          "message": "Species ordering is not established here. Some legacy protocols sorted species; do not assume comparability with no-sort results.",
+          "status": "review_required"
+        },
+        {
+          "category": "ood_compound_shift",
+          "message": "An OOD label alone does not isolate a single intervention; parameter, noise, and preprocessing shifts may be compounded.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p2_seed42/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p2_seed42/reconstruction/N_recon",
+          "value": 5000
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [
+        "cvae-stochastic:b1_m3_frozen_0p2_seed42"
+      ],
+      "path": "RESULTS_B1_frozen_0p2_OOD_Exp1.json",
+      "references": [
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/b1_m3_frozen_0p2_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:b1_m3_frozen_0p2_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "dataset",
+          "path": "data/TEST_OOD_Exp1.pkl",
+          "provenance": "inferred",
+          "source": "filename/key RESULTS_B1_frozen_0p2_OOD_Exp1.json",
+          "verified": false
+        }
+      ],
+      "sha256": "faee29ffebf206feacef238b3bfecce45fb5e9152808e9eab3a69c73e946ae8a"
+    },
+    {
+      "bytes": 7193,
+      "caveats": [
+        {
+          "category": "legacy_sorted",
+          "message": "Species ordering is not established here. Some legacy protocols sorted species; do not assume comparability with no-sort results.",
+          "status": "review_required"
+        },
+        {
+          "category": "ood_compound_shift",
+          "message": "An OOD label alone does not isolate a single intervention; parameter, noise, and preprocessing shifts may be compounded.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p2_seed42/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p2_seed42/reconstruction/N_recon",
+          "value": 5000
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [
+        "cvae-stochastic:b1_m3_frozen_0p2_seed42"
+      ],
+      "path": "RESULTS_B1_frozen_0p2_OOD_Exp5.json",
+      "references": [
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/b1_m3_frozen_0p2_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:b1_m3_frozen_0p2_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "dataset",
+          "path": "data/TEST_OOD_Exp5.pkl",
+          "provenance": "inferred",
+          "source": "filename/key RESULTS_B1_frozen_0p2_OOD_Exp5.json",
+          "verified": false
+        }
+      ],
+      "sha256": "babe3f9bcc70a8f486d3b2d071842df850fb788b67d4bd94073706368ca8987f"
+    },
+    {
+      "bytes": 7075,
+      "caveats": [
+        {
+          "category": "legacy_sorted",
+          "message": "Species ordering is not established here. Some legacy protocols sorted species; do not assume comparability with no-sort results.",
+          "status": "review_required"
+        },
+        {
+          "category": "ood_compound_shift",
+          "message": "An OOD label alone does not isolate a single intervention; parameter, noise, and preprocessing shifts may be compounded.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/cvae-scale-cond:b1_m1_spectral_0p1_seed42/model_type",
+          "value": "cvae-scale-cond"
+        },
+        {
+          "source": "/cvae-scale-cond:b1_m1_spectral_0p1_seed42/reconstruction/N_recon",
+          "value": 5000
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [
+        "cvae-scale-cond:b1_m1_spectral_0p1_seed42"
+      ],
+      "path": "RESULTS_B1_spectral_OOD_Exp1.json",
+      "references": [
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/b1_m1_spectral_0p1_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-scale-cond:b1_m1_spectral_0p1_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "dataset",
+          "path": "data/TEST_OOD_Exp1.pkl",
+          "provenance": "inferred",
+          "source": "filename/key RESULTS_B1_spectral_OOD_Exp1.json",
+          "verified": false
+        }
+      ],
+      "sha256": "f4c3f778f361f43c6a6fb45d59125351dbcb9b25d749cd0fa9005461cad14ecc"
+    },
+    {
+      "bytes": 7111,
+      "caveats": [
+        {
+          "category": "legacy_sorted",
+          "message": "Species ordering is not established here. Some legacy protocols sorted species; do not assume comparability with no-sort results.",
+          "status": "review_required"
+        },
+        {
+          "category": "ood_compound_shift",
+          "message": "An OOD label alone does not isolate a single intervention; parameter, noise, and preprocessing shifts may be compounded.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/cvae-scale-cond:b1_m1_spectral_0p1_seed42/model_type",
+          "value": "cvae-scale-cond"
+        },
+        {
+          "source": "/cvae-scale-cond:b1_m1_spectral_0p1_seed42/reconstruction/N_recon",
+          "value": 5000
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [
+        "cvae-scale-cond:b1_m1_spectral_0p1_seed42"
+      ],
+      "path": "RESULTS_B1_spectral_OOD_Exp5.json",
+      "references": [
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/b1_m1_spectral_0p1_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-scale-cond:b1_m1_spectral_0p1_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "dataset",
+          "path": "data/TEST_OOD_Exp5.pkl",
+          "provenance": "inferred",
+          "source": "filename/key RESULTS_B1_spectral_OOD_Exp5.json",
+          "verified": false
+        }
+      ],
+      "sha256": "d3c16df05380d762374840b7e73165f0b9fe4de6fee76b0ccfbd2feda3c5aaf9"
+    },
+    {
+      "bytes": 723,
+      "caveats": [
+        {
+          "category": "legacy_sorted",
+          "message": "Species ordering is not established here. Some legacy protocols sorted species; do not assume comparability with no-sort results.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/N_test",
+          "value": 39189
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [],
+      "path": "RESULTS_BASELINE.json",
+      "references": [],
+      "sha256": "c53bed2ddc8d3649154081f44bc8abd5d878abe21f63618fbf2b7d5620e60871"
+    },
+    {
+      "bytes": 3648,
+      "caveats": [
+        {
+          "category": "legacy_sorted",
+          "message": "Species ordering is not established here. Some legacy protocols sorted species; do not assume comparability with no-sort results.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/lyap/ks/n_gen",
+          "value": 200
+        },
+        {
+          "source": "/lyap/ks/n_real",
+          "value": 200
+        },
+        {
+          "source": "/n_samples_per_group",
+          "value": 200
+        },
+        {
+          "source": "/rqa/DET/ks/n_gen",
+          "value": 200
+        },
+        {
+          "source": "/rqa/DET/ks/n_real",
+          "value": 200
+        },
+        {
+          "source": "/rqa/LAM/ks/n_gen",
+          "value": 200
+        },
+        {
+          "source": "/rqa/LAM/ks/n_real",
+          "value": 200
+        },
+        {
+          "source": "/rqa/L_max/ks/n_gen",
+          "value": 200
+        },
+        {
+          "source": "/rqa/L_max/ks/n_real",
+          "value": 200
+        },
+        {
+          "source": "/rqa/L_mean/ks/n_gen",
+          "value": 200
+        },
+        {
+          "source": "/rqa/L_mean/ks/n_real",
+          "value": 200
+        },
+        {
+          "source": "/rqa/RR/ks/n_gen",
+          "value": 200
+        },
+        {
+          "source": "/rqa/RR/ks/n_real",
+          "value": 200
+        },
+        {
+          "source": "/rqa/TT/ks/n_gen",
+          "value": 200
+        },
+        {
+          "source": "/rqa/TT/ks/n_real",
+          "value": 200
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [],
+      "path": "RESULTS_CHAOS.json",
+      "references": [],
+      "sha256": "7169daeda22d1a8074567b6f60c79e9883c9f6b3e76123a88fd18720605b56d4"
+    },
+    {
+      "bytes": 50223,
+      "caveats": [
+        {
+          "category": "legacy_sorted",
+          "message": "Species ordering is not established here. Some legacy protocols sorted species; do not assume comparability with no-sort results.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed42/model_type",
+          "value": "cvae-no-scale-cond"
+        },
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed42/model_type",
+          "value": "cvae-scale-cond"
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed42/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/glv-regression:model_7_seed42/model_type",
+          "value": "glv-regression"
+        },
+        {
+          "source": "/kan-vae:model_6_seed42/model_type",
+          "value": "kan-vae"
+        },
+        {
+          "source": "/kan-vae:model_6_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/latent-ode:model_4_seed42/model_type",
+          "value": "latent-ode"
+        },
+        {
+          "source": "/latent-ode:model_4_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/transformer-vae:model_5_seed42/model_type",
+          "value": "transformer-vae"
+        },
+        {
+          "source": "/transformer-vae:model_5_seed42/reconstruction/N_recon",
+          "value": 5000
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [
+        "cvae-no-scale-cond:model_2_seed42",
+        "cvae-scale-cond:model_1_seed42",
+        "cvae-stochastic:model_3_seed42",
+        "glv-regression:model_7_seed42",
+        "kan-vae:model_6_seed42",
+        "latent-ode:model_4_seed42",
+        "transformer-vae:model_5_seed42"
+      ],
+      "path": "RESULTS_COMPARATIVE.json",
+      "references": [
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_1_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-scale-cond:model_1_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_2_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-no-scale-cond:model_2_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_3_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:model_3_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_4_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /latent-ode:model_4_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_5_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /transformer-vae:model_5_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_6_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /kan-vae:model_6_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_7_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /glv-regression:model_7_seed42",
+          "verified": false
+        }
+      ],
+      "sha256": "503db81601e99ce66a00e1e338d464fa56a2b5c74d6e206c44b8ed2e5c832fdb"
+    },
+    {
+      "bytes": 28716,
+      "caveats": [
+        {
+          "category": "legacy_sorted",
+          "message": "Species ordering is not established here. Some legacy protocols sorted species; do not assume comparability with no-sort results.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/cvae-scale-cond:b1_m1_spectral_0p1_seed42/model_type",
+          "value": "cvae-scale-cond"
+        },
+        {
+          "source": "/cvae-scale-cond:b1_m1_spectral_0p1_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p05_seed42/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p05_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p1_seed42/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p1_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p2_seed42/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p2_seed42/reconstruction/N_recon",
+          "value": 5000
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [
+        "cvae-scale-cond:b1_m1_spectral_0p1_seed42",
+        "cvae-stochastic:b1_m3_frozen_0p05_seed42",
+        "cvae-stochastic:b1_m3_frozen_0p1_seed42",
+        "cvae-stochastic:b1_m3_frozen_0p2_seed42"
+      ],
+      "path": "RESULTS_COMPARATIVE_B1.json",
+      "references": [
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/b1_m1_spectral_0p1_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-scale-cond:b1_m1_spectral_0p1_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/b1_m3_frozen_0p05_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:b1_m3_frozen_0p05_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/b1_m3_frozen_0p1_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:b1_m3_frozen_0p1_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/b1_m3_frozen_0p2_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:b1_m3_frozen_0p2_seed42",
+          "verified": false
+        }
+      ],
+      "sha256": "9d7e7527b80e3c43ba14276ba738518c8cfded1e03bfa14ebb61bc4e46a2a5a4"
+    },
+    {
+      "bytes": 7200,
+      "caveats": [
+        {
+          "category": "legacy_sorted",
+          "message": "Species ordering is not established here. Some legacy protocols sorted species; do not assume comparability with no-sort results.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p05_seed42/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p05_seed42/reconstruction/N_recon",
+          "value": 5000
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [
+        "cvae-stochastic:b1_m3_frozen_0p05_seed42"
+      ],
+      "path": "RESULTS_COMPARATIVE_B1_partial.json",
+      "references": [
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/b1_m3_frozen_0p05_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:b1_m3_frozen_0p05_seed42",
+          "verified": false
+        }
+      ],
+      "sha256": "f1e6ed831a9de3fa9d2cb8a3e00f8ac58591ca11eb1691a0f531f4d050c53538"
+    },
+    {
+      "bytes": 7200,
+      "caveats": [
+        {
+          "category": "legacy_sorted",
+          "message": "Species ordering is not established here. Some legacy protocols sorted species; do not assume comparability with no-sort results.",
+          "status": "review_required"
+        },
+        {
+          "category": "ood_compound_shift",
+          "message": "An OOD label alone does not isolate a single intervention; parameter, noise, and preprocessing shifts may be compounded.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p05_seed42/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p05_seed42/reconstruction/N_recon",
+          "value": 5000
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [
+        "cvae-stochastic:b1_m3_frozen_0p05_seed42"
+      ],
+      "path": "RESULTS_COMPARATIVE_B1_partial_OOD_Exp1.json",
+      "references": [
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/b1_m3_frozen_0p05_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:b1_m3_frozen_0p05_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "dataset",
+          "path": "data/TEST_OOD_Exp1.pkl",
+          "provenance": "inferred",
+          "source": "filename/key RESULTS_COMPARATIVE_B1_partial_OOD_Exp1.json",
+          "verified": false
+        }
+      ],
+      "sha256": "e313d14ced59338ec0e776209fcd7993476611b0a6bc93b7f9a90a0ba48b5313"
+    },
+    {
+      "bytes": 7176,
+      "caveats": [
+        {
+          "category": "legacy_sorted",
+          "message": "Species ordering is not established here. Some legacy protocols sorted species; do not assume comparability with no-sort results.",
+          "status": "review_required"
+        },
+        {
+          "category": "ood_compound_shift",
+          "message": "An OOD label alone does not isolate a single intervention; parameter, noise, and preprocessing shifts may be compounded.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p05_seed42/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:b1_m3_frozen_0p05_seed42/reconstruction/N_recon",
+          "value": 5000
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [
+        "cvae-stochastic:b1_m3_frozen_0p05_seed42"
+      ],
+      "path": "RESULTS_COMPARATIVE_B1_partial_OOD_Exp5.json",
+      "references": [
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/b1_m3_frozen_0p05_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:b1_m3_frozen_0p05_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "dataset",
+          "path": "data/TEST_OOD_Exp5.pkl",
+          "provenance": "inferred",
+          "source": "filename/key RESULTS_COMPARATIVE_B1_partial_OOD_Exp5.json",
+          "verified": false
+        }
+      ],
+      "sha256": "975426227f9bc97a040f48fa480503ff540605be08fbf6aa4c4a8ba25330f23d"
+    },
+    {
+      "bytes": 122269,
+      "caveats": [
+        {
+          "category": "no_sort_scale_head",
+          "message": "A no-sort label does not establish whether the scale head preserves species order; inspect the evaluation and checkpoint configuration.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed123/model_type",
+          "value": "cvae-no-scale-cond"
+        },
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed123/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed2026/model_type",
+          "value": "cvae-no-scale-cond"
+        },
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed42/model_type",
+          "value": "cvae-no-scale-cond"
+        },
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed123/model_type",
+          "value": "cvae-scale-cond"
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed123/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed2026/model_type",
+          "value": "cvae-scale-cond"
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed42/model_type",
+          "value": "cvae-scale-cond"
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed123/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed123/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed2026/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed42/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/kan-vae:model_6_seed2026/model_type",
+          "value": "kan-vae"
+        },
+        {
+          "source": "/kan-vae:model_6_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/kan-vae:model_6_seed42/model_type",
+          "value": "kan-vae"
+        },
+        {
+          "source": "/kan-vae:model_6_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/latent-ode:model_4_seed123/model_type",
+          "value": "latent-ode"
+        },
+        {
+          "source": "/latent-ode:model_4_seed123/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/latent-ode:model_4_seed2026/model_type",
+          "value": "latent-ode"
+        },
+        {
+          "source": "/latent-ode:model_4_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/latent-ode:model_4_seed42/model_type",
+          "value": "latent-ode"
+        },
+        {
+          "source": "/latent-ode:model_4_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/transformer-vae:model_5_seed123/model_type",
+          "value": "transformer-vae"
+        },
+        {
+          "source": "/transformer-vae:model_5_seed123/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/transformer-vae:model_5_seed2026/model_type",
+          "value": "transformer-vae"
+        },
+        {
+          "source": "/transformer-vae:model_5_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/transformer-vae:model_5_seed42/model_type",
+          "value": "transformer-vae"
+        },
+        {
+          "source": "/transformer-vae:model_5_seed42/reconstruction/N_recon",
+          "value": 5000
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [
+        "cvae-no-scale-cond:model_2_seed123",
+        "cvae-no-scale-cond:model_2_seed2026",
+        "cvae-no-scale-cond:model_2_seed42",
+        "cvae-scale-cond:model_1_seed123",
+        "cvae-scale-cond:model_1_seed2026",
+        "cvae-scale-cond:model_1_seed42",
+        "cvae-stochastic:model_3_seed123",
+        "cvae-stochastic:model_3_seed2026",
+        "cvae-stochastic:model_3_seed42",
+        "kan-vae:model_6_seed2026",
+        "kan-vae:model_6_seed42",
+        "latent-ode:model_4_seed123",
+        "latent-ode:model_4_seed2026",
+        "latent-ode:model_4_seed42",
+        "transformer-vae:model_5_seed123",
+        "transformer-vae:model_5_seed2026",
+        "transformer-vae:model_5_seed42"
+      ],
+      "path": "RESULTS_COMPARATIVE_MULTISEED_FINAL_NOSORT.json",
+      "references": [
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_1_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-scale-cond:model_1_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_1_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-scale-cond:model_1_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_1_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-scale-cond:model_1_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_2_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-no-scale-cond:model_2_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_2_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-no-scale-cond:model_2_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_2_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-no-scale-cond:model_2_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_3_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:model_3_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_3_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:model_3_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_3_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:model_3_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_4_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /latent-ode:model_4_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_4_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /latent-ode:model_4_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_4_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /latent-ode:model_4_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_5_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /transformer-vae:model_5_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_5_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /transformer-vae:model_5_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_5_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /transformer-vae:model_5_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_6_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /kan-vae:model_6_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_6_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /kan-vae:model_6_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "dataset",
+          "path": "data/TEST_FINAL_NOSORT.pkl",
+          "provenance": "inferred",
+          "source": "filename/key RESULTS_COMPARATIVE_MULTISEED_FINAL_NOSORT.json",
+          "verified": false
+        }
+      ],
+      "sha256": "f303a6424fedf91c91d5c85a095c48f53035b19e7d790f07665098f0b639e780"
+    },
+    {
+      "bytes": 123429,
+      "caveats": [
+        {
+          "category": "no_sort_scale_head",
+          "message": "A no-sort label does not establish whether the scale head preserves species order; inspect the evaluation and checkpoint configuration.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed123/model_type",
+          "value": "cvae-no-scale-cond"
+        },
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed123/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed2026/model_type",
+          "value": "cvae-no-scale-cond"
+        },
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed42/model_type",
+          "value": "cvae-no-scale-cond"
+        },
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed123/model_type",
+          "value": "cvae-scale-cond"
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed123/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed2026/model_type",
+          "value": "cvae-scale-cond"
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed42/model_type",
+          "value": "cvae-scale-cond"
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed123/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed123/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed2026/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed42/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/kan-vae:model_6_seed2026/model_type",
+          "value": "kan-vae"
+        },
+        {
+          "source": "/kan-vae:model_6_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/kan-vae:model_6_seed42/model_type",
+          "value": "kan-vae"
+        },
+        {
+          "source": "/kan-vae:model_6_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/latent-ode:model_4_seed123/model_type",
+          "value": "latent-ode"
+        },
+        {
+          "source": "/latent-ode:model_4_seed123/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/latent-ode:model_4_seed2026/model_type",
+          "value": "latent-ode"
+        },
+        {
+          "source": "/latent-ode:model_4_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/latent-ode:model_4_seed42/model_type",
+          "value": "latent-ode"
+        },
+        {
+          "source": "/latent-ode:model_4_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/transformer-vae:model_5_seed123/model_type",
+          "value": "transformer-vae"
+        },
+        {
+          "source": "/transformer-vae:model_5_seed123/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/transformer-vae:model_5_seed2026/model_type",
+          "value": "transformer-vae"
+        },
+        {
+          "source": "/transformer-vae:model_5_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/transformer-vae:model_5_seed42/model_type",
+          "value": "transformer-vae"
+        },
+        {
+          "source": "/transformer-vae:model_5_seed42/reconstruction/N_recon",
+          "value": 5000
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [
+        "cvae-no-scale-cond:model_2_seed123",
+        "cvae-no-scale-cond:model_2_seed2026",
+        "cvae-no-scale-cond:model_2_seed42",
+        "cvae-scale-cond:model_1_seed123",
+        "cvae-scale-cond:model_1_seed2026",
+        "cvae-scale-cond:model_1_seed42",
+        "cvae-stochastic:model_3_seed123",
+        "cvae-stochastic:model_3_seed2026",
+        "cvae-stochastic:model_3_seed42",
+        "kan-vae:model_6_seed2026",
+        "kan-vae:model_6_seed42",
+        "latent-ode:model_4_seed123",
+        "latent-ode:model_4_seed2026",
+        "latent-ode:model_4_seed42",
+        "transformer-vae:model_5_seed123",
+        "transformer-vae:model_5_seed2026",
+        "transformer-vae:model_5_seed42"
+      ],
+      "path": "RESULTS_COMPARATIVE_MULTISEED_N1000_FINAL_NOSORT.json",
+      "references": [
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_1_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-scale-cond:model_1_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_1_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-scale-cond:model_1_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_1_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-scale-cond:model_1_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_2_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-no-scale-cond:model_2_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_2_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-no-scale-cond:model_2_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_2_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-no-scale-cond:model_2_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_3_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:model_3_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_3_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:model_3_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_3_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:model_3_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_4_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /latent-ode:model_4_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_4_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /latent-ode:model_4_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_4_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /latent-ode:model_4_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_5_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /transformer-vae:model_5_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_5_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /transformer-vae:model_5_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_5_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /transformer-vae:model_5_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_6_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /kan-vae:model_6_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_6_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /kan-vae:model_6_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "dataset",
+          "path": "data/TEST_FINAL_NOSORT.pkl",
+          "provenance": "inferred",
+          "source": "filename/key RESULTS_COMPARATIVE_MULTISEED_N1000_FINAL_NOSORT.json",
+          "verified": false
+        }
+      ],
+      "sha256": "e2de16395925f784e1c751ad1d9367c1f530ef210b7582b37a02973778608110"
+    },
+    {
+      "bytes": 123844,
+      "caveats": [
+        {
+          "category": "legacy_sorted",
+          "message": "Species ordering is not established here. Some legacy protocols sorted species; do not assume comparability with no-sort results.",
+          "status": "review_required"
+        },
+        {
+          "category": "ood_compound_shift",
+          "message": "An OOD label alone does not isolate a single intervention; parameter, noise, and preprocessing shifts may be compounded.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed123/model_type",
+          "value": "cvae-no-scale-cond"
+        },
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed123/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed2026/model_type",
+          "value": "cvae-no-scale-cond"
+        },
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed42/model_type",
+          "value": "cvae-no-scale-cond"
+        },
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed123/model_type",
+          "value": "cvae-scale-cond"
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed123/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed2026/model_type",
+          "value": "cvae-scale-cond"
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed42/model_type",
+          "value": "cvae-scale-cond"
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed123/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed123/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed2026/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed42/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/kan-vae:model_6_seed2026/model_type",
+          "value": "kan-vae"
+        },
+        {
+          "source": "/kan-vae:model_6_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/kan-vae:model_6_seed42/model_type",
+          "value": "kan-vae"
+        },
+        {
+          "source": "/kan-vae:model_6_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/latent-ode:model_4_seed123/model_type",
+          "value": "latent-ode"
+        },
+        {
+          "source": "/latent-ode:model_4_seed123/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/latent-ode:model_4_seed2026/model_type",
+          "value": "latent-ode"
+        },
+        {
+          "source": "/latent-ode:model_4_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/latent-ode:model_4_seed42/model_type",
+          "value": "latent-ode"
+        },
+        {
+          "source": "/latent-ode:model_4_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/transformer-vae:model_5_seed123/model_type",
+          "value": "transformer-vae"
+        },
+        {
+          "source": "/transformer-vae:model_5_seed123/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/transformer-vae:model_5_seed2026/model_type",
+          "value": "transformer-vae"
+        },
+        {
+          "source": "/transformer-vae:model_5_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/transformer-vae:model_5_seed42/model_type",
+          "value": "transformer-vae"
+        },
+        {
+          "source": "/transformer-vae:model_5_seed42/reconstruction/N_recon",
+          "value": 5000
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [
+        "cvae-no-scale-cond:model_2_seed123",
+        "cvae-no-scale-cond:model_2_seed2026",
+        "cvae-no-scale-cond:model_2_seed42",
+        "cvae-scale-cond:model_1_seed123",
+        "cvae-scale-cond:model_1_seed2026",
+        "cvae-scale-cond:model_1_seed42",
+        "cvae-stochastic:model_3_seed123",
+        "cvae-stochastic:model_3_seed2026",
+        "cvae-stochastic:model_3_seed42",
+        "kan-vae:model_6_seed2026",
+        "kan-vae:model_6_seed42",
+        "latent-ode:model_4_seed123",
+        "latent-ode:model_4_seed2026",
+        "latent-ode:model_4_seed42",
+        "transformer-vae:model_5_seed123",
+        "transformer-vae:model_5_seed2026",
+        "transformer-vae:model_5_seed42"
+      ],
+      "path": "RESULTS_COMPARATIVE_MULTISEED_N1000_OOD_Exp1.json",
+      "references": [
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_1_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-scale-cond:model_1_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_1_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-scale-cond:model_1_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_1_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-scale-cond:model_1_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_2_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-no-scale-cond:model_2_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_2_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-no-scale-cond:model_2_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_2_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-no-scale-cond:model_2_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_3_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:model_3_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_3_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:model_3_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_3_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:model_3_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_4_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /latent-ode:model_4_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_4_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /latent-ode:model_4_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_4_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /latent-ode:model_4_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_5_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /transformer-vae:model_5_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_5_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /transformer-vae:model_5_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_5_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /transformer-vae:model_5_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_6_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /kan-vae:model_6_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_6_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /kan-vae:model_6_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "dataset",
+          "path": "data/TEST_OOD_Exp1.pkl",
+          "provenance": "inferred",
+          "source": "filename/key RESULTS_COMPARATIVE_MULTISEED_N1000_OOD_Exp1.json",
+          "verified": false
+        }
+      ],
+      "sha256": "6671c696d3efc5c0c83bc0c416affcd2110b448b220450fc1d3dcab6e2710b19"
+    },
+    {
+      "bytes": 123739,
+      "caveats": [
+        {
+          "category": "legacy_sorted",
+          "message": "Species ordering is not established here. Some legacy protocols sorted species; do not assume comparability with no-sort results.",
+          "status": "review_required"
+        },
+        {
+          "category": "ood_compound_shift",
+          "message": "An OOD label alone does not isolate a single intervention; parameter, noise, and preprocessing shifts may be compounded.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed123/model_type",
+          "value": "cvae-no-scale-cond"
+        },
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed123/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed2026/model_type",
+          "value": "cvae-no-scale-cond"
+        },
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed42/model_type",
+          "value": "cvae-no-scale-cond"
+        },
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed123/model_type",
+          "value": "cvae-scale-cond"
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed123/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed2026/model_type",
+          "value": "cvae-scale-cond"
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed42/model_type",
+          "value": "cvae-scale-cond"
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed123/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed123/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed2026/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed42/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/kan-vae:model_6_seed2026/model_type",
+          "value": "kan-vae"
+        },
+        {
+          "source": "/kan-vae:model_6_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/kan-vae:model_6_seed42/model_type",
+          "value": "kan-vae"
+        },
+        {
+          "source": "/kan-vae:model_6_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/latent-ode:model_4_seed123/model_type",
+          "value": "latent-ode"
+        },
+        {
+          "source": "/latent-ode:model_4_seed123/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/latent-ode:model_4_seed2026/model_type",
+          "value": "latent-ode"
+        },
+        {
+          "source": "/latent-ode:model_4_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/latent-ode:model_4_seed42/model_type",
+          "value": "latent-ode"
+        },
+        {
+          "source": "/latent-ode:model_4_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/transformer-vae:model_5_seed123/model_type",
+          "value": "transformer-vae"
+        },
+        {
+          "source": "/transformer-vae:model_5_seed123/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/transformer-vae:model_5_seed2026/model_type",
+          "value": "transformer-vae"
+        },
+        {
+          "source": "/transformer-vae:model_5_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/transformer-vae:model_5_seed42/model_type",
+          "value": "transformer-vae"
+        },
+        {
+          "source": "/transformer-vae:model_5_seed42/reconstruction/N_recon",
+          "value": 5000
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [
+        "cvae-no-scale-cond:model_2_seed123",
+        "cvae-no-scale-cond:model_2_seed2026",
+        "cvae-no-scale-cond:model_2_seed42",
+        "cvae-scale-cond:model_1_seed123",
+        "cvae-scale-cond:model_1_seed2026",
+        "cvae-scale-cond:model_1_seed42",
+        "cvae-stochastic:model_3_seed123",
+        "cvae-stochastic:model_3_seed2026",
+        "cvae-stochastic:model_3_seed42",
+        "kan-vae:model_6_seed2026",
+        "kan-vae:model_6_seed42",
+        "latent-ode:model_4_seed123",
+        "latent-ode:model_4_seed2026",
+        "latent-ode:model_4_seed42",
+        "transformer-vae:model_5_seed123",
+        "transformer-vae:model_5_seed2026",
+        "transformer-vae:model_5_seed42"
+      ],
+      "path": "RESULTS_COMPARATIVE_MULTISEED_N1000_OOD_Exp5.json",
+      "references": [
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_1_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-scale-cond:model_1_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_1_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-scale-cond:model_1_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_1_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-scale-cond:model_1_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_2_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-no-scale-cond:model_2_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_2_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-no-scale-cond:model_2_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_2_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-no-scale-cond:model_2_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_3_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:model_3_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_3_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:model_3_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_3_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:model_3_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_4_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /latent-ode:model_4_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_4_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /latent-ode:model_4_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_4_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /latent-ode:model_4_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_5_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /transformer-vae:model_5_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_5_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /transformer-vae:model_5_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_5_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /transformer-vae:model_5_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_6_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /kan-vae:model_6_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_6_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /kan-vae:model_6_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "dataset",
+          "path": "data/TEST_OOD_Exp5.pkl",
+          "provenance": "inferred",
+          "source": "filename/key RESULTS_COMPARATIVE_MULTISEED_N1000_OOD_Exp5.json",
+          "verified": false
+        }
+      ],
+      "sha256": "29eb04161b44df478b941d9f8110f402dc64c903a5bf9a0db46952889ca8bf60"
+    },
+    {
+      "bytes": 122110,
+      "caveats": [
+        {
+          "category": "legacy_sorted",
+          "message": "Species ordering is not established here. Some legacy protocols sorted species; do not assume comparability with no-sort results.",
+          "status": "review_required"
+        },
+        {
+          "category": "ood_compound_shift",
+          "message": "An OOD label alone does not isolate a single intervention; parameter, noise, and preprocessing shifts may be compounded.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed123/model_type",
+          "value": "cvae-no-scale-cond"
+        },
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed123/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed2026/model_type",
+          "value": "cvae-no-scale-cond"
+        },
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed42/model_type",
+          "value": "cvae-no-scale-cond"
+        },
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed123/model_type",
+          "value": "cvae-scale-cond"
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed123/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed2026/model_type",
+          "value": "cvae-scale-cond"
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed42/model_type",
+          "value": "cvae-scale-cond"
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed123/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed123/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed2026/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed42/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/kan-vae:model_6_seed2026/model_type",
+          "value": "kan-vae"
+        },
+        {
+          "source": "/kan-vae:model_6_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/kan-vae:model_6_seed42/model_type",
+          "value": "kan-vae"
+        },
+        {
+          "source": "/kan-vae:model_6_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/latent-ode:model_4_seed123/model_type",
+          "value": "latent-ode"
+        },
+        {
+          "source": "/latent-ode:model_4_seed123/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/latent-ode:model_4_seed2026/model_type",
+          "value": "latent-ode"
+        },
+        {
+          "source": "/latent-ode:model_4_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/latent-ode:model_4_seed42/model_type",
+          "value": "latent-ode"
+        },
+        {
+          "source": "/latent-ode:model_4_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/transformer-vae:model_5_seed123/model_type",
+          "value": "transformer-vae"
+        },
+        {
+          "source": "/transformer-vae:model_5_seed123/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/transformer-vae:model_5_seed2026/model_type",
+          "value": "transformer-vae"
+        },
+        {
+          "source": "/transformer-vae:model_5_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/transformer-vae:model_5_seed42/model_type",
+          "value": "transformer-vae"
+        },
+        {
+          "source": "/transformer-vae:model_5_seed42/reconstruction/N_recon",
+          "value": 5000
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [
+        "cvae-no-scale-cond:model_2_seed123",
+        "cvae-no-scale-cond:model_2_seed2026",
+        "cvae-no-scale-cond:model_2_seed42",
+        "cvae-scale-cond:model_1_seed123",
+        "cvae-scale-cond:model_1_seed2026",
+        "cvae-scale-cond:model_1_seed42",
+        "cvae-stochastic:model_3_seed123",
+        "cvae-stochastic:model_3_seed2026",
+        "cvae-stochastic:model_3_seed42",
+        "kan-vae:model_6_seed2026",
+        "kan-vae:model_6_seed42",
+        "latent-ode:model_4_seed123",
+        "latent-ode:model_4_seed2026",
+        "latent-ode:model_4_seed42",
+        "transformer-vae:model_5_seed123",
+        "transformer-vae:model_5_seed2026",
+        "transformer-vae:model_5_seed42"
+      ],
+      "path": "RESULTS_COMPARATIVE_MULTISEED_OOD_Exp1.json",
+      "references": [
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_1_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-scale-cond:model_1_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_1_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-scale-cond:model_1_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_1_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-scale-cond:model_1_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_2_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-no-scale-cond:model_2_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_2_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-no-scale-cond:model_2_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_2_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-no-scale-cond:model_2_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_3_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:model_3_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_3_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:model_3_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_3_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:model_3_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_4_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /latent-ode:model_4_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_4_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /latent-ode:model_4_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_4_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /latent-ode:model_4_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_5_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /transformer-vae:model_5_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_5_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /transformer-vae:model_5_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_5_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /transformer-vae:model_5_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_6_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /kan-vae:model_6_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_6_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /kan-vae:model_6_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "dataset",
+          "path": "data/TEST_OOD_Exp1.pkl",
+          "provenance": "inferred",
+          "source": "filename/key RESULTS_COMPARATIVE_MULTISEED_OOD_Exp1.json",
+          "verified": false
+        }
+      ],
+      "sha256": "7a7d10391d908b339eff568b8611dd115eef848daed437979b1b84852e135d38"
+    },
+    {
+      "bytes": 122117,
+      "caveats": [
+        {
+          "category": "legacy_sorted",
+          "message": "Species ordering is not established here. Some legacy protocols sorted species; do not assume comparability with no-sort results.",
+          "status": "review_required"
+        },
+        {
+          "category": "ood_compound_shift",
+          "message": "An OOD label alone does not isolate a single intervention; parameter, noise, and preprocessing shifts may be compounded.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed123/model_type",
+          "value": "cvae-no-scale-cond"
+        },
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed123/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed2026/model_type",
+          "value": "cvae-no-scale-cond"
+        },
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed42/model_type",
+          "value": "cvae-no-scale-cond"
+        },
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed123/model_type",
+          "value": "cvae-scale-cond"
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed123/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed2026/model_type",
+          "value": "cvae-scale-cond"
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed42/model_type",
+          "value": "cvae-scale-cond"
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed123/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed123/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed2026/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed42/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/kan-vae:model_6_seed2026/model_type",
+          "value": "kan-vae"
+        },
+        {
+          "source": "/kan-vae:model_6_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/kan-vae:model_6_seed42/model_type",
+          "value": "kan-vae"
+        },
+        {
+          "source": "/kan-vae:model_6_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/latent-ode:model_4_seed123/model_type",
+          "value": "latent-ode"
+        },
+        {
+          "source": "/latent-ode:model_4_seed123/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/latent-ode:model_4_seed2026/model_type",
+          "value": "latent-ode"
+        },
+        {
+          "source": "/latent-ode:model_4_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/latent-ode:model_4_seed42/model_type",
+          "value": "latent-ode"
+        },
+        {
+          "source": "/latent-ode:model_4_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/transformer-vae:model_5_seed123/model_type",
+          "value": "transformer-vae"
+        },
+        {
+          "source": "/transformer-vae:model_5_seed123/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/transformer-vae:model_5_seed2026/model_type",
+          "value": "transformer-vae"
+        },
+        {
+          "source": "/transformer-vae:model_5_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/transformer-vae:model_5_seed42/model_type",
+          "value": "transformer-vae"
+        },
+        {
+          "source": "/transformer-vae:model_5_seed42/reconstruction/N_recon",
+          "value": 5000
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [
+        "cvae-no-scale-cond:model_2_seed123",
+        "cvae-no-scale-cond:model_2_seed2026",
+        "cvae-no-scale-cond:model_2_seed42",
+        "cvae-scale-cond:model_1_seed123",
+        "cvae-scale-cond:model_1_seed2026",
+        "cvae-scale-cond:model_1_seed42",
+        "cvae-stochastic:model_3_seed123",
+        "cvae-stochastic:model_3_seed2026",
+        "cvae-stochastic:model_3_seed42",
+        "kan-vae:model_6_seed2026",
+        "kan-vae:model_6_seed42",
+        "latent-ode:model_4_seed123",
+        "latent-ode:model_4_seed2026",
+        "latent-ode:model_4_seed42",
+        "transformer-vae:model_5_seed123",
+        "transformer-vae:model_5_seed2026",
+        "transformer-vae:model_5_seed42"
+      ],
+      "path": "RESULTS_COMPARATIVE_MULTISEED_OOD_Exp5.json",
+      "references": [
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_1_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-scale-cond:model_1_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_1_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-scale-cond:model_1_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_1_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-scale-cond:model_1_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_2_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-no-scale-cond:model_2_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_2_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-no-scale-cond:model_2_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_2_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-no-scale-cond:model_2_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_3_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:model_3_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_3_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:model_3_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_3_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:model_3_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_4_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /latent-ode:model_4_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_4_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /latent-ode:model_4_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_4_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /latent-ode:model_4_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_5_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /transformer-vae:model_5_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_5_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /transformer-vae:model_5_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_5_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /transformer-vae:model_5_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_6_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /kan-vae:model_6_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_6_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /kan-vae:model_6_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "dataset",
+          "path": "data/TEST_OOD_Exp5.pkl",
+          "provenance": "inferred",
+          "source": "filename/key RESULTS_COMPARATIVE_MULTISEED_OOD_Exp5.json",
+          "verified": false
+        }
+      ],
+      "sha256": "72e56b2a4ed8d307d59a6bed4d6cfa2ec471bc42f200345fa179c4b720fe60db"
+    },
+    {
+      "bytes": 50194,
+      "caveats": [
+        {
+          "category": "legacy_sorted",
+          "message": "Species ordering is not established here. Some legacy protocols sorted species; do not assume comparability with no-sort results.",
+          "status": "review_required"
+        },
+        {
+          "category": "ood_compound_shift",
+          "message": "An OOD label alone does not isolate a single intervention; parameter, noise, and preprocessing shifts may be compounded.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed42/model_type",
+          "value": "cvae-no-scale-cond"
+        },
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed42/model_type",
+          "value": "cvae-scale-cond"
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed42/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/glv-regression:model_7_seed42/model_type",
+          "value": "glv-regression"
+        },
+        {
+          "source": "/kan-vae:model_6_seed42/model_type",
+          "value": "kan-vae"
+        },
+        {
+          "source": "/kan-vae:model_6_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/latent-ode:model_4_seed42/model_type",
+          "value": "latent-ode"
+        },
+        {
+          "source": "/latent-ode:model_4_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/transformer-vae:model_5_seed42/model_type",
+          "value": "transformer-vae"
+        },
+        {
+          "source": "/transformer-vae:model_5_seed42/reconstruction/N_recon",
+          "value": 5000
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [
+        "cvae-no-scale-cond:model_2_seed42",
+        "cvae-scale-cond:model_1_seed42",
+        "cvae-stochastic:model_3_seed42",
+        "glv-regression:model_7_seed42",
+        "kan-vae:model_6_seed42",
+        "latent-ode:model_4_seed42",
+        "transformer-vae:model_5_seed42"
+      ],
+      "path": "RESULTS_COMPARATIVE_OOD_Exp1.json",
+      "references": [
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_1_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-scale-cond:model_1_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_2_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-no-scale-cond:model_2_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_3_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:model_3_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_4_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /latent-ode:model_4_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_5_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /transformer-vae:model_5_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_6_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /kan-vae:model_6_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_7_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /glv-regression:model_7_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "dataset",
+          "path": "data/TEST_OOD_Exp1.pkl",
+          "provenance": "inferred",
+          "source": "filename/key RESULTS_COMPARATIVE_OOD_Exp1.json",
+          "verified": false
+        }
+      ],
+      "sha256": "3faa46594d08b27609b4a420117d3e6ba670394de27eb6b902e854443f0bbcc8"
+    },
+    {
+      "bytes": 50178,
+      "caveats": [
+        {
+          "category": "legacy_sorted",
+          "message": "Species ordering is not established here. Some legacy protocols sorted species; do not assume comparability with no-sort results.",
+          "status": "review_required"
+        },
+        {
+          "category": "ood_compound_shift",
+          "message": "An OOD label alone does not isolate a single intervention; parameter, noise, and preprocessing shifts may be compounded.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed42/model_type",
+          "value": "cvae-no-scale-cond"
+        },
+        {
+          "source": "/cvae-no-scale-cond:model_2_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed42/model_type",
+          "value": "cvae-scale-cond"
+        },
+        {
+          "source": "/cvae-scale-cond:model_1_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed42/model_type",
+          "value": "cvae-stochastic"
+        },
+        {
+          "source": "/cvae-stochastic:model_3_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/glv-regression:model_7_seed42/model_type",
+          "value": "glv-regression"
+        },
+        {
+          "source": "/kan-vae:model_6_seed42/model_type",
+          "value": "kan-vae"
+        },
+        {
+          "source": "/kan-vae:model_6_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/latent-ode:model_4_seed42/model_type",
+          "value": "latent-ode"
+        },
+        {
+          "source": "/latent-ode:model_4_seed42/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/transformer-vae:model_5_seed42/model_type",
+          "value": "transformer-vae"
+        },
+        {
+          "source": "/transformer-vae:model_5_seed42/reconstruction/N_recon",
+          "value": 5000
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [
+        "cvae-no-scale-cond:model_2_seed42",
+        "cvae-scale-cond:model_1_seed42",
+        "cvae-stochastic:model_3_seed42",
+        "glv-regression:model_7_seed42",
+        "kan-vae:model_6_seed42",
+        "latent-ode:model_4_seed42",
+        "transformer-vae:model_5_seed42"
+      ],
+      "path": "RESULTS_COMPARATIVE_OOD_Exp5.json",
+      "references": [
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_1_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-scale-cond:model_1_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_2_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-no-scale-cond:model_2_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_3_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-stochastic:model_3_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_4_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /latent-ode:model_4_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_5_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /transformer-vae:model_5_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_6_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /kan-vae:model_6_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_7_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /glv-regression:model_7_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "dataset",
+          "path": "data/TEST_OOD_Exp5.pkl",
+          "provenance": "inferred",
+          "source": "filename/key RESULTS_COMPARATIVE_OOD_Exp5.json",
+          "verified": false
+        }
+      ],
+      "sha256": "2be8fb03dc558c3433df75c173db6bc292885f7fb4af9519e3043a3b29bbd2b9"
+    },
+    {
+      "bytes": 14382,
+      "caveats": [
+        {
+          "category": "legacy_sorted",
+          "message": "Species ordering is not established here. Some legacy protocols sorted species; do not assume comparability with no-sort results.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/cvae-no-scale-cond:model_final_30_baseline/model_type",
+          "value": "cvae-no-scale-cond"
+        },
+        {
+          "source": "/cvae-no-scale-cond:model_final_30_baseline/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-scale-cond:model_final_30_conditioned/model_type",
+          "value": "cvae-scale-cond"
+        },
+        {
+          "source": "/cvae-scale-cond:model_final_30_conditioned/reconstruction/N_recon",
+          "value": 5000
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [
+        "cvae-no-scale-cond:model_final_30_baseline",
+        "cvae-scale-cond:model_final_30_conditioned"
+      ],
+      "path": "RESULTS_COMPARATIVE_v1_sanity.json",
+      "references": [
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_final_30_baseline.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-no-scale-cond:model_final_30_baseline",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/model_final_30_conditioned.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-scale-cond:model_final_30_conditioned",
+          "verified": false
+        }
+      ],
+      "sha256": "c41a9b6e667d324abf6da36ddaef23d3201e9333aeea1f71187e02b80b8f69d7"
+    },
+    {
+      "bytes": 2359,
+      "caveats": [
+        {
+          "category": "legacy_sorted",
+          "message": "Species ordering is not established here. Some legacy protocols sorted species; do not assume comparability with no-sort results.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/N_per_group",
+          "value": 200
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [],
+      "path": "RESULTS_LENS_VALIDATION.json",
+      "references": [],
+      "sha256": "50dbee6c5a3de619fc1edb7de3b3ac6068990c62fedfa9332ca9d730e076efc9"
+    },
+    {
+      "bytes": 21552,
+      "caveats": [
+        {
+          "category": "no_sort_scale_head",
+          "message": "A no-sort label does not establish whether the scale head preserves species order; inspect the evaluation and checkpoint configuration.",
+          "status": "review_required"
+        },
+        {
+          "category": "m8_mean_vs_sampled",
+          "message": "Decoder means and sampled heteroscedastic outputs are different estimands; verify which output each metric evaluates before comparing them.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/cvae-heteroscedastic:m8_seed123/model_type",
+          "value": "cvae-heteroscedastic"
+        },
+        {
+          "source": "/cvae-heteroscedastic:m8_seed123/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-heteroscedastic:m8_seed2026/model_type",
+          "value": "cvae-heteroscedastic"
+        },
+        {
+          "source": "/cvae-heteroscedastic:m8_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-heteroscedastic:m8_seed42/model_type",
+          "value": "cvae-heteroscedastic"
+        },
+        {
+          "source": "/cvae-heteroscedastic:m8_seed42/reconstruction/N_recon",
+          "value": 5000
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [
+        "cvae-heteroscedastic:m8_seed123",
+        "cvae-heteroscedastic:m8_seed2026",
+        "cvae-heteroscedastic:m8_seed42"
+      ],
+      "path": "RESULTS_M8_FINAL_NOSORT.json",
+      "references": [
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/m8_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-heteroscedastic:m8_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/m8_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-heteroscedastic:m8_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/m8_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-heteroscedastic:m8_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "dataset",
+          "path": "data/TEST_FINAL_NOSORT.pkl",
+          "provenance": "inferred",
+          "source": "filename/key RESULTS_M8_FINAL_NOSORT.json",
+          "verified": false
+        }
+      ],
+      "sha256": "8fd3e8e52f2b272304272860e123e27c188b093d9cf227895747e7f91a959639"
+    },
+    {
+      "bytes": 21579,
+      "caveats": [
+        {
+          "category": "legacy_sorted",
+          "message": "Species ordering is not established here. Some legacy protocols sorted species; do not assume comparability with no-sort results.",
+          "status": "review_required"
+        },
+        {
+          "category": "ood_compound_shift",
+          "message": "An OOD label alone does not isolate a single intervention; parameter, noise, and preprocessing shifts may be compounded.",
+          "status": "review_required"
+        },
+        {
+          "category": "m8_mean_vs_sampled",
+          "message": "Decoder means and sampled heteroscedastic outputs are different estimands; verify which output each metric evaluates before comparing them.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/cvae-heteroscedastic:m8_seed123/model_type",
+          "value": "cvae-heteroscedastic"
+        },
+        {
+          "source": "/cvae-heteroscedastic:m8_seed123/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-heteroscedastic:m8_seed2026/model_type",
+          "value": "cvae-heteroscedastic"
+        },
+        {
+          "source": "/cvae-heteroscedastic:m8_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-heteroscedastic:m8_seed42/model_type",
+          "value": "cvae-heteroscedastic"
+        },
+        {
+          "source": "/cvae-heteroscedastic:m8_seed42/reconstruction/N_recon",
+          "value": 5000
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [
+        "cvae-heteroscedastic:m8_seed123",
+        "cvae-heteroscedastic:m8_seed2026",
+        "cvae-heteroscedastic:m8_seed42"
+      ],
+      "path": "RESULTS_M8_OOD_Exp1.json",
+      "references": [
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/m8_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-heteroscedastic:m8_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/m8_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-heteroscedastic:m8_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/m8_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-heteroscedastic:m8_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "dataset",
+          "path": "data/TEST_OOD_Exp1.pkl",
+          "provenance": "inferred",
+          "source": "filename/key RESULTS_M8_OOD_Exp1.json",
+          "verified": false
+        }
+      ],
+      "sha256": "550af9b9537779323c506623162633299400bce77e349d62d87004b9e5a030b3"
+    },
+    {
+      "bytes": 21604,
+      "caveats": [
+        {
+          "category": "legacy_sorted",
+          "message": "Species ordering is not established here. Some legacy protocols sorted species; do not assume comparability with no-sort results.",
+          "status": "review_required"
+        },
+        {
+          "category": "ood_compound_shift",
+          "message": "An OOD label alone does not isolate a single intervention; parameter, noise, and preprocessing shifts may be compounded.",
+          "status": "review_required"
+        },
+        {
+          "category": "m8_mean_vs_sampled",
+          "message": "Decoder means and sampled heteroscedastic outputs are different estimands; verify which output each metric evaluates before comparing them.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/cvae-heteroscedastic:m8_seed123/model_type",
+          "value": "cvae-heteroscedastic"
+        },
+        {
+          "source": "/cvae-heteroscedastic:m8_seed123/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-heteroscedastic:m8_seed2026/model_type",
+          "value": "cvae-heteroscedastic"
+        },
+        {
+          "source": "/cvae-heteroscedastic:m8_seed2026/reconstruction/N_recon",
+          "value": 5000
+        },
+        {
+          "source": "/cvae-heteroscedastic:m8_seed42/model_type",
+          "value": "cvae-heteroscedastic"
+        },
+        {
+          "source": "/cvae-heteroscedastic:m8_seed42/reconstruction/N_recon",
+          "value": 5000
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [
+        "cvae-heteroscedastic:m8_seed123",
+        "cvae-heteroscedastic:m8_seed2026",
+        "cvae-heteroscedastic:m8_seed42"
+      ],
+      "path": "RESULTS_M8_OOD_Exp5.json",
+      "references": [
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/m8_seed123.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-heteroscedastic:m8_seed123",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/m8_seed2026.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-heteroscedastic:m8_seed2026",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "checkpoint",
+          "path": "model_ckpts/m8_seed42.pth",
+          "provenance": "inferred",
+          "source": "model key /cvae-heteroscedastic:m8_seed42",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "dataset",
+          "path": "data/TEST_OOD_Exp5.pkl",
+          "provenance": "inferred",
+          "source": "filename/key RESULTS_M8_OOD_Exp5.json",
+          "verified": false
+        }
+      ],
+      "sha256": "1cb3612dc6e30c312bc14a63e2cf00b85db170e0df98a59f6ea80b9a0fb5ba64"
+    },
+    {
+      "bytes": 29609,
+      "caveats": [
+        {
+          "category": "no_sort_scale_head",
+          "message": "A no-sort label does not establish whether the scale head preserves species order; inspect the evaluation and checkpoint configuration.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/n_gen",
+          "value": 200
+        },
+        {
+          "source": "/n_real",
+          "value": 200
+        },
+        {
+          "source": "/test_path",
+          "value": "data/TEST_FINAL_NOSORT.pkl"
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [
+        "m1_seed123",
+        "m1_seed2026",
+        "m1_seed42",
+        "m2_seed123",
+        "m2_seed2026",
+        "m2_seed42",
+        "m3_seed123",
+        "m3_seed42",
+        "m4_seed123",
+        "m4_seed42",
+        "m5_seed123",
+        "m5_seed42",
+        "m6_seed42"
+      ],
+      "path": "RESULTS_NOISE_SWEEP.json",
+      "references": [
+        {
+          "candidate_present": true,
+          "kind": "dataset",
+          "path": "data/TEST_FINAL_NOSORT.pkl",
+          "provenance": "explicit",
+          "source": "/test_path",
+          "verified": false
+        }
+      ],
+      "sha256": "40eaaf167fcc99a457a70bf09b7e7f4760c04cc6acbb33e2371e6fd996e808af"
+    },
+    {
+      "bytes": 38594,
+      "caveats": [
+        {
+          "category": "no_sort_scale_head",
+          "message": "A no-sort label does not establish whether the scale head preserves species order; inspect the evaluation and checkpoint configuration.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/n_gen",
+          "value": 200
+        },
+        {
+          "source": "/n_real",
+          "value": 200
+        },
+        {
+          "source": "/test_path",
+          "value": "data/TEST_FINAL_NOSORT.pkl"
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [
+        "m1_seed123",
+        "m1_seed2026",
+        "m1_seed42",
+        "m2_seed123",
+        "m2_seed2026",
+        "m2_seed42",
+        "m3_seed123",
+        "m3_seed2026",
+        "m3_seed42",
+        "m4_seed123",
+        "m4_seed2026",
+        "m4_seed42",
+        "m5_seed123",
+        "m5_seed2026",
+        "m5_seed42",
+        "m6_seed2026",
+        "m6_seed42"
+      ],
+      "path": "RESULTS_NOISE_SWEEP_MULTISEED.json",
+      "references": [
+        {
+          "candidate_present": true,
+          "kind": "dataset",
+          "path": "data/TEST_FINAL_NOSORT.pkl",
+          "provenance": "explicit",
+          "source": "/test_path",
+          "verified": false
+        }
+      ],
+      "sha256": "6c49bc49c8116be67330302f96c79a6a02be9860078f50688d19b4e2a3af0b42"
+    },
+    {
+      "bytes": 3510,
+      "caveats": [
+        {
+          "category": "legacy_sorted",
+          "message": "Species ordering is not established here. Some legacy protocols sorted species; do not assume comparability with no-sort results.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/n_samples_per_group",
+          "value": 2000
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [],
+      "path": "RESULTS_NOVELTY.json",
+      "references": [],
+      "sha256": "f4cb0c695d670c2aaa90d2a811d4dde39b422109a7c0b3c9ec8637fdab2829d4"
+    },
+    {
+      "bytes": 1779,
+      "caveats": [
+        {
+          "category": "legacy_sorted",
+          "message": "Species ordering is not established here. Some legacy protocols sorted species; do not assume comparability with no-sort results.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [
+        {
+          "source": "/n_samples",
+          "value": 10000
+        }
+      ],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [],
+      "path": "RESULTS_PARAM_RECOVERY.json",
+      "references": [],
+      "sha256": "e705b616e776595b7bc36557edb2108a5a84ed87225648a7a802db9ca06deb46"
+    },
+    {
+      "bytes": 803,
+      "caveats": [
+        {
+          "category": "no_sort_scale_head",
+          "message": "A no-sort label does not establish whether the scale head preserves species order; inspect the evaluation and checkpoint configuration.",
+          "status": "review_required"
+        },
+        {
+          "category": "ood_compound_shift",
+          "message": "An OOD label alone does not isolate a single intervention; parameter, noise, and preprocessing shifts may be compounded.",
+          "status": "review_required"
+        }
+      ],
+      "explicit_metadata": [],
+      "json_status": "valid",
+      "json_type": "dict",
+      "kind": "result",
+      "model_keys": [],
+      "path": "RESULTS_REAL_STATS_CROSSDIST.json",
+      "references": [
+        {
+          "candidate_present": true,
+          "kind": "dataset",
+          "path": "data/TEST_FINAL_NOSORT.pkl",
+          "provenance": "inferred",
+          "source": "filename/key TEST_FINAL_NOSORT",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "dataset",
+          "path": "data/TEST_FINAL_NOSORT.pkl",
+          "provenance": "inferred",
+          "source": "key TEST_FINAL_NOSORT",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "dataset",
+          "path": "data/TEST_OOD_Exp1.pkl",
+          "provenance": "inferred",
+          "source": "filename/key TEST_OOD_Exp1",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "dataset",
+          "path": "data/TEST_OOD_Exp1.pkl",
+          "provenance": "inferred",
+          "source": "key TEST_OOD_Exp1",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "dataset",
+          "path": "data/TEST_OOD_Exp5.pkl",
+          "provenance": "inferred",
+          "source": "filename/key TEST_OOD_Exp5",
+          "verified": false
+        },
+        {
+          "candidate_present": true,
+          "kind": "dataset",
+          "path": "data/TEST_OOD_Exp5.pkl",
+          "provenance": "inferred",
+          "source": "key TEST_OOD_Exp5",
+          "verified": false
+        }
+      ],
+      "sha256": "32f18fe72da63dceeab4e5dc6298fb0746d701595a083b99e59bfe3ec5f9cbe5"
+    },
+    {
+      "bytes": 78480625,
+      "kind": "dataset",
+      "path": "data/PARAM_RECOVERY_MATCHED.pkl",
+      "sha256": null
+    },
+    {
+      "bytes": 142648125,
+      "kind": "dataset",
+      "path": "data/TEST_FINAL_FIXED.pkl",
+      "sha256": null
+    },
+    {
+      "bytes": 145156384,
+      "kind": "dataset",
+      "path": "data/TEST_FINAL_NOSORT.pkl",
+      "sha256": null
+    },
+    {
+      "bytes": 145156368,
+      "kind": "dataset",
+      "path": "data/TEST_FINAL_PROCESSED.pkl",
+      "sha256": null
+    },
+    {
+      "bytes": 39280635,
+      "kind": "dataset",
+      "path": "data/TEST_OOD_Exp1.pkl",
+      "sha256": null
+    },
+    {
+      "bytes": 39280635,
+      "kind": "dataset",
+      "path": "data/TEST_OOD_Exp5.pkl",
+      "sha256": null
+    },
+    {
+      "bytes": 427598247,
+      "kind": "dataset",
+      "path": "data/TRAIN_FINAL_FIXED.pkl",
+      "sha256": null
+    },
+    {
+      "bytes": 435116622,
+      "kind": "dataset",
+      "path": "data/TRAIN_FINAL_NOSORT.pkl",
+      "sha256": null
+    },
+    {
+      "bytes": 435116606,
+      "kind": "dataset",
+      "path": "data/TRAIN_FINAL_PROCESSED.pkl",
+      "sha256": null
+    },
+    {
+      "bytes": 7993600,
+      "kind": "dataset",
+      "path": "data/interaction_mapping_dataset.pkl",
+      "sha256": null
+    },
+    {
+      "bytes": 43347,
+      "kind": "dataset",
+      "path": "data/ultra_oscillatory_candidates.pkl",
+      "sha256": null
+    },
+    {
+      "bytes": 12081896,
+      "kind": "checkpoint",
+      "path": "model_ckpts/b1_m1_spectral_0p1_seed42.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12082231,
+      "kind": "checkpoint",
+      "path": "model_ckpts/b1_m3_frozen_0p05_seed123.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12082258,
+      "kind": "checkpoint",
+      "path": "model_ckpts/b1_m3_frozen_0p05_seed2026.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12082204,
+      "kind": "checkpoint",
+      "path": "model_ckpts/b1_m3_frozen_0p05_seed42.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12082177,
+      "kind": "checkpoint",
+      "path": "model_ckpts/b1_m3_frozen_0p1_seed42.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12082177,
+      "kind": "checkpoint",
+      "path": "model_ckpts/b1_m3_frozen_0p2_seed42.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12088226,
+      "kind": "checkpoint",
+      "path": "model_ckpts/m8_seed123.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12088316,
+      "kind": "checkpoint",
+      "path": "model_ckpts/m8_seed2026.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12088200,
+      "kind": "checkpoint",
+      "path": "model_ckpts/m8_seed42.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12088342,
+      "kind": "checkpoint",
+      "path": "model_ckpts/m8_smoketest.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12081380,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_1_seed123.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12081598,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_1_seed2026.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12081226,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_1_seed42.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12183110,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_2_seed123.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12183258,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_2_seed2026.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12183090,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_2_seed42.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12081641,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_3_seed123.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12081924,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_3_seed2026.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12081486,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_3_seed42.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 9034562,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_4_seed123.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 9034786,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_4_seed2026.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 9034338,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_4_seed42.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 5577126,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_5_seed123.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 5577336,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_5_seed2026.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 5576724,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_5_seed42.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12225018,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_6_seed2026.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12224754,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_6_seed42.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 14541532,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_7_seed123.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 14541479,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_7_seed2026.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 14541457,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_7_seed42.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12183090,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_final_30.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12183462,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_final_30_baseline.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12081922,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_final_30_conditioned.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12514482,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_final_50.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12364034,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_final_50_conditioned.pth",
+      "sha256": null
+    }
+  ],
+  "counts": {
+    "checkpoint": 35,
+    "dataset": 11,
+    "invalid_json": 0,
+    "result": 40,
+    "total": 86
+  },
+  "hash_large_files": false,
+  "limitations": [
+    "Inventory only: no scientific results, provenance, or reproducibility claims are validated.",
+    "Dataset and checkpoint contents are never deserialized; SHA256 is not proof of provenance.",
+    "Filename/key-derived references are inferred and unverified, even when a candidate exists.",
+    "Explicit metadata is reported as supplied, not independently verified; absent metadata remains unknown.",
+    "Legacy species sorting, no-sort scale-head behavior, OOD compound shifts, and M8 mean-versus-sampled outputs require protocol review; labels alone cannot establish them.",
+    "Only root RESULTS*.json, results/legacy/*.json, data/**/*.pkl, and model_ckpts/*.pth are inventoried; symlinks and excluded directories are skipped.",
+    "Absolute paths in explicit metadata are redacted to basenames; no timestamps or machine paths are recorded."
+  ],
+  "schema_version": 1
+}
