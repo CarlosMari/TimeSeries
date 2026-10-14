@@ -73,6 +73,20 @@ class ArtifactCatalogTests(unittest.TestCase):
         self.assertEqual(self.cli("--hash-large-files", "--check")[0], 0)
         self.assertEqual(self.cli("--check")[0], 1)
 
+    def test_relocation_preserves_result_identity_and_removes_root_entry(self):
+        content = b'{"model_type": "example", "seed": 42}'
+        source = self.put("RESULTS_EXAMPLE.json", content)
+        before = catalog.build_manifest(self.root)["artifacts"][0]
+        destination = self.root / "results/legacy/RESULTS_EXAMPLE.json"
+        destination.parent.mkdir(parents=True)
+        source.rename(destination)
+        after = catalog.build_manifest(self.root)["artifacts"][0]
+        self.assertEqual(after["path"], "results/legacy/RESULTS_EXAMPLE.json")
+        self.assertEqual(after["sha256"], before["sha256"])
+        self.assertEqual(after["bytes"], before["bytes"])
+        self.assertEqual(after["explicit_metadata"], before["explicit_metadata"])
+        self.assertFalse(source.exists())
+
     def test_explicit_metadata_and_unverified_inferences(self):
         self.put("RESULTS_M8_OOD_Exp5.json", {
             "cvae-heteroscedastic:m8_seed42": {

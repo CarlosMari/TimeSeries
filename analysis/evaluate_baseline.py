@@ -4,11 +4,11 @@ Evaluate the trained baseline VAE and produce a comparison table.
 Reads:
   model_ckpts/model_final_30_baseline.pth   (non-conditioned)
   model_ckpts/model_final_30_conditioned.pth (conditioned, the paper's model)
-  RESULTS.json                              (canonical conditioned numbers)
+  results/legacy/RESULTS.json               (canonical conditioned numbers)
 
 Writes:
-  RESULTS_BASELINE.json                     (full baseline metrics)
-  RESULTS_COMPARISON.md                     (side-by-side table)
+  results/legacy/RESULTS_BASELINE.json       (full baseline metrics)
+  results/legacy/RESULTS_COMPARISON.md       (side-by-side table)
 
 Computes the same metrics as analysis/produce_paper_metrics.py for the
 baseline, then renders the comparison table that goes into the paper.
@@ -34,10 +34,10 @@ from src.models.cvae import LSTM_VAE  # noqa: E402
 BASELINE_PATH = REPO_ROOT / "model_ckpts" / "model_final_30_baseline.pth"
 CONDITIONED_PATH = REPO_ROOT / "model_ckpts" / "model_final_30_conditioned.pth"
 TEST_PATH = REPO_ROOT / "data" / "TEST_FINAL_PROCESSED.pkl"
-RESULTS_JSON = REPO_ROOT / "RESULTS.json"
+RESULTS_JSON = REPO_ROOT / "results" / "legacy" / "RESULTS.json"
 
-OUT_JSON = REPO_ROOT / "RESULTS_BASELINE.json"
-OUT_MD = REPO_ROOT / "RESULTS_COMPARISON.md"
+OUT_JSON = REPO_ROOT / "results" / "legacy" / "RESULTS_BASELINE.json"
+OUT_MD = REPO_ROOT / "results" / "legacy" / "RESULTS_COMPARISON.md"
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -170,6 +170,7 @@ prediction lift; everything else is comparable.
     md += f"| Collapsed dims | {cond['latent_collapsed_dims']} / 30 | {base['latent_collapsed_dims']} / 30 |\n"
     md += f"| PCs for 90% / 95% / 99% var | {cond['pca_90']} / {cond['pca_95']} / {cond['pca_99']} | {base['pca_90']} / {base['pca_95']} / {base['pca_99']} |\n"
 
+    OUT_MD.parent.mkdir(parents=True, exist_ok=True)
     OUT_MD.write_text(md)
 
 
@@ -184,6 +185,7 @@ def main():
 
     print("Evaluating baseline...")
     base = evaluate_baseline(test_pkg)
+    OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     OUT_JSON.write_text(json.dumps(base, indent=2))
     print(f"Saved → {OUT_JSON}")
 

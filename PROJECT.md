@@ -18,7 +18,8 @@ setup issues and is not a validated reference baseline.
 
 ## Evidence status
 
-- Saved comparative metrics and checkpoints exist; see [results/README.md](results/README.md).
+- Saved comparative metrics live under `results/legacy/` and local checkpoints
+  remain under `model_ckpts/`; see [results/README.md](results/README.md).
 - Smooth generated samples and strong normalized reconstruction coexist in the
   saved results. Their physical interpretation is not settled.
 - Removing species sorting did not remove the fixed-species-0 scale assumption.
@@ -46,6 +47,9 @@ to current conclusions without resolving those issues.
    central question.
 6. Write alongside the controlled experiments; do not accumulate another unbounded
    figure or latent-space exploration phase.
+7. Carlos owns implementation, analysis, and drafting. The other two authors are
+   advisors who review the experimental contract, evidence, and manuscript at
+   bounded checkpoints; the schedule must not assume three parallel implementers.
 
 ## Navigation
 

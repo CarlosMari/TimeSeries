@@ -8,7 +8,8 @@ Given a set of trained checkpoints, this script:
   4. Computes the full eval matrix (reconstruction R², max-value R²,
      feature-MMD, density/coverage, RQA, Rosenstein λ₁, parameter recovery
      where applicable, latent active dims where applicable).
-  5. Writes per-checkpoint JSON + the aggregate `RESULTS_COMPARATIVE.json`.
+  5. Writes per-checkpoint JSON + the aggregate
+     `results/legacy/RESULTS_COMPARATIVE.json`.
 
 Per-architecture adapters live below in REGISTRY. To add a new model, define
 a function that takes (config_dict, checkpoint_path, device) and returns
@@ -453,7 +454,8 @@ def main():
     ap.add_argument("--checkpoints", nargs="+", required=True,
                     help="Pairs of <model-type>=<path> e.g. cvae-scale-cond=model_ckpts/model_1_seed42.pth")
     ap.add_argument("--test-path", default="data/TEST_FINAL_NOSORT.pkl")
-    ap.add_argument("--out", default="RESULTS_COMPARATIVE.json")
+    ap.add_argument("--out", default=str(
+        REPO_ROOT / "results" / "legacy" / "RESULTS_COMPARATIVE.json"))
     ap.add_argument("--force", action="store_true",
                     help="re-evaluate even if a previous JSON is present")
     ap.add_argument("--n-chaos", type=int, default=None,
@@ -471,6 +473,7 @@ def main():
     print(f"  Test set N = {test_pkg['data'].shape[0]}")
 
     out_path = Path(args.out)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
     existing = {}
     if out_path.exists() and not args.force:
         existing = json.loads(out_path.read_text())

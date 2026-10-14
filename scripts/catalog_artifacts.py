@@ -28,11 +28,12 @@ METADATA_KEYS = {
 }
 LIMITATIONS = [
     "Inventory only: no scientific results, provenance, or reproducibility claims are validated.",
+    "This is a working-tree inventory, including locally present untracked artifacts and uncommitted contents; it is not a checksum manifest of a Git commit or a published release.",
     "Dataset and checkpoint contents are never deserialized; SHA256 is not proof of provenance.",
     "Filename/key-derived references are inferred and unverified, even when a candidate exists.",
     "Explicit metadata is reported as supplied, not independently verified; absent metadata remains unknown.",
     "Legacy species sorting, no-sort scale-head behavior, OOD compound shifts, and M8 mean-versus-sampled outputs require protocol review; labels alone cannot establish them.",
-    "Only root RESULTS*.json, results/legacy/*.json, data/**/*.pkl, and model_ckpts/*.pth are inventoried; symlinks and excluded directories are skipped.",
+    "Historical metrics are discovered in results/legacy/*.json; stray root RESULTS*.json are also detected for migration auditing. Local data/**/*.pkl and model_ckpts/*.pth are metadata-only by default; symlinks and excluded directories are skipped.",
     "Absolute paths in explicit metadata are redacted to basenames; no timestamps or machine paths are recorded.",
 ]
 

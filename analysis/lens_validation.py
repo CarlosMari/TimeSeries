@@ -22,7 +22,7 @@ For each perturbation we measure:
   - RQA KS p-values (5 measures)
   - Lyapunov KS p-value
 
-Output: RESULTS_LENS_VALIDATION.json + final figures/fig_lens_validation.pdf.
+Output: results/legacy/RESULTS_LENS_VALIDATION.json + final figures/fig_lens_validation.pdf.
 """
 
 from __future__ import annotations
@@ -47,7 +47,7 @@ from analysis.evaluate_all_models import (  # noqa: E402
 )
 
 REAL_PATH = REPO_ROOT / "data" / "TEST_FINAL_NOSORT.pkl"
-OUT_JSON = REPO_ROOT / "RESULTS_LENS_VALIDATION.json"
+OUT_JSON = REPO_ROOT / "results" / "legacy" / "RESULTS_LENS_VALIDATION.json"
 OUT_FIG = REPO_ROOT / "final figures" / "fig_lens_validation.pdf"
 
 N = 200
@@ -196,6 +196,7 @@ def main():
             "lens3_lyap_ks": lyap_ks,
         }
 
+    OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     OUT_JSON.write_text(json.dumps(results, indent=2))
     print(f"\nSaved → {OUT_JSON}")
 

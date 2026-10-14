@@ -25,14 +25,14 @@
 #     (CPU-bound, no contention) — handled separately, not here.
 #   - 1.1 needs all seed-2026 VAE-family ckpts (m1, m2, m3, m4, m5)
 #   - 1.3 needs the GPU — run AFTER 1.1
-#   - 1.4 needs RESULTS_COMPARATIVE.json populated
+#   - 1.4 needs results/legacy/RESULTS_COMPARATIVE.json populated
 #
 # Logs to logs/post_audit_watcher.log
 
 set -u
 cd "$(dirname "$0")/.."
 source TimeSeries/bin/activate
-mkdir -p logs
+mkdir -p logs results/legacy
 
 AUTOQUEUE_PID=${1:?usage: $0 AUTOQUEUE_PID}
 
@@ -106,7 +106,7 @@ log "=== Tier 1.1: multi-seed unified eval ==="
 
 for tset in TEST_FINAL_NOSORT TEST_OOD_Exp1 TEST_OOD_Exp5; do
   out_suffix="${tset#TEST_}"
-  out_path="RESULTS_COMPARATIVE_MULTISEED_${out_suffix}.json"
+  out_path="results/legacy/RESULTS_COMPARATIVE_MULTISEED_${out_suffix}.json"
   log "Eval on $tset → $out_path"
   python analysis/evaluate_all_models.py \
     --checkpoints $(build_ckpts) \
@@ -134,7 +134,7 @@ for seed in 123 2026; do
   # Eval on all 3 distributions
   for tset in TEST_FINAL_NOSORT TEST_OOD_Exp1 TEST_OOD_Exp5; do
     out_suffix="${tset#TEST_}"
-    out="RESULTS_B1_frozen_0p05_seed${seed}_${out_suffix}.json"
+    out="results/legacy/RESULTS_B1_frozen_0p05_seed${seed}_${out_suffix}.json"
     log "Eval $name on $tset → $out"
     python analysis/evaluate_all_models.py \
       --checkpoints cvae-stochastic=$ckpt \
@@ -147,8 +147,8 @@ log "=== Tier 1.3 done ==="
 # ----- Tier 1.4: regenerate comparative figures -----
 log "=== Tier 1.4: regenerate comparative figures ==="
 # Pick one of the multi-seed jsons as the main input
-if [[ -f RESULTS_COMPARATIVE_MULTISEED_FINAL_NOSORT.json ]]; then
-  python analysis/make_comparative_figures.py --results RESULTS_COMPARATIVE_MULTISEED_FINAL_NOSORT.json 2>&1
+if [[ -f results/legacy/RESULTS_COMPARATIVE_MULTISEED_FINAL_NOSORT.json ]]; then
+  python analysis/make_comparative_figures.py --results results/legacy/RESULTS_COMPARATIVE_MULTISEED_FINAL_NOSORT.json 2>&1
 fi
 log "=== Tier 1.4 done ==="
 
@@ -158,7 +158,7 @@ log "=== Tier 1.4 done ==="
 log "=== T1: OOD power-analysis (N_CHAOS=1000) ==="
 for tset in TEST_FINAL_NOSORT TEST_OOD_Exp1 TEST_OOD_Exp5; do
   out_suffix="${tset#TEST_}"
-  out_path="RESULTS_COMPARATIVE_MULTISEED_N1000_${out_suffix}.json"
+  out_path="results/legacy/RESULTS_COMPARATIVE_MULTISEED_N1000_${out_suffix}.json"
   log "Eval N_CHAOS=1000 on $tset → $out_path"
   python analysis/evaluate_all_models.py \
     --checkpoints $(build_ckpts) \
@@ -202,16 +202,16 @@ for tset in ['TEST_FINAL_NOSORT', 'TEST_OOD_Exp1', 'TEST_OOD_Exp5']:
     }
     print(f'{tset}: DET={dets.mean():.4f}±{dets.std():.4f}, λ₁={np.nanmean(lyaps):+.4f}±{np.nanstd(lyaps):.4f}')
 
-with open('RESULTS_REAL_STATS_CROSSDIST.json', 'w') as f:
+with open('results/legacy/RESULTS_REAL_STATS_CROSSDIST.json', 'w') as f:
     json.dump(out, f, indent=2)
-print('Wrote RESULTS_REAL_STATS_CROSSDIST.json')
+print('Wrote results/legacy/RESULTS_REAL_STATS_CROSSDIST.json')
 PYEOF
 log "=== T2 done ==="
 
 # ----- T3: Multi-seed noise-addition sweep (re-run with 17 ckpts incl. seed-2026 + m6 seed-2026) -----
 # Earlier sweep covered 13 ckpts; this updates it with the full multi-seed set.
 log "=== T3: noise-addition sweep, all 17 ckpts ==="
-python analysis/noise_addition_sweep.py --out RESULTS_NOISE_SWEEP_MULTISEED.json 2>&1 || log "T3 failed"
+python analysis/noise_addition_sweep.py --out results/legacy/RESULTS_NOISE_SWEEP_MULTISEED.json 2>&1 || log "T3 failed"
 log "=== T3 done ==="
 
 # Resume autoqueue (it has nothing left to do, but cleanliness)

@@ -5,7 +5,7 @@
 
 cd "$(dirname "$0")/.."
 source TimeSeries/bin/activate
-mkdir -p logs model_ckpts
+mkdir -p logs model_ckpts results/legacy
 
 # Redirect wandb writes to the 3.6 TB array so the root disk doesn't fill up.
 # (Verified writable by carlos; each wandb run is ~150 MB.)
@@ -80,8 +80,8 @@ done
 ckpt=model_ckpts/model_7_seed42.pth
 [[ -f "$ckpt" ]] && ckpts+=("glv-regression=$ckpt")
 echo "[$(date +%H:%M:%S)] Evaluating: ${ckpts[*]}"
-python analysis/evaluate_all_models.py --checkpoints "${ckpts[@]}" --out RESULTS_COMPARATIVE.json
-python analysis/make_comparative_figures.py --results RESULTS_COMPARATIVE.json
+python analysis/evaluate_all_models.py --checkpoints "${ckpts[@]}" --out results/legacy/RESULTS_COMPARATIVE.json
+python analysis/make_comparative_figures.py --results results/legacy/RESULTS_COMPARATIVE.json
 
 # -----------------------------------------------------------------------------
 # Stage 2 — seeds 123 + 2026
@@ -117,7 +117,7 @@ for seed in 42 123 2026; do
   [[ -f "$ckpt" ]] && ckpts+=("glv-regression=$ckpt")
 done
 echo "[$(date +%H:%M:%S)] FINAL eval: ${ckpts[*]}"
-python analysis/evaluate_all_models.py --checkpoints "${ckpts[@]}" --out RESULTS_COMPARATIVE.json --force
-python analysis/make_comparative_figures.py --results RESULTS_COMPARATIVE.json
+python analysis/evaluate_all_models.py --checkpoints "${ckpts[@]}" --out results/legacy/RESULTS_COMPARATIVE.json --force
+python analysis/make_comparative_figures.py --results results/legacy/RESULTS_COMPARATIVE.json
 
 echo "[$(date +%H:%M:%S)] === ALL DONE ==="

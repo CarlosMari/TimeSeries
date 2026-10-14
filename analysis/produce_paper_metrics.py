@@ -2,12 +2,12 @@
 Single source of truth for every number in the paper.
 
 Loads the 30D scale-conditioned CVAE, evaluates the full test set, and writes
-RESULTS.json + a Markdown table. All figure-generation scripts should read from
-RESULTS.json rather than recomputing.
+results/legacy/RESULTS.json + a Markdown table. All figure-generation scripts
+should read from results/legacy/RESULTS.json rather than recomputing.
 
 Usage:
     python analysis/produce_paper_metrics.py
-    # writes RESULTS.json and RESULTS.md in the repo root
+    # writes RESULTS.json and RESULTS.md in results/legacy/
 """
 
 from __future__ import annotations
@@ -35,8 +35,8 @@ MODEL_PATH = REPO_ROOT / "model_ckpts" / "model_final_30_conditioned.pth"
 TEST_PATH = REPO_ROOT / "data" / "TEST_FINAL_PROCESSED.pkl"
 TRAIN_PATH = REPO_ROOT / "data" / "TRAIN_FINAL_PROCESSED.pkl"
 
-OUTPUT_JSON = REPO_ROOT / "RESULTS.json"
-OUTPUT_MD = REPO_ROOT / "RESULTS.md"
+OUTPUT_JSON = REPO_ROOT / "results" / "legacy" / "RESULTS.json"
+OUTPUT_MD = REPO_ROOT / "results" / "legacy" / "RESULTS.md"
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 RNG = np.random.default_rng(0)
@@ -321,6 +321,7 @@ Per-curve $R^2$: {", ".join(f"{v:.3f}" for v in recon['max_val_R2_per_curve_1to6
 | Generated internal NN | {nov['gen_internal_mean']:.4f} |
 | Memorization ratio (gen/train ÷ test/train) | **{nov['memorization_ratio']:.3f}** |
 """
+    OUTPUT_MD.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_MD.write_text(md)
 
 
@@ -350,6 +351,7 @@ def main():
         "novelty": nov_results,
     }
 
+    OUTPUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_JSON.write_text(json.dumps(results, indent=2))
     write_markdown(results)
     print(f"Wrote {OUTPUT_JSON.relative_to(REPO_ROOT)} and {OUTPUT_MD.relative_to(REPO_ROOT)}")

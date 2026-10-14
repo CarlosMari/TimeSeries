@@ -8,7 +8,7 @@
 set -u
 cd "$(dirname "$0")/.."
 source TimeSeries/bin/activate
-mkdir -p logs
+mkdir -p logs results/legacy
 
 LOG=logs/m8_train_and_eval.log
 exec >> "$LOG" 2>&1
@@ -50,7 +50,7 @@ build_ckpts() {
 # ---- Eval on all 3 distributions at N_CHAOS=1000 (paper headline N) ----
 for tset in TEST_FINAL_NOSORT TEST_OOD_Exp1 TEST_OOD_Exp5; do
   out_suffix="${tset#TEST_}"
-  out="RESULTS_M8_${out_suffix}.json"
+  out="results/legacy/RESULTS_M8_${out_suffix}.json"
   log "Eval on $tset → $out"
   python analysis/evaluate_all_models.py \
     --checkpoints $(build_ckpts) \

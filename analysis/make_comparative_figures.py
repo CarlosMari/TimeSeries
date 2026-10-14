@@ -1,9 +1,9 @@
-"""Produce paper figures from `RESULTS_COMPARATIVE.json`.
+"""Produce paper figures from `results/legacy/RESULTS_COMPARATIVE.json`.
 
 Inputs:
-  - RESULTS_COMPARATIVE.json — output of analysis/evaluate_all_models.py
-  - (optional) RESULTS_LENS_VALIDATION.json — for the lens-validation figure
-  - (optional) RESULTS_CHAOS.json — v1 chaos diagnostics (for backwards-compat
+  - results/legacy/RESULTS_COMPARATIVE.json — output of analysis/evaluate_all_models.py
+  - (optional) results/legacy/RESULTS_LENS_VALIDATION.json — for the lens-validation figure
+  - (optional) results/legacy/RESULTS_CHAOS.json — v1 chaos diagnostics (for backwards-compat
     comparison if needed)
 
 Outputs:
@@ -201,7 +201,7 @@ def fig_chaos_summary(aggregated, out_path):
         ax.set_title(title)
         ax.text(0.5, 0.5,
                 "(per-architecture chaos-metric distributions will plot here\n"
-                "once we have multi-seed RESULTS_COMPARATIVE.json with the\n"
+                "once we have multi-seed results/legacy/RESULTS_COMPARATIVE.json with the\n"
                 "raw per-sample arrays — currently the JSON stores only\n"
                 "aggregated means.)",
                 ha="center", va="center", fontsize=9, family="monospace",
@@ -270,14 +270,15 @@ def fig_recon_vs_chaos(aggregated, out_path):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--results", default="RESULTS_COMPARATIVE.json")
+    ap.add_argument("--results", default=str(
+        REPO_ROOT / "results" / "legacy" / "RESULTS_COMPARATIVE.json"))
     ap.add_argument("--out-dir", default="final figures")
     args = ap.parse_args()
 
     p = Path(args.results)
     if not p.exists():
         print(f"WARNING: {p} does not exist yet — using sanity JSON for layout test.")
-        p = Path("RESULTS_COMPARATIVE_v1_sanity.json")
+        p = REPO_ROOT / "results" / "legacy" / "RESULTS_COMPARATIVE_v1_sanity.json"
         if not p.exists():
             print("No comparative data on disk; aborting.")
             return

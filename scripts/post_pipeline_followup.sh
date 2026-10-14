@@ -13,7 +13,7 @@
 set -u
 cd "$(dirname "$0")/.."
 source TimeSeries/bin/activate
-mkdir -p logs
+mkdir -p logs results/legacy
 
 WATCHER_PID=${1:?usage: $0 WATCHER_PID}
 LOG=logs/post_pipeline_followup.log
@@ -63,7 +63,7 @@ build_ckpts() {
 log "=== T1: OOD power-analysis (N_CHAOS=1000) ==="
 for tset in TEST_FINAL_NOSORT TEST_OOD_Exp1 TEST_OOD_Exp5; do
   out_suffix="${tset#TEST_}"
-  out_path="RESULTS_COMPARATIVE_MULTISEED_N1000_${out_suffix}.json"
+  out_path="results/legacy/RESULTS_COMPARATIVE_MULTISEED_N1000_${out_suffix}.json"
   log "Eval N_CHAOS=1000 on $tset → $out_path"
   python analysis/evaluate_all_models.py \
     --checkpoints $(build_ckpts) \
@@ -105,15 +105,15 @@ for tset in ['TEST_FINAL_NOSORT', 'TEST_OOD_Exp1', 'TEST_OOD_Exp5']:
     }
     print(f'{tset}: DET={dets.mean():.4f}±{dets.std():.4f}, lyap={np.nanmean(lyaps):+.4f}+/-{np.nanstd(lyaps):.4f}')
 
-with open('RESULTS_REAL_STATS_CROSSDIST.json', 'w') as f:
+with open('results/legacy/RESULTS_REAL_STATS_CROSSDIST.json', 'w') as f:
     json.dump(out, f, indent=2)
-print('Wrote RESULTS_REAL_STATS_CROSSDIST.json')
+print('Wrote results/legacy/RESULTS_REAL_STATS_CROSSDIST.json')
 PYEOF
 log "=== T2 done ==="
 
 # ----- T3: Multi-seed noise-addition sweep (17 ckpts) -----
 log "=== T3: noise-addition sweep, all 17 ckpts ==="
-python analysis/noise_addition_sweep.py --out RESULTS_NOISE_SWEEP_MULTISEED.json 2>&1 || log "T3 failed"
+python analysis/noise_addition_sweep.py --out results/legacy/RESULTS_NOISE_SWEEP_MULTISEED.json 2>&1 || log "T3 failed"
 log "=== T3 done ==="
 
 log "=== follow-up FINISHED ==="

@@ -59,12 +59,13 @@ checkpoint. It is not the corrected experiment from `PLAN.md`. Supply the local
 dataset/checkpoint first. Use a new output filename to protect archived metrics:
 
 ```bash
-mkdir -p outputs/reproduction
+RUN_DIR="results/runs/reproduction-$(date -u +%Y%m%dT%H%M%SZ)"
+mkdir -p "$RUN_DIR"
 python analysis/evaluate_all_models.py \
   --checkpoints cvae-scale-cond=model_ckpts/model_1_seed42.pth \
   --test-path data/TEST_FINAL_NOSORT.pkl \
   --n-chaos 1000 \
-  --out outputs/reproduction/comparative.json
+  --out "$RUN_DIR/comparative.json"
 ```
 
 The evaluator reuses existing records unless `--force` is passed. A filename alone
@@ -78,7 +79,7 @@ CPU smoke test.
 ```bash
 python -m data_generation.preprocessor \
   --input data/TRAIN_FINAL_FIXED.pkl \
-  --output outputs/reproduction/train_nosort.pkl --no-sort
+  --output data/TRAIN_REPRODUCTION_NOSORT.pkl --no-sort
 ```
 
 Training interfaces are `train_pivot.py`, `train_cvae.py`, `train_baseline.py`, and
@@ -93,10 +94,11 @@ or kill matching processes, and `scripts/autoqueue.sh` assumes writable storage 
 
 ## Historical analyses and figures
 
-Many `analysis/` commands use hardcoded output paths and overwrite `RESULTS*.json`,
-Markdown summaries, or files in `final figures/`. Existing result paths were
-deliberately retained to avoid silently breaking those consumers. The historical
-figure plotter is not a curated final-paper build and does not establish scientific
+Many `analysis/` commands use hardcoded output paths and overwrite
+`results/legacy/RESULTS*.json`, Markdown summaries in that directory, or files in
+`final figures/`. Active consumers and shell queues were updated when the results
+moved; root-level `RESULTS*` paths are no longer supported. The historical figure
+plotter is not a curated final-paper build and does not establish scientific
 validity. Do not regenerate figures as an installation check.
 
 The old root exploration scripts moved to `archive/scripts/`. Use the explicit

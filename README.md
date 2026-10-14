@@ -47,10 +47,13 @@ can suggest provenance but cannot prove it.
 | `scripts/` | Maintenance tools and historical training queues |
 | `tests/` | Lightweight automated tests plus separately named legacy checks |
 | `results/` | Artifact catalog and result-family documentation |
-| `RESULTS*.json` | Existing metrics, retained at their original paths for compatibility |
+| `results/legacy/` | Historical metrics and generated summaries; active legacy scripts use these paths |
 | `data/`, `model_ckpts/` | Local datasets and checkpoints; not supplied by a clean clone |
 | `final figures/`, other figure directories | Preserved historical outputs, not a curated final paper |
 | `archive/` | Preserved historical documentation, exploratory scripts, and paper fragments |
+
+New corrected experiments should use a unique `results/runs/<run-id>/` directory
+with configuration and provenance, not overwrite legacy metrics.
 
 Historical exploratory scripts run through `scripts/run_legacy.py`; see
 [archive/README.md](archive/README.md) before executing anything. They may overwrite

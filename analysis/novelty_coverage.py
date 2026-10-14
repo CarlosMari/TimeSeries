@@ -20,7 +20,8 @@ Approach
      k-NN radius of each real)/k.
    - **Coverage**: fraction of real points whose k-NN ball contains at
      least one generated sample.
-4. Single PDF figure summarizing the results, JSON for numbers.
+4. Single PDF figure summarizing the results, with numbers in
+   results/legacy/RESULTS_NOVELTY.json.
 
 This is a textbook tooling step for generative model evaluation; reviewers
 will recognize it and stop asking "but is it memorizing?".
@@ -50,7 +51,7 @@ from utils.post_processing import apply_extinction_threshold  # noqa: E402
 MODEL_PATH = REPO_ROOT / "model_ckpts" / "model_final_30_conditioned.pth"
 TEST_PATH = REPO_ROOT / "data" / "TEST_FINAL_PROCESSED.pkl"
 
-OUT_JSON = REPO_ROOT / "RESULTS_NOVELTY.json"
+OUT_JSON = REPO_ROOT / "results" / "legacy" / "RESULTS_NOVELTY.json"
 OUT_FIG = REPO_ROOT / "final figures" / "fig_novelty_coverage.pdf"
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -314,6 +315,7 @@ def main():
         "ks_per_feature": ks_results,
         "ks_n_significant_at_p05": n_sig,
     }
+    OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     OUT_JSON.write_text(json.dumps(results, indent=2))
     print(f"Saved → {OUT_JSON}")
 

@@ -65,7 +65,7 @@ learned variance head. A matched fixed-variance sampled baseline is required to
 isolate the value of heteroscedasticity. M8 also changes the reconstruction
 objective and feeds means during training but samples during generation.
 
-`RESULTS_M8_FINAL_NOSORT.json` shows generated mean DET of approximately 0.572,
+`results/legacy/RESULTS_M8_FINAL_NOSORT.json` shows generated mean DET of approximately 0.572,
 0.416, and 0.454 across its three seeds, rather than a uniform match to the real
 mean of approximately 0.601. It also has lower reconstruction R² and higher
 feature MMD than the saved Transformer results. Average agreement in one statistic

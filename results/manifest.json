@@ -1,6 +1,282 @@
 {
   "artifacts": [
     {
+      "bytes": 78480625,
+      "kind": "dataset",
+      "path": "data/PARAM_RECOVERY_MATCHED.pkl",
+      "sha256": null
+    },
+    {
+      "bytes": 142648125,
+      "kind": "dataset",
+      "path": "data/TEST_FINAL_FIXED.pkl",
+      "sha256": null
+    },
+    {
+      "bytes": 145156384,
+      "kind": "dataset",
+      "path": "data/TEST_FINAL_NOSORT.pkl",
+      "sha256": null
+    },
+    {
+      "bytes": 145156368,
+      "kind": "dataset",
+      "path": "data/TEST_FINAL_PROCESSED.pkl",
+      "sha256": null
+    },
+    {
+      "bytes": 39280635,
+      "kind": "dataset",
+      "path": "data/TEST_OOD_Exp1.pkl",
+      "sha256": null
+    },
+    {
+      "bytes": 39280635,
+      "kind": "dataset",
+      "path": "data/TEST_OOD_Exp5.pkl",
+      "sha256": null
+    },
+    {
+      "bytes": 427598247,
+      "kind": "dataset",
+      "path": "data/TRAIN_FINAL_FIXED.pkl",
+      "sha256": null
+    },
+    {
+      "bytes": 435116622,
+      "kind": "dataset",
+      "path": "data/TRAIN_FINAL_NOSORT.pkl",
+      "sha256": null
+    },
+    {
+      "bytes": 435116606,
+      "kind": "dataset",
+      "path": "data/TRAIN_FINAL_PROCESSED.pkl",
+      "sha256": null
+    },
+    {
+      "bytes": 7993600,
+      "kind": "dataset",
+      "path": "data/interaction_mapping_dataset.pkl",
+      "sha256": null
+    },
+    {
+      "bytes": 43347,
+      "kind": "dataset",
+      "path": "data/ultra_oscillatory_candidates.pkl",
+      "sha256": null
+    },
+    {
+      "bytes": 12081896,
+      "kind": "checkpoint",
+      "path": "model_ckpts/b1_m1_spectral_0p1_seed42.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12082231,
+      "kind": "checkpoint",
+      "path": "model_ckpts/b1_m3_frozen_0p05_seed123.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12082258,
+      "kind": "checkpoint",
+      "path": "model_ckpts/b1_m3_frozen_0p05_seed2026.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12082204,
+      "kind": "checkpoint",
+      "path": "model_ckpts/b1_m3_frozen_0p05_seed42.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12082177,
+      "kind": "checkpoint",
+      "path": "model_ckpts/b1_m3_frozen_0p1_seed42.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12082177,
+      "kind": "checkpoint",
+      "path": "model_ckpts/b1_m3_frozen_0p2_seed42.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12088226,
+      "kind": "checkpoint",
+      "path": "model_ckpts/m8_seed123.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12088316,
+      "kind": "checkpoint",
+      "path": "model_ckpts/m8_seed2026.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12088200,
+      "kind": "checkpoint",
+      "path": "model_ckpts/m8_seed42.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12088342,
+      "kind": "checkpoint",
+      "path": "model_ckpts/m8_smoketest.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12081380,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_1_seed123.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12081598,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_1_seed2026.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12081226,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_1_seed42.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12183110,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_2_seed123.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12183258,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_2_seed2026.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12183090,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_2_seed42.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12081641,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_3_seed123.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12081924,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_3_seed2026.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12081486,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_3_seed42.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 9034562,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_4_seed123.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 9034786,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_4_seed2026.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 9034338,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_4_seed42.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 5577126,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_5_seed123.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 5577336,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_5_seed2026.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 5576724,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_5_seed42.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12225018,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_6_seed2026.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12224754,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_6_seed42.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 14541532,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_7_seed123.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 14541479,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_7_seed2026.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 14541457,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_7_seed42.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12183090,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_final_30.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12183462,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_final_30_baseline.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12081922,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_final_30_conditioned.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12514482,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_final_50.pth",
+      "sha256": null
+    },
+    {
+      "bytes": 12364034,
+      "kind": "checkpoint",
+      "path": "model_ckpts/model_final_50_conditioned.pth",
+      "sha256": null
+    },
+    {
       "bytes": 3243,
       "caveats": [
         {
@@ -43,7 +319,7 @@
       "json_type": "dict",
       "kind": "result",
       "model_keys": [],
-      "path": "RESULTS.json",
+      "path": "results/legacy/RESULTS.json",
       "references": [
         {
           "candidate_present": true,
@@ -81,7 +357,7 @@
       "model_keys": [
         "cvae-stochastic:b1_m3_frozen_0p05_seed123"
       ],
-      "path": "RESULTS_B1_frozen_0p05_seed123_FINAL_NOSORT.json",
+      "path": "results/legacy/RESULTS_B1_frozen_0p05_seed123_FINAL_NOSORT.json",
       "references": [
         {
           "candidate_present": true,
@@ -132,7 +408,7 @@
       "model_keys": [
         "cvae-stochastic:b1_m3_frozen_0p05_seed123"
       ],
-      "path": "RESULTS_B1_frozen_0p05_seed123_OOD_Exp1.json",
+      "path": "results/legacy/RESULTS_B1_frozen_0p05_seed123_OOD_Exp1.json",
       "references": [
         {
           "candidate_present": true,
@@ -183,7 +459,7 @@
       "model_keys": [
         "cvae-stochastic:b1_m3_frozen_0p05_seed123"
       ],
-      "path": "RESULTS_B1_frozen_0p05_seed123_OOD_Exp5.json",
+      "path": "results/legacy/RESULTS_B1_frozen_0p05_seed123_OOD_Exp5.json",
       "references": [
         {
           "candidate_present": true,
@@ -229,7 +505,7 @@
       "model_keys": [
         "cvae-stochastic:b1_m3_frozen_0p05_seed2026"
       ],
-      "path": "RESULTS_B1_frozen_0p05_seed2026_FINAL_NOSORT.json",
+      "path": "results/legacy/RESULTS_B1_frozen_0p05_seed2026_FINAL_NOSORT.json",
       "references": [
         {
           "candidate_present": true,
@@ -280,7 +556,7 @@
       "model_keys": [
         "cvae-stochastic:b1_m3_frozen_0p05_seed2026"
       ],
-      "path": "RESULTS_B1_frozen_0p05_seed2026_OOD_Exp1.json",
+      "path": "results/legacy/RESULTS_B1_frozen_0p05_seed2026_OOD_Exp1.json",
       "references": [
         {
           "candidate_present": true,
@@ -331,7 +607,7 @@
       "model_keys": [
         "cvae-stochastic:b1_m3_frozen_0p05_seed2026"
       ],
-      "path": "RESULTS_B1_frozen_0p05_seed2026_OOD_Exp5.json",
+      "path": "results/legacy/RESULTS_B1_frozen_0p05_seed2026_OOD_Exp5.json",
       "references": [
         {
           "candidate_present": true,
@@ -377,7 +653,7 @@
       "model_keys": [
         "cvae-stochastic:b1_m3_frozen_0p1_seed42"
       ],
-      "path": "RESULTS_B1_frozen_0p1_FINAL_NOSORT.json",
+      "path": "results/legacy/RESULTS_B1_frozen_0p1_FINAL_NOSORT.json",
       "references": [
         {
           "candidate_present": true,
@@ -428,7 +704,7 @@
       "model_keys": [
         "cvae-stochastic:b1_m3_frozen_0p1_seed42"
       ],
-      "path": "RESULTS_B1_frozen_0p1_OOD_Exp1.json",
+      "path": "results/legacy/RESULTS_B1_frozen_0p1_OOD_Exp1.json",
       "references": [
         {
           "candidate_present": true,
@@ -479,7 +755,7 @@
       "model_keys": [
         "cvae-stochastic:b1_m3_frozen_0p1_seed42"
       ],
-      "path": "RESULTS_B1_frozen_0p1_OOD_Exp5.json",
+      "path": "results/legacy/RESULTS_B1_frozen_0p1_OOD_Exp5.json",
       "references": [
         {
           "candidate_present": true,
@@ -525,7 +801,7 @@
       "model_keys": [
         "cvae-stochastic:b1_m3_frozen_0p2_seed42"
       ],
-      "path": "RESULTS_B1_frozen_0p2_FINAL_NOSORT.json",
+      "path": "results/legacy/RESULTS_B1_frozen_0p2_FINAL_NOSORT.json",
       "references": [
         {
           "candidate_present": true,
@@ -576,7 +852,7 @@
       "model_keys": [
         "cvae-stochastic:b1_m3_frozen_0p2_seed42"
       ],
-      "path": "RESULTS_B1_frozen_0p2_OOD_Exp1.json",
+      "path": "results/legacy/RESULTS_B1_frozen_0p2_OOD_Exp1.json",
       "references": [
         {
           "candidate_present": true,
@@ -627,7 +903,7 @@
       "model_keys": [
         "cvae-stochastic:b1_m3_frozen_0p2_seed42"
       ],
-      "path": "RESULTS_B1_frozen_0p2_OOD_Exp5.json",
+      "path": "results/legacy/RESULTS_B1_frozen_0p2_OOD_Exp5.json",
       "references": [
         {
           "candidate_present": true,
@@ -678,7 +954,7 @@
       "model_keys": [
         "cvae-scale-cond:b1_m1_spectral_0p1_seed42"
       ],
-      "path": "RESULTS_B1_spectral_OOD_Exp1.json",
+      "path": "results/legacy/RESULTS_B1_spectral_OOD_Exp1.json",
       "references": [
         {
           "candidate_present": true,
@@ -729,7 +1005,7 @@
       "model_keys": [
         "cvae-scale-cond:b1_m1_spectral_0p1_seed42"
       ],
-      "path": "RESULTS_B1_spectral_OOD_Exp5.json",
+      "path": "results/legacy/RESULTS_B1_spectral_OOD_Exp5.json",
       "references": [
         {
           "candidate_present": true,
@@ -769,7 +1045,7 @@
       "json_type": "dict",
       "kind": "result",
       "model_keys": [],
-      "path": "RESULTS_BASELINE.json",
+      "path": "results/legacy/RESULTS_BASELINE.json",
       "references": [],
       "sha256": "c53bed2ddc8d3649154081f44bc8abd5d878abe21f63618fbf2b7d5620e60871"
     },
@@ -848,7 +1124,7 @@
       "json_type": "dict",
       "kind": "result",
       "model_keys": [],
-      "path": "RESULTS_CHAOS.json",
+      "path": "results/legacy/RESULTS_CHAOS.json",
       "references": [],
       "sha256": "7169daeda22d1a8074567b6f60c79e9883c9f6b3e76123a88fd18720605b56d4"
     },
@@ -927,7 +1203,7 @@
         "latent-ode:model_4_seed42",
         "transformer-vae:model_5_seed42"
       ],
-      "path": "RESULTS_COMPARATIVE.json",
+      "path": "results/legacy/RESULTS_COMPARATIVE.json",
       "references": [
         {
           "candidate_present": true,
@@ -1040,7 +1316,7 @@
         "cvae-stochastic:b1_m3_frozen_0p1_seed42",
         "cvae-stochastic:b1_m3_frozen_0p2_seed42"
       ],
-      "path": "RESULTS_COMPARATIVE_B1.json",
+      "path": "results/legacy/RESULTS_COMPARATIVE_B1.json",
       "references": [
         {
           "candidate_present": true,
@@ -1102,7 +1378,7 @@
       "model_keys": [
         "cvae-stochastic:b1_m3_frozen_0p05_seed42"
       ],
-      "path": "RESULTS_COMPARATIVE_B1_partial.json",
+      "path": "results/legacy/RESULTS_COMPARATIVE_B1_partial.json",
       "references": [
         {
           "candidate_present": true,
@@ -1145,7 +1421,7 @@
       "model_keys": [
         "cvae-stochastic:b1_m3_frozen_0p05_seed42"
       ],
-      "path": "RESULTS_COMPARATIVE_B1_partial_OOD_Exp1.json",
+      "path": "results/legacy/RESULTS_COMPARATIVE_B1_partial_OOD_Exp1.json",
       "references": [
         {
           "candidate_present": true,
@@ -1196,7 +1472,7 @@
       "model_keys": [
         "cvae-stochastic:b1_m3_frozen_0p05_seed42"
       ],
-      "path": "RESULTS_COMPARATIVE_B1_partial_OOD_Exp5.json",
+      "path": "results/legacy/RESULTS_COMPARATIVE_B1_partial_OOD_Exp5.json",
       "references": [
         {
           "candidate_present": true,
@@ -1386,7 +1662,7 @@
         "transformer-vae:model_5_seed2026",
         "transformer-vae:model_5_seed42"
       ],
-      "path": "RESULTS_COMPARATIVE_MULTISEED_FINAL_NOSORT.json",
+      "path": "results/legacy/RESULTS_COMPARATIVE_MULTISEED_FINAL_NOSORT.json",
       "references": [
         {
           "candidate_present": true,
@@ -1704,7 +1980,7 @@
         "transformer-vae:model_5_seed2026",
         "transformer-vae:model_5_seed42"
       ],
-      "path": "RESULTS_COMPARATIVE_MULTISEED_N1000_FINAL_NOSORT.json",
+      "path": "results/legacy/RESULTS_COMPARATIVE_MULTISEED_N1000_FINAL_NOSORT.json",
       "references": [
         {
           "candidate_present": true,
@@ -2027,7 +2303,7 @@
         "transformer-vae:model_5_seed2026",
         "transformer-vae:model_5_seed42"
       ],
-      "path": "RESULTS_COMPARATIVE_MULTISEED_N1000_OOD_Exp1.json",
+      "path": "results/legacy/RESULTS_COMPARATIVE_MULTISEED_N1000_OOD_Exp1.json",
       "references": [
         {
           "candidate_present": true,
@@ -2350,7 +2626,7 @@
         "transformer-vae:model_5_seed2026",
         "transformer-vae:model_5_seed42"
       ],
-      "path": "RESULTS_COMPARATIVE_MULTISEED_N1000_OOD_Exp5.json",
+      "path": "results/legacy/RESULTS_COMPARATIVE_MULTISEED_N1000_OOD_Exp5.json",
       "references": [
         {
           "candidate_present": true,
@@ -2673,7 +2949,7 @@
         "transformer-vae:model_5_seed2026",
         "transformer-vae:model_5_seed42"
       ],
-      "path": "RESULTS_COMPARATIVE_MULTISEED_OOD_Exp1.json",
+      "path": "results/legacy/RESULTS_COMPARATIVE_MULTISEED_OOD_Exp1.json",
       "references": [
         {
           "candidate_present": true,
@@ -2996,7 +3272,7 @@
         "transformer-vae:model_5_seed2026",
         "transformer-vae:model_5_seed42"
       ],
-      "path": "RESULTS_COMPARATIVE_MULTISEED_OOD_Exp5.json",
+      "path": "results/legacy/RESULTS_COMPARATIVE_MULTISEED_OOD_Exp5.json",
       "references": [
         {
           "candidate_present": true,
@@ -3225,7 +3501,7 @@
         "latent-ode:model_4_seed42",
         "transformer-vae:model_5_seed42"
       ],
-      "path": "RESULTS_COMPARATIVE_OOD_Exp1.json",
+      "path": "results/legacy/RESULTS_COMPARATIVE_OOD_Exp1.json",
       "references": [
         {
           "candidate_present": true,
@@ -3374,7 +3650,7 @@
         "latent-ode:model_4_seed42",
         "transformer-vae:model_5_seed42"
       ],
-      "path": "RESULTS_COMPARATIVE_OOD_Exp5.json",
+      "path": "results/legacy/RESULTS_COMPARATIVE_OOD_Exp5.json",
       "references": [
         {
           "candidate_present": true,
@@ -3477,7 +3753,7 @@
         "cvae-no-scale-cond:model_final_30_baseline",
         "cvae-scale-cond:model_final_30_conditioned"
       ],
-      "path": "RESULTS_COMPARATIVE_v1_sanity.json",
+      "path": "results/legacy/RESULTS_COMPARATIVE_v1_sanity.json",
       "references": [
         {
           "candidate_present": true,
@@ -3517,7 +3793,7 @@
       "json_type": "dict",
       "kind": "result",
       "model_keys": [],
-      "path": "RESULTS_LENS_VALIDATION.json",
+      "path": "results/legacy/RESULTS_LENS_VALIDATION.json",
       "references": [],
       "sha256": "50dbee6c5a3de619fc1edb7de3b3ac6068990c62fedfa9332ca9d730e076efc9"
     },
@@ -3569,7 +3845,7 @@
         "cvae-heteroscedastic:m8_seed2026",
         "cvae-heteroscedastic:m8_seed42"
       ],
-      "path": "RESULTS_M8_FINAL_NOSORT.json",
+      "path": "results/legacy/RESULTS_M8_FINAL_NOSORT.json",
       "references": [
         {
           "candidate_present": true,
@@ -3659,7 +3935,7 @@
         "cvae-heteroscedastic:m8_seed2026",
         "cvae-heteroscedastic:m8_seed42"
       ],
-      "path": "RESULTS_M8_OOD_Exp1.json",
+      "path": "results/legacy/RESULTS_M8_OOD_Exp1.json",
       "references": [
         {
           "candidate_present": true,
@@ -3749,7 +4025,7 @@
         "cvae-heteroscedastic:m8_seed2026",
         "cvae-heteroscedastic:m8_seed42"
       ],
-      "path": "RESULTS_M8_OOD_Exp5.json",
+      "path": "results/legacy/RESULTS_M8_OOD_Exp5.json",
       "references": [
         {
           "candidate_present": true,
@@ -3827,7 +4103,7 @@
         "m5_seed42",
         "m6_seed42"
       ],
-      "path": "RESULTS_NOISE_SWEEP.json",
+      "path": "results/legacy/RESULTS_NOISE_SWEEP.json",
       "references": [
         {
           "candidate_present": true,
@@ -3885,7 +4161,7 @@
         "m6_seed2026",
         "m6_seed42"
       ],
-      "path": "RESULTS_NOISE_SWEEP_MULTISEED.json",
+      "path": "results/legacy/RESULTS_NOISE_SWEEP_MULTISEED.json",
       "references": [
         {
           "candidate_present": true,
@@ -3917,7 +4193,7 @@
       "json_type": "dict",
       "kind": "result",
       "model_keys": [],
-      "path": "RESULTS_NOVELTY.json",
+      "path": "results/legacy/RESULTS_NOVELTY.json",
       "references": [],
       "sha256": "f4cb0c695d670c2aaa90d2a811d4dde39b422109a7c0b3c9ec8637fdab2829d4"
     },
@@ -3940,7 +4216,7 @@
       "json_type": "dict",
       "kind": "result",
       "model_keys": [],
-      "path": "RESULTS_PARAM_RECOVERY.json",
+      "path": "results/legacy/RESULTS_PARAM_RECOVERY.json",
       "references": [],
       "sha256": "e705b616e776595b7bc36557edb2108a5a84ed87225648a7a802db9ca06deb46"
     },
@@ -3963,7 +4239,7 @@
       "json_type": "dict",
       "kind": "result",
       "model_keys": [],
-      "path": "RESULTS_REAL_STATS_CROSSDIST.json",
+      "path": "results/legacy/RESULTS_REAL_STATS_CROSSDIST.json",
       "references": [
         {
           "candidate_present": true,
@@ -4015,282 +4291,6 @@
         }
       ],
       "sha256": "32f18fe72da63dceeab4e5dc6298fb0746d701595a083b99e59bfe3ec5f9cbe5"
-    },
-    {
-      "bytes": 78480625,
-      "kind": "dataset",
-      "path": "data/PARAM_RECOVERY_MATCHED.pkl",
-      "sha256": null
-    },
-    {
-      "bytes": 142648125,
-      "kind": "dataset",
-      "path": "data/TEST_FINAL_FIXED.pkl",
-      "sha256": null
-    },
-    {
-      "bytes": 145156384,
-      "kind": "dataset",
-      "path": "data/TEST_FINAL_NOSORT.pkl",
-      "sha256": null
-    },
-    {
-      "bytes": 145156368,
-      "kind": "dataset",
-      "path": "data/TEST_FINAL_PROCESSED.pkl",
-      "sha256": null
-    },
-    {
-      "bytes": 39280635,
-      "kind": "dataset",
-      "path": "data/TEST_OOD_Exp1.pkl",
-      "sha256": null
-    },
-    {
-      "bytes": 39280635,
-      "kind": "dataset",
-      "path": "data/TEST_OOD_Exp5.pkl",
-      "sha256": null
-    },
-    {
-      "bytes": 427598247,
-      "kind": "dataset",
-      "path": "data/TRAIN_FINAL_FIXED.pkl",
-      "sha256": null
-    },
-    {
-      "bytes": 435116622,
-      "kind": "dataset",
-      "path": "data/TRAIN_FINAL_NOSORT.pkl",
-      "sha256": null
-    },
-    {
-      "bytes": 435116606,
-      "kind": "dataset",
-      "path": "data/TRAIN_FINAL_PROCESSED.pkl",
-      "sha256": null
-    },
-    {
-      "bytes": 7993600,
-      "kind": "dataset",
-      "path": "data/interaction_mapping_dataset.pkl",
-      "sha256": null
-    },
-    {
-      "bytes": 43347,
-      "kind": "dataset",
-      "path": "data/ultra_oscillatory_candidates.pkl",
-      "sha256": null
-    },
-    {
-      "bytes": 12081896,
-      "kind": "checkpoint",
-      "path": "model_ckpts/b1_m1_spectral_0p1_seed42.pth",
-      "sha256": null
-    },
-    {
-      "bytes": 12082231,
-      "kind": "checkpoint",
-      "path": "model_ckpts/b1_m3_frozen_0p05_seed123.pth",
-      "sha256": null
-    },
-    {
-      "bytes": 12082258,
-      "kind": "checkpoint",
-      "path": "model_ckpts/b1_m3_frozen_0p05_seed2026.pth",
-      "sha256": null
-    },
-    {
-      "bytes": 12082204,
-      "kind": "checkpoint",
-      "path": "model_ckpts/b1_m3_frozen_0p05_seed42.pth",
-      "sha256": null
-    },
-    {
-      "bytes": 12082177,
-      "kind": "checkpoint",
-      "path": "model_ckpts/b1_m3_frozen_0p1_seed42.pth",
-      "sha256": null
-    },
-    {
-      "bytes": 12082177,
-      "kind": "checkpoint",
-      "path": "model_ckpts/b1_m3_frozen_0p2_seed42.pth",
-      "sha256": null
-    },
-    {
-      "bytes": 12088226,
-      "kind": "checkpoint",
-      "path": "model_ckpts/m8_seed123.pth",
-      "sha256": null
-    },
-    {
-      "bytes": 12088316,
-      "kind": "checkpoint",
-      "path": "model_ckpts/m8_seed2026.pth",
-      "sha256": null
-    },
-    {
-      "bytes": 12088200,
-      "kind": "checkpoint",
-      "path": "model_ckpts/m8_seed42.pth",
-      "sha256": null
-    },
-    {
-      "bytes": 12088342,
-      "kind": "checkpoint",
-      "path": "model_ckpts/m8_smoketest.pth",
-      "sha256": null
-    },
-    {
-      "bytes": 12081380,
-      "kind": "checkpoint",
-      "path": "model_ckpts/model_1_seed123.pth",
-      "sha256": null
-    },
-    {
-      "bytes": 12081598,
-      "kind": "checkpoint",
-      "path": "model_ckpts/model_1_seed2026.pth",
-      "sha256": null
-    },
-    {
-      "bytes": 12081226,
-      "kind": "checkpoint",
-      "path": "model_ckpts/model_1_seed42.pth",
-      "sha256": null
-    },
-    {
-      "bytes": 12183110,
-      "kind": "checkpoint",
-      "path": "model_ckpts/model_2_seed123.pth",
-      "sha256": null
-    },
-    {
-      "bytes": 12183258,
-      "kind": "checkpoint",
-      "path": "model_ckpts/model_2_seed2026.pth",
-      "sha256": null
-    },
-    {
-      "bytes": 12183090,
-      "kind": "checkpoint",
-      "path": "model_ckpts/model_2_seed42.pth",
-      "sha256": null
-    },
-    {
-      "bytes": 12081641,
-      "kind": "checkpoint",
-      "path": "model_ckpts/model_3_seed123.pth",
-      "sha256": null
-    },
-    {
-      "bytes": 12081924,
-      "kind": "checkpoint",
-      "path": "model_ckpts/model_3_seed2026.pth",
-      "sha256": null
-    },
-    {
-      "bytes": 12081486,
-      "kind": "checkpoint",
-      "path": "model_ckpts/model_3_seed42.pth",
-      "sha256": null
-    },
-    {
-      "bytes": 9034562,
-      "kind": "checkpoint",
-      "path": "model_ckpts/model_4_seed123.pth",
-      "sha256": null
-    },
-    {
-      "bytes": 9034786,
-      "kind": "checkpoint",
-      "path": "model_ckpts/model_4_seed2026.pth",
-      "sha256": null
-    },
-    {
-      "bytes": 9034338,
-      "kind": "checkpoint",
-      "path": "model_ckpts/model_4_seed42.pth",
-      "sha256": null
-    },
-    {
-      "bytes": 5577126,
-      "kind": "checkpoint",
-      "path": "model_ckpts/model_5_seed123.pth",
-      "sha256": null
-    },
-    {
-      "bytes": 5577336,
-      "kind": "checkpoint",
-      "path": "model_ckpts/model_5_seed2026.pth",
-      "sha256": null
-    },
-    {
-      "bytes": 5576724,
-      "kind": "checkpoint",
-      "path": "model_ckpts/model_5_seed42.pth",
-      "sha256": null
-    },
-    {
-      "bytes": 12225018,
-      "kind": "checkpoint",
-      "path": "model_ckpts/model_6_seed2026.pth",
-      "sha256": null
-    },
-    {
-      "bytes": 12224754,
-      "kind": "checkpoint",
-      "path": "model_ckpts/model_6_seed42.pth",
-      "sha256": null
-    },
-    {
-      "bytes": 14541532,
-      "kind": "checkpoint",
-      "path": "model_ckpts/model_7_seed123.pth",
-      "sha256": null
-    },
-    {
-      "bytes": 14541479,
-      "kind": "checkpoint",
-      "path": "model_ckpts/model_7_seed2026.pth",
-      "sha256": null
-    },
-    {
-      "bytes": 14541457,
-      "kind": "checkpoint",
-      "path": "model_ckpts/model_7_seed42.pth",
-      "sha256": null
-    },
-    {
-      "bytes": 12183090,
-      "kind": "checkpoint",
-      "path": "model_ckpts/model_final_30.pth",
-      "sha256": null
-    },
-    {
-      "bytes": 12183462,
-      "kind": "checkpoint",
-      "path": "model_ckpts/model_final_30_baseline.pth",
-      "sha256": null
-    },
-    {
-      "bytes": 12081922,
-      "kind": "checkpoint",
-      "path": "model_ckpts/model_final_30_conditioned.pth",
-      "sha256": null
-    },
-    {
-      "bytes": 12514482,
-      "kind": "checkpoint",
-      "path": "model_ckpts/model_final_50.pth",
-      "sha256": null
-    },
-    {
-      "bytes": 12364034,
-      "kind": "checkpoint",
-      "path": "model_ckpts/model_final_50_conditioned.pth",
-      "sha256": null
     }
   ],
   "counts": {
@@ -4303,11 +4303,12 @@
   "hash_large_files": false,
   "limitations": [
     "Inventory only: no scientific results, provenance, or reproducibility claims are validated.",
+    "This is a working-tree inventory, including locally present untracked artifacts and uncommitted contents; it is not a checksum manifest of a Git commit or a published release.",
     "Dataset and checkpoint contents are never deserialized; SHA256 is not proof of provenance.",
     "Filename/key-derived references are inferred and unverified, even when a candidate exists.",
     "Explicit metadata is reported as supplied, not independently verified; absent metadata remains unknown.",
     "Legacy species sorting, no-sort scale-head behavior, OOD compound shifts, and M8 mean-versus-sampled outputs require protocol review; labels alone cannot establish them.",
-    "Only root RESULTS*.json, results/legacy/*.json, data/**/*.pkl, and model_ckpts/*.pth are inventoried; symlinks and excluded directories are skipped.",
+    "Historical metrics are discovered in results/legacy/*.json; stray root RESULTS*.json are also detected for migration auditing. Local data/**/*.pkl and model_ckpts/*.pth are metadata-only by default; symlinks and excluded directories are skipped.",
     "Absolute paths in explicit metadata are redacted to basenames; no timestamps or machine paths are recorded."
   ],
   "schema_version": 1

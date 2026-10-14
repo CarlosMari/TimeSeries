@@ -23,7 +23,7 @@ Inputs
 
 Outputs
 -------
-- RESULTS_CHAOS.json                            (numbers + per-measure KS)
+- results/legacy/RESULTS_CHAOS.json             (numbers + per-measure KS)
 - final figures/fig_chaos_diagnostics.{pdf,png} (single multi-panel figure)
 """
 
@@ -49,7 +49,7 @@ from utils.post_processing import apply_extinction_threshold  # noqa: E402
 MODEL_PATH = REPO_ROOT / "model_ckpts" / "model_final_30_conditioned.pth"
 TEST_PATH = REPO_ROOT / "data" / "TEST_FINAL_PROCESSED.pkl"
 
-OUT_JSON = REPO_ROOT / "RESULTS_CHAOS.json"
+OUT_JSON = REPO_ROOT / "results" / "legacy" / "RESULTS_CHAOS.json"
 OUT_FIG = REPO_ROOT / "final figures" / "fig_chaos_diagnostics.pdf"
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -414,6 +414,7 @@ def main():
         "ks": ks_compare(a, b),
     }
 
+    OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     OUT_JSON.write_text(json.dumps(results, indent=2))
     print(f"Saved → {OUT_JSON}")
 

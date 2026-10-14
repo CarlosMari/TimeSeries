@@ -4,7 +4,7 @@
 
 The October 2026 cleanup organizes the repository and adds maintenance tooling.
 It does **not** modify model math, RNG behavior, data generation, training loops,
-scientific metrics, saved results, or publication figures. The scientific fixes in
+scientific metric calculations, saved result contents, or publication figures. The scientific fixes in
 [SCIENTIFIC_AUDIT.md](SCIENTIFIC_AUDIT.md) remain separate work.
 
 ## Relocations
@@ -33,21 +33,31 @@ Current instructions and interpretation live outside the archive.
 
 ## Deliberately preserved in place
 
-- Every `RESULTS*.json`, including pre-existing modified and untracked results.
-  Many readers and writers depend on those paths; they are documented and
-  cataloged, not silently moved or recomputed.
-- `RESULTS.md` and `RESULTS_COMPARISON.md` remain compatibility outputs for the
-  old analysis writers. The new result index is `results/README.md`.
 - Datasets, model checkpoints, figure directories, local virtual environments,
   logs, W&B runs, and existing ignored experimental directories.
-- The essential pre-existing `src/utils/` files. They must be included when these
-  changes are committed; cleanup never treats untracked configuration as disposable.
+- The essential pre-existing `src/utils/` files were included in the first cleanup
+  commit; cleanup never treats untracked configuration as disposable.
 - The pre-existing deletion of `checkpoints/TRAIN_FINAL_checkpoint.pkl` is not
   restored, and pre-existing modified figures are not regenerated.
 
-The old `results/` directory also contains ignored historical material. Only its
-new README and manifest are explicitly exposed to version control; cleanup does
-not blanket-unignore previously ignored outputs.
+## Follow-up: consolidate results after explicit relocation approval
+
+The first cleanup retained root result paths for compatibility. The user then
+explicitly requested moving them. All 40 root JSON metric files and both generated
+Markdown summaries now live under `results/legacy/`, with byte identity checked
+against a pre-move inventory. This includes pre-existing modified and untracked
+results; no metrics were recomputed or reserialized.
+
+Active Python readers/writers, CLI defaults, comparative-figure fallback paths,
+shell queue arguments, and embedded shell/Python writers use the new directory.
+Custom CLI output directories are created explicitly. Archived sources remain
+unchanged, so their old relative result references are historical, not executable
+instructions. No root compatibility files or symlinks remain.
+
+The old `results/` directory also contains ignored historical exploratory material.
+Only its index/catalog and the named legacy metrics/summaries are exposed to version
+control; cleanup does not blanket-unignore unrelated outputs. New corrected runs
+should use `results/runs/<run-id>/` with explicit provenance.
 
 The pre-existing ignored `results/README.md` was replaced by the expanded current
 result index. Unlike the relocated historical sources, that short directory guide
@@ -68,6 +78,7 @@ that the preserved archive still matches those pre-cleanup bytes without running
 any historical code. Replacement root documentation is intentionally not compared
 with the old narratives it supersedes.
 
-No commit, large-data deletion, checkpoint conversion, automatic training, or
-wholesale result migration is part of this cleanup. Final output consolidation
-should follow selection of the corrected experiment and paper evidence.
+The first cleanup was committed and pushed with user authorization. Result-path
+migration is a separate follow-up. Neither phase deletes large data, converts
+checkpoints, launches training, or recomputes scientific metrics. Selecting final
+publication evidence remains separate from organizing the legacy results.

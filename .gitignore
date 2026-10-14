@@ -134,10 +134,15 @@ sota_analysis/
 deep_analysis/
 deep_analysis_30/
 sota_analysis_30/
-# Preserve ignored historical results, but expose the new catalog and guide.
+# Preserve ignored exploratory material; expose the catalog and relocated metrics.
 /results/*
 !/results/README.md
 !/results/manifest.json
+!/results/legacy/
+/results/legacy/*
+!/results/legacy/README.md
+!/results/legacy/RESULTS*.json
+!/results/legacy/RESULTS*.md
 reunion/
 TimeSeries/
 

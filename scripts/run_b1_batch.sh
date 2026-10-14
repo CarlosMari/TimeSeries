@@ -17,7 +17,7 @@
 set -u
 cd "$(dirname "$0")/.."
 source TimeSeries/bin/activate
-mkdir -p logs model_ckpts
+mkdir -p logs model_ckpts results/legacy
 
 AUTOQUEUE_PID=${1:?usage: $0 AUTOQUEUE_PID}
 
@@ -124,8 +124,8 @@ done
 if (( ${#ckpts[@]} > 0 )); then
   log "Evaluating: ${ckpts[*]}"
   python analysis/evaluate_all_models.py --checkpoints "${ckpts[@]}" \
-    --out RESULTS_COMPARATIVE_B1.json
-  log "B1 eval done → RESULTS_COMPARATIVE_B1.json"
+    --out results/legacy/RESULTS_COMPARATIVE_B1.json
+  log "B1 eval done → results/legacy/RESULTS_COMPARATIVE_B1.json"
 else
   log "No B1 checkpoints produced; skipping eval"
 fi

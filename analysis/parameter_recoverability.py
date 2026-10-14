@@ -28,7 +28,7 @@ Outcomes are publishable either way:
 Writes:
   data/PARAM_RECOVERY_MATCHED.pkl  -- the matched dataset (trajectories +
                                        params + processed copies)
-  RESULTS_PARAM_RECOVERY.json      -- recoverability metrics
+  results/legacy/RESULTS_PARAM_RECOVERY.json -- recoverability metrics
   final figures/fig_param_recoverability.{pdf,png}
 
 The generation step is deterministic from the SEED constant; re-running this
@@ -68,7 +68,7 @@ N_SPECIES = 7
 SEQ_LEN = 65
 
 OUT_DATA = REPO_ROOT / "data" / "PARAM_RECOVERY_MATCHED.pkl"
-OUT_JSON = REPO_ROOT / "RESULTS_PARAM_RECOVERY.json"
+OUT_JSON = REPO_ROOT / "results" / "legacy" / "RESULTS_PARAM_RECOVERY.json"
 OUT_FIG = REPO_ROOT / "final figures" / "fig_param_recoverability.pdf"
 
 MODEL_PATH = REPO_ROOT / "model_ckpts" / "model_final_30_conditioned.pth"
@@ -515,6 +515,7 @@ def main():
     print(f"Re(eig A) R²    : {results['eig_real_R2_mean']:.4f}")
     print(f"Im(eig A) R²    : {results['eig_imag_R2_mean']:.4f}")
 
+    OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     OUT_JSON.write_text(json.dumps({
         "n_samples": int(mus.shape[0]),
         "latent_dim": mus.shape[1],

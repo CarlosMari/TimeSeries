@@ -10,7 +10,7 @@ demonstrate that adding back the σ=0.01 lognormal noise the test data was
 generated with closes the protocol-detected gap to non-significance.
 
 Output:
-  - RESULTS_NOISE_SWEEP.json  : per-model, per-σ, per-distribution KS p-values
+  - results/legacy/RESULTS_NOISE_SWEEP.json : per-model, per-σ, per-distribution KS p-values
   - final figures/fig_noise_sweep.{pdf,png} : the headline figure
 """
 
@@ -45,7 +45,7 @@ SIGMA_SWEEP = [0.0, 0.005, 0.01, 0.02, 0.05]
 # Architecture → (eval-harness key, list of seeds available, b1 cure variants)
 # We pull whatever ckpts exist on disk at run time.
 
-OUT_JSON = REPO_ROOT / "RESULTS_NOISE_SWEEP.json"
+OUT_JSON = REPO_ROOT / "results" / "legacy" / "RESULTS_NOISE_SWEEP.json"
 OUT_FIG = REPO_ROOT / "final figures" / "fig_noise_sweep.pdf"
 
 
@@ -95,6 +95,8 @@ def main():
     ap.add_argument("--out", default=str(OUT_JSON))
     ap.add_argument("--n-gen", type=int, default=N_GEN)
     args = ap.parse_args()
+    out_path = Path(args.out)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
 
     print(f"Loading test set from {args.test_path}...")
     with open(args.test_path, "rb") as f:
@@ -202,7 +204,7 @@ def main():
         results["models"][label] = {"type": mtype, "sweep": model_results}
 
         # Write incrementally
-        with open(args.out, "w") as f:
+        with open(out_path, "w") as f:
             json.dump(results, f, indent=2)
         print(f"  → {args.out} updated")
 
