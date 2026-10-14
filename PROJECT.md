@@ -22,7 +22,10 @@ setup issues and is not a validated reference baseline.
   remain under `model_ckpts/`; see [results/README.md](results/README.md).
 - Smooth generated samples and strong normalized reconstruction coexist in the
   saved results. Their physical interpretation is not settled.
-- Removing species sorting did not remove the fixed-species-0 scale assumption.
+- Historical no-sort checkpoints retain the fixed-species-0 scale assumption.
+  An explicit all-species `species_v2` implementation now passes tiny CPU tests,
+  but no corrected model has been trained. See
+  [the scale-contract note](docs/CORRECTED_SCALE_CONTRACT.md).
 - ID and OOD generators differ in noise, time horizon, and rejection filters.
 - The short-window divergence estimate is noise-sensitive and is not established
   as a measure of chaos for these observations.
@@ -30,6 +33,8 @@ setup issues and is not a validated reference baseline.
   isolated test of heteroscedasticity or a demonstrated dynamics "cure."
 - The artifact manifest records what is present, not independently verified
   training provenance. There is no designated final paper result set.
+- A matched single-system simulator and grouped split utilities are CPU-tested;
+  no new production dataset or final evaluation has been generated.
 
 The detailed issues and required controls are in
 [docs/SCIENTIFIC_AUDIT.md](docs/SCIENTIFIC_AUDIT.md). Do not promote historical
@@ -50,6 +55,9 @@ to current conclusions without resolving those issues.
 7. Carlos owns implementation, analysis, and drafting. The other two authors are
    advisors who review the experimental contract, evidence, and manuscript at
    bounded checkpoints; the schedule must not assume three parallel implementers.
+8. GPU use is currently prohibited while it is reserved for urgent work. Use
+   `TimeSeries/bin/python scripts/run_cpu_checks.py` for capped CPU-only checks;
+   do not launch training or process-control queues.
 
 ## Navigation
 

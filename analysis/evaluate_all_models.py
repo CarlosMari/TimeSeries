@@ -50,6 +50,9 @@ from src.models.kan_vae import KANVAE  # noqa: E402
 from src.models.glv_regression import GLVRegressor  # noqa: E402
 from utils.post_processing import apply_extinction_threshold  # noqa: E402
 from analysis.chaos_diagnostics import rqa_measures, rosenstein_lyapunov  # noqa: E402
+from src.models.scale_contract import LEGACY_SCALE_CONTRACT, SPECIES_SCALE_CONTRACT  # noqa: E402
+from src.utils.checkpoints import unpack_checkpoint  # noqa: E402
+from src.utils.scale_metrics import relative_scale_metrics  # noqa: E402
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 N_GEN = 2000          # generated samples per model
@@ -77,9 +80,15 @@ def _common_config(latent_dim=30) -> dict:
 
 
 def adapter_cvae(checkpoint_path: Path, use_scale_conditioning: bool, device) -> LSTM_VAE:
-    cfg = {**_common_config(), "use_scale_conditioning": use_scale_conditioning}
+    cfg, state = unpack_checkpoint(
+        torch.load(checkpoint_path, map_location=device, weights_only=True),
+        expected_architecture="LSTM_VAE",
+        legacy_config={**_common_config(), "use_scale_conditioning": use_scale_conditioning},
+    )
+    if cfg.get("use_scale_conditioning", False) != use_scale_conditioning:
+        raise ValueError("Checkpoint scale-conditioning flag does not match the selected adapter")
     m = LSTM_VAE(cfg).to(device)
-    m.load_state_dict(torch.load(checkpoint_path, map_location=device))
+    m.load_state_dict(state)
     m.eval()
     return m
 
@@ -99,9 +108,13 @@ def adapter_cvae_stochastic(checkpoint_path: Path, device) -> StochasticLSTMVAE:
 
 
 def adapter_cvae_heteroscedastic(checkpoint_path: Path, device) -> HeteroscedasticLSTMVAE:
-    cfg = {**_common_config(), "use_scale_conditioning": True}
+    cfg, state = unpack_checkpoint(
+        torch.load(checkpoint_path, map_location=device, weights_only=True),
+        expected_architecture="HeteroscedasticLSTMVAE",
+        legacy_config={**_common_config(), "use_scale_conditioning": True},
+    )
     m = HeteroscedasticLSTMVAE(cfg).to(device)
-    m.load_state_dict(torch.load(checkpoint_path, map_location=device))
+    m.load_state_dict(state)
     m.eval()
     return m
 
@@ -115,9 +128,13 @@ def adapter_latent_ode(checkpoint_path: Path, device) -> LatentODE:
 
 
 def adapter_transformer(checkpoint_path: Path, device) -> TransformerVAE:
-    cfg = {**_common_config(), "use_scale_conditioning": True}
+    cfg, state = unpack_checkpoint(
+        torch.load(checkpoint_path, map_location=device, weights_only=True),
+        expected_architecture="TransformerVAE",
+        legacy_config={**_common_config(), "use_scale_conditioning": True},
+    )
     m = TransformerVAE(cfg).to(device)
-    m.load_state_dict(torch.load(checkpoint_path, map_location=device))
+    m.load_state_dict(state)
     m.eval()
     return m
 
@@ -289,12 +306,16 @@ def evaluate_model(model, model_type: str, test_pkg: dict, rng) -> dict:
             "recon_R2_original_scale": float(recon_R2_orig),
             "recon_MAE_normalized": float(np.abs(x_true - x_hat).mean()),
         }
-        # Max-value pooled R² over curves 1..6
-        mv_true_16 = real_mv[recon_idx][:, 1:].flatten()
-        mv_pred_16 = mv_pred[:, 1:].flatten()
-        ss_res_mv = ((mv_true_16 - mv_pred_16) ** 2).sum()
-        ss_tot_mv = ((mv_true_16 - mv_true_16.mean()) ** 2).sum()
-        recon_metrics["max_val_R2_pooled"] = float(1.0 - ss_res_mv / max(ss_tot_mv, 1e-12))
+        scale_summary = relative_scale_metrics(
+            real_mv[recon_idx], mv_pred,
+            getattr(model, "scale_contract", LEGACY_SCALE_CONTRACT),
+            log_floor=getattr(model, "scale_log_floor", 1e-8),
+        )
+        if getattr(model, "scale_contract", LEGACY_SCALE_CONTRACT) == SPECIES_SCALE_CONTRACT:
+            recon_metrics.update(scale_summary)
+        else:
+            # Preserve the historical result schema as well as its pooled score.
+            recon_metrics["max_val_R2_pooled"] = scale_summary["max_val_R2_pooled"]
     else:
         recon_metrics = {"note": "GLVRegressor has no in-place reconstruction path; "
                                   "evaluated only on generation + parameter recovery."}
@@ -497,6 +518,9 @@ def main():
             raise KeyError(f"Unknown model type {model_type!r}; "
                            f"choices: {list(ADAPTERS.keys())}")
         model = adapter(ckpt_path, DEVICE)
+        if (getattr(model, "scale_contract", LEGACY_SCALE_CONTRACT) == SPECIES_SCALE_CONTRACT
+                and out_path.resolve().is_relative_to((REPO_ROOT / "results" / "legacy").resolve())):
+            raise ValueError("Corrected checkpoints require an explicit non-legacy --out path, e.g. results/runs/<run-id>/metrics.json")
         rng = np.random.default_rng(2026_05_15)
         metrics = evaluate_model(model, model_type, test_pkg, rng)
         aggregate[key] = metrics

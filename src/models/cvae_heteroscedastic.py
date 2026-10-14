@@ -1,18 +1,10 @@
 """Heteroscedastic-decoder variant of LSTM_VAE — M8.
 
-Architectural fix for the smoothness-attractor pathology (PROJECT.md §1.3.0.2).
-Instead of post-hoc Gaussian noise (m3 StochasticLSTMVAE injects σ into the
-hidden state; the σ-sweep in §1.3.0.1 adds σ to outputs at eval-time), the
-decoder here predicts both μ and σ per timestep per curve, and is trained
-under Gaussian NLL rather than MSE. At generate-time we sample from the
-predicted N(μ, σ).
-
-This is the architectural test of whether VAEs sit at the smoothness attractor
-*because* of the homoscedastic Gaussian decoder assumption (equivalent to MSE).
-If σ is allowed to be data-dependent and the loss rewards correct uncertainty,
-the decoder should naturally produce trajectories whose per-timestep variance
-matches the real observation noise (σ ≈ 0.01 lognormal from
-`generate_family_FIXED.py:203`).
+The decoder predicts μ and a Gaussian σ per timestep/species under Gaussian
+NLL. Its benefit over matched fixed-noise sampling has not been established.
+The historical mean-feedback training versus sampled-feedback generation
+asymmetry remains; repairing the relative-scale head does not resolve it or
+establish recovery of physical dynamics. See docs/SCIENTIFIC_AUDIT.md.
 
 Output convention: forward() returns x_hat of shape (N, 2C, T) — μ stacked
 with raw log_σ along the channel axis. vae_loss() detects this shape and
@@ -27,9 +19,10 @@ import torch
 import torch.nn as nn
 
 from .cvae import LSTM_VAE
+from .scale_contract import SPECIES_SCALE_CONTRACT, validate_scale_targets
 
 
-MIN_SIGMA = 1e-3  # floor so log σ stays finite + KS test stays well-defined
+MIN_SIGMA = 1e-3  # Historical NLL variance regularizer; unchanged by scale repair.
 
 
 class HeteroscedasticLSTMVAE(LSTM_VAE):
@@ -60,6 +53,8 @@ class HeteroscedasticLSTMVAE(LSTM_VAE):
         if self.use_scale_conditioning:
             if max_vals is None:
                 raise ValueError("max_vals must be provided when use_scale_conditioning=True")
+            if self.scale_contract == SPECIES_SCALE_CONTRACT:
+                validate_scale_targets(max_vals, self.scale_contract, self.n_curves)
             z_shape = self.shape_projector(encoded_summary)
             z_scale = self.scale_encoder(max_vals)
             bottleneck_input = torch.cat([z_shape, z_scale], dim=1)
@@ -70,12 +65,7 @@ class HeteroscedasticLSTMVAE(LSTM_VAE):
         log_var_z = self.fc_log_var(bottleneck_input)
         z = self.sample(mu_z, log_var_z)
 
-        max_vals_pred_transformed_partial = self.max_value_predictor(z)
-        max_vals_pred_partial = self.inverse_transform_max_values(max_vals_pred_transformed_partial)
-        ones = torch.ones(batch_size, 1, device=z.device)
-        max_vals_pred = torch.cat([ones, max_vals_pred_partial], dim=1)
-        ones_transformed = self.transform_max_values(ones)
-        max_vals_pred_transformed = torch.cat([ones_transformed, max_vals_pred_transformed_partial], dim=1)
+        max_vals_pred, max_vals_pred_transformed = self._predict_max_vals(z)
 
         h_0 = self.latent_to_hidden(z).view(self.rnn_num_layers, batch_size, self.rnn_hidden_size).contiguous()
         c_0 = self.latent_to_cell(z).view(self.rnn_num_layers, batch_size, self.rnn_hidden_size).contiguous()
@@ -114,10 +104,7 @@ class HeteroscedasticLSTMVAE(LSTM_VAE):
         num_samples = z.size(0)
         device = z.device
 
-        predicted_max_vals_transformed_partial = self.max_value_predictor(z)
-        predicted_max_vals_partial = self.inverse_transform_max_values(predicted_max_vals_transformed_partial)
-        ones = torch.ones(num_samples, 1, device=device)
-        predicted_max_vals = torch.cat([ones, predicted_max_vals_partial], dim=1)
+        predicted_max_vals, _ = self._predict_max_vals(z)
 
         h_0 = self.latent_to_hidden(z).view(self.rnn_num_layers, num_samples, self.rnn_hidden_size).contiguous()
         c_0 = self.latent_to_cell(z).view(self.rnn_num_layers, num_samples, self.rnn_hidden_size).contiguous()

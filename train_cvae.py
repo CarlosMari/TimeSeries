@@ -5,6 +5,7 @@ from torch.utils.data import DataLoader, Dataset
 import wandb
 import numpy as np
 import pickle
+from pathlib import Path
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import get_cmap
@@ -14,6 +15,11 @@ from src.utils.config import hp, model_config, DEVICE
 # --- MODIFIED: Import the new LSTM_VAE model ---
 # Make sure your new model file is accessible, e.g., in src/models/cvae.py
 from src.models.cvae import LSTM_VAE 
+from src.models.scale_contract import (
+    LEGACY_SCALE_CONTRACT, SPECIES_SCALE_CONTRACT, scale_reconstruction_loss,
+    validate_dataset_scale_contract,
+)
+from src.utils.checkpoints import make_checkpoint, write_checkpoint_payload
 
 DATA_TYPE = torch.float32
 LOG = True
@@ -33,6 +39,9 @@ class TimeSeriesDataset(Dataset):
         self.features = data_package['data']
         # The target for the parallel MLP head
         self.max_values = data_package['reconstruction_max_values']
+        self.sort_applied = data_package.get("sort_applied")
+        if self.sort_applied is not None:
+            self.sort_applied = bool(self.sort_applied)
         print(f"Loaded data from {file_path}. Num samples: {len(self.features)}")
         assert len(self.features) == len(self.max_values), "Data and max_value counts do not match."
 
@@ -70,7 +79,9 @@ def _spectral_loss(x_hat, x):
     return (mag_diff[..., 1:] ** 2).mean()
 
 
-def vae_loss(x_hat, x, mu, log_var, max_vals_pred, max_vals_true, beta, lambda_max_val):
+def vae_loss(x_hat, x, mu, log_var, max_vals_pred, max_vals_true, beta, lambda_max_val,
+             scale_contract=LEGACY_SCALE_CONTRACT, max_vals_pred_transformed=None,
+             scale_log_floor=1e-8):
     """Calculates the loss for the VAE with a parallel max value predictor.
 
     Args:
@@ -81,8 +92,10 @@ def vae_loss(x_hat, x, mu, log_var, max_vals_pred, max_vals_true, beta, lambda_m
           The model internally predicts in transformed space (log), but we
           convert back to original space before computing loss.
 
-          Curve 0's max is always 1.0 (normalization artifact), so we only
-          compute loss on curves 1-6 to avoid wasted computation.
+          The historical legacy_sorted_v1 contract scores only curves 1-6.
+          species_v2 instead uses all-species centered log-ratio error and requires
+          the model's transformed head output. Its scale loss is in different units;
+          lambda_max_val must be validated rather than borrowed as a tuned value.
 
           If SPECTRAL_LOSS_WEIGHT > 0, an FFT-magnitude MSE term is added.
           This is the post-pivot 2026-05-17 experiment to test whether
@@ -104,9 +117,10 @@ def vae_loss(x_hat, x, mu, log_var, max_vals_pred, max_vals_true, beta, lambda_m
         recon_loss = nn.functional.mse_loss(x_hat, x, reduction='mean')
     kl_divergence = -0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp(), dim=1).mean()
 
-    # Compute loss ONLY on curves 1-6 (curve 0 is always 1.0)
-    # This saves computation and avoids adding a constant zero term
-    max_val_loss = nn.functional.mse_loss(max_vals_pred[:, 1:], max_vals_true[:, 1:], reduction='mean')
+    max_val_loss = scale_reconstruction_loss(
+        max_vals_pred, max_vals_true, scale_contract,
+        transformed=max_vals_pred_transformed, log_floor=scale_log_floor,
+    )
 
     total_loss = recon_loss + (beta * kl_divergence) + (lambda_max_val * max_val_loss)
 
@@ -254,10 +268,13 @@ def evaluate(model, test_loader, beta, lambda_max_val, device, num_samples=10):
 
             # --- Calculate Loss using the mean prediction for stability ---
             # We still need mu, log_var, etc. from a single forward pass
-            _, mu, log_var, max_vals_pred, _  = model(batch_X, batch_max_vals, teacher_forcing_ratio=0)
+            _, mu, log_var, max_vals_pred, max_vals_pred_transformed = model(batch_X, batch_max_vals, teacher_forcing_ratio=0)
             
             loss, recon, kl, max_val = vae_loss(
-                mean_preds, batch_X, mu, log_var, max_vals_pred, batch_max_vals, beta, lambda_max_val
+                mean_preds, batch_X, mu, log_var, max_vals_pred, batch_max_vals, beta, lambda_max_val,
+                scale_contract=getattr(model, "scale_contract", LEGACY_SCALE_CONTRACT),
+                max_vals_pred_transformed=max_vals_pred_transformed,
+                scale_log_floor=getattr(model, "scale_log_floor", 1e-8),
             )
             total_test_loss += loss.item()
             recon_test_loss += recon.item()
@@ -314,6 +331,21 @@ def evaluate(model, test_loader, beta, lambda_max_val, device, num_samples=10):
     return avg_losses
 
 def train(model):
+    corrected = getattr(model, "scale_contract", LEGACY_SCALE_CONTRACT) == SPECIES_SCALE_CONTRACT
+    checkpoint_metadata = None
+    checkpoint_path = None
+    if corrected:
+        checkpoint_metadata = {
+            "seed": hp["random_seed"], "epochs": hp["epochs"],
+            "data_train": TRAIN_ROUTE, "data_test": TEST_ROUTE,
+            "hyperparameters": dict(hp),
+        }
+        # Validate JSON-safe metadata before W&B, device transfer, or fitting.
+        make_checkpoint(model, checkpoint_metadata)
+        if model_config["save"]:
+            checkpoint_path = Path(model_config["save_route"]) / f'{model_config["name"]}.pth'
+            if checkpoint_path.exists() or checkpoint_path.with_suffix(".progress.pth").exists():
+                raise FileExistsError("Use a new corrected run name; checkpoint/progress file already exists")
     if LOG:
         # Check if wandb is already initialized (e.g., from sweep script)
         if wandb.run is None:
@@ -324,7 +356,6 @@ def train(model):
                 job_type='train'
             )
     
-    model = model.to(DEVICE)
     epochs = hp['epochs']
     lr = hp['lr']
     # --- NEW: Hyperparameter for max value prediction loss ---
@@ -333,6 +364,24 @@ def train(model):
     # --- Use the new Dataset ---
     train_dataset = TimeSeriesDataset(TRAIN_ROUTE)
     test_dataset = TimeSeriesDataset(TEST_ROUTE)
+    for dataset in (train_dataset, test_dataset):
+        validate_dataset_scale_contract(
+            torch.as_tensor(dataset.max_values),
+            getattr(model, "scale_contract", LEGACY_SCALE_CONTRACT),
+            sort_applied=dataset.sort_applied,
+            allow_legacy_on_unsorted=model.config.get("allow_legacy_on_unsorted", False),
+            n_curves=model.n_curves,
+            normalized_curves=torch.as_tensor(dataset.features),
+        )
+    if corrected:
+        checkpoint_metadata.update(sort_applied_train=train_dataset.sort_applied,
+                                   sort_applied_test=test_dataset.sort_applied)
+        if checkpoint_path is not None:
+            write_checkpoint_payload(
+                checkpoint_path.with_suffix(".progress.pth"),
+                make_checkpoint(model, {**checkpoint_metadata, "epoch_completed": 0, "status": "initialized"}),
+            )
+    model = model.to(DEVICE)
     
     train_loader = DataLoader(train_dataset, batch_size=hp["batch_size"], shuffle=True, num_workers=4, pin_memory=True)
     test_loader = DataLoader(test_dataset, batch_size=hp["batch_size"], shuffle=False, num_workers=4, pin_memory=True)
@@ -368,7 +417,10 @@ def train(model):
             with torch.cuda.amp.autocast():
                 pred, mu, log_var, max_vals_pred, max_vals_pred_transform = model(batch_X, batch_max_vals, teacher_forcing_ratio=teacher_forcing_ratio)
                 loss, recon, kl, max_val = vae_loss(
-                    pred, batch_X, mu, log_var, max_vals_pred, batch_max_vals, beta, lambda_max_val
+                    pred, batch_X, mu, log_var, max_vals_pred, batch_max_vals, beta, lambda_max_val,
+                    scale_contract=getattr(model, "scale_contract", LEGACY_SCALE_CONTRACT),
+                    max_vals_pred_transformed=max_vals_pred_transform,
+                    scale_log_floor=getattr(model, "scale_log_floor", 1e-8),
                 )
 
             scaler.scale(loss).backward()
@@ -406,6 +458,12 @@ def train(model):
         
         # --- Evaluation every 20 epochs ---
         if (i > 0 and i % 20 == 0) or (i == epochs - 1):
+            if checkpoint_path is not None:
+                write_checkpoint_payload(
+                    checkpoint_path.with_suffix(".progress.pth"),
+                    make_checkpoint(model, {**checkpoint_metadata, "epoch_completed": i + 1, "status": "weight_recovery"}),
+                    overwrite=True,
+                )
             test_losses = evaluate(model, test_loader, beta, lambda_max_val, DEVICE)
             if LOG:
                 wandb.log(test_losses, step=i)
@@ -417,7 +475,11 @@ def train(model):
         wandb.finish()
 
     if model_config['save']:
-        torch.save(model.state_dict(), f'{model_config["save_route"]}{model_config["name"]}.pth')
+        if corrected:
+            payload = make_checkpoint(model, {**checkpoint_metadata, "epoch_completed": epochs, "status": "completed"})
+            write_checkpoint_payload(checkpoint_path, payload)
+        else:
+            torch.save(model.state_dict(), f'{model_config["save_route"]}{model_config["name"]}.pth')
     return model
 
 if __name__ == "__main__":

@@ -4,6 +4,12 @@ October 2026 review. This records issues found in existing code and stored
 artifacts; **the cleanup does not repair them or recompute results**. Read this
 before using the historical project narratives in a manuscript.
 
+**Follow-up status:** the all-seven-species scale contract, associated guards, and
+single-system matched-simulator foundation are now implemented and CPU-tested.
+No corrected model has been fitted and no historical result was recomputed.
+[CORRECTED_SCALE_CONTRACT.md](CORRECTED_SCALE_CONTRACT.md) distinguishes this code
+progress from the unresolved controlled study and the issues below.
+
 ## 1. No-sort data versus a fixed species-0 scale head
 
 `data_generation/preprocessor.py` preserves original species order when

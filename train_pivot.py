@@ -9,13 +9,15 @@ Adds CLI arguments for:
   - --wandb-project              (default Conditional_LV_VAE_pivot)
   - --no-log                     (skip wandb)
 
-Reuses train_cvae.train() so v1 training (`python train_cvae.py`) stays
-bit-identical and reproducible.
+Reuses train_cvae.train(). A scale contract must now be selected explicitly:
+species_v2 is the corrected three-model path; legacy_sorted_v1 is historical.
+No training is started by --help or importing this module.
 """
 
 from __future__ import annotations
 
 import argparse
+import math
 import os
 import random
 import sys
@@ -35,6 +37,7 @@ from src.models.cvae_heteroscedastic import HeteroscedasticLSTMVAE  # noqa: E402
 from src.models.latent_ode import LatentODE  # noqa: E402
 from src.models.transformer_vae import TransformerVAE  # noqa: E402
 from src.models.kan_vae import KANVAE  # noqa: E402
+from src.models.scale_contract import SCALE_CONTRACTS, SPECIES_SCALE_CONTRACT  # noqa: E402
 
 
 MODEL_REGISTRY = {
@@ -65,6 +68,12 @@ def main():
     ap.add_argument("--data-test", default="data/TEST_FINAL_NOSORT.pkl")
     ap.add_argument("--seed", type=int, required=True)
     ap.add_argument("--name", required=True, help="checkpoint name (no .pth)")
+    ap.add_argument("--scale-contract", choices=SCALE_CONTRACTS, required=True,
+                    help="species_v2 for corrected models; legacy_sorted_v1 for explicit reproduction")
+    ap.add_argument("--scale-log-floor", type=float, default=1e-8,
+                    help="recorded numerical floor for centered log-ratio targets (not a detection limit)")
+    ap.add_argument("--allow-legacy-on-unsorted", action="store_true",
+                    help="explicit historical reproduction only; retains the known six-output bug")
     ap.add_argument("--epochs", type=int, default=1000)
     ap.add_argument("--use-scale-conditioning", dest="use_scale", action="store_true",
                     default=True)
@@ -81,6 +90,20 @@ def main():
     ap.add_argument("--no-log", dest="log", action="store_false", default=True)
     args = ap.parse_args()
 
+    if args.scale_contract == SPECIES_SCALE_CONTRACT and args.model not in {
+        "cvae", "cvae-heteroscedastic", "transformer-vae",
+    }:
+        ap.error("species_v2 is implemented only for cvae, cvae-heteroscedastic, and transformer-vae")
+    if args.allow_legacy_on_unsorted and args.scale_contract == SPECIES_SCALE_CONTRACT:
+        ap.error("--allow-legacy-on-unsorted does not apply to species_v2")
+    if not math.isfinite(args.scale_log_floor) or not 0 < args.scale_log_floor < 1:
+        ap.error("--scale-log-floor must be finite and between 0 and 1")
+    if Path(args.name).name != args.name or args.name in {".", ".."}:
+        ap.error("--name must be a checkpoint basename, not a path")
+    destination = Path(model_config["save_route"]) / f"{args.name}.pth"
+    if destination.exists():
+        ap.error(f"Refusing to overwrite existing checkpoint: {destination}")
+
     set_seed(args.seed)
 
     hp["random_seed"] = args.seed
@@ -90,6 +113,9 @@ def main():
 
     model_config["use_scale_conditioning"] = args.use_scale
     model_config["name"] = args.name
+    model_config["scale_contract"] = args.scale_contract
+    model_config["scale_log_floor"] = args.scale_log_floor
+    model_config["allow_legacy_on_unsorted"] = args.allow_legacy_on_unsorted
     if args.model == "cvae-stochastic":
         model_config["decoder_noise_init"] = args.decoder_noise_init
         model_config["decoder_noise_freeze"] = args.decoder_noise_freeze
@@ -119,6 +145,8 @@ def main():
     print(f"  model:        {args.model}")
     print(f"  seed:         {args.seed}")
     print(f"  name:         {args.name}")
+    print(f"  scale:        {args.scale_contract}")
+    print(f"  legacy NOSORT override: {args.allow_legacy_on_unsorted}")
     print(f"  epochs:       {args.epochs}")
     print(f"  scale-cond:   {args.use_scale}")
     print(f"  data-train:   {args.data_train}")

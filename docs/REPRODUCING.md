@@ -6,8 +6,9 @@ Only load local pickle/checkpoint files you trust.
 
 ## Safe maintenance checks
 
-Python 3.12 was available during cleanup. The maintenance tests and inventory tool
-use the standard library; no model execution or GPU is needed:
+Python 3.12 was available during cleanup. Maintenance tools use the standard
+library. Optional scientific tests use tiny CPU fixtures if numerical dependencies
+are installed, and otherwise skip explicitly. No GPU or production data is needed:
 
 ```bash
 python3 -m unittest discover -s tests -p 'test_*.py'
@@ -16,6 +17,19 @@ python3 scripts/run_legacy.py --list
 python3 scripts/catalog_artifacts.py --output results/manifest.json
 python3 scripts/catalog_artifacts.py --output results/manifest.json --check
 ```
+
+For the full numerical checks with CUDA hidden, one numerical thread per library,
+and W&B disabled, use:
+
+```bash
+TimeSeries/bin/python scripts/run_cpu_checks.py
+```
+
+**The GPU is currently reserved for urgent work.** Do not run the historical
+evaluation/training commands below during this CPU-only phase. They are reference
+instructions for later, not scheduled work. See
+[the corrected implementation note](CORRECTED_SCALE_CONTRACT.md) for what is tested
+and what remains unresolved.
 
 `--check` verifies whether the catalog is current; it does not certify scientific
 provenance. Regenerate the catalog when metrics, datasets, or checkpoints change.
@@ -86,11 +100,17 @@ Training interfaces are `train_pivot.py`, `train_cvae.py`, `train_baseline.py`, 
 `train_glv_regression.py`. The pivot entry point accepts explicit model, seed,
 dataset routes, checkpoint name, and epoch count; use `python train_pivot.py --help`
 to inspect it. Training may write checkpoints and contact W&B unless logging is
-disabled. Fix the scientific contracts before scheduling new production runs.
+disabled. The pivot CLI now requires explicit `--scale-contract`; use `species_v2`
+only for the three selected corrected model families. Legacy training on unsorted
+data additionally requires an explicit historical-reproduction override. Old
+checkpoints cannot be silently upgraded, and existing checkpoint paths are refused
+by the pivot CLI. Fix the remaining scientific contracts before scheduling runs.
 
 Do not execute the shell queues merely to test cleanup. Some discover, stop, resume,
 or kill matching processes, and `scripts/autoqueue.sh` assumes writable storage at
-`/mnt/storage/shared/TimeSeries`. Their historical behavior is unchanged.
+`/mnt/storage/shared/TimeSeries`. Their process-control code remains historical;
+their training commands predate the new required scale flags and are not an
+approved corrected-training launcher. Do not add overrides just to make them run.
 
 ## Historical analyses and figures
 

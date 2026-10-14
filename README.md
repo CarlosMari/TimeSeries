@@ -10,6 +10,12 @@ scale head, compound OOD shift, observation-noise comparisons, and interpretatio
 of short-window divergence estimates need resolution before publication claims.
 Cleanup does not change model behavior or certify old results.
 
+**CPU-only follow-up:** the selected models now have an explicit corrected
+seven-species scale contract, checkpoint guards, and a matched-simulator foundation.
+These are tested implementations, **not retrained results**. See
+[docs/CORRECTED_SCALE_CONTRACT.md](docs/CORRECTED_SCALE_CONTRACT.md).
+The GPU is reserved for other work; no training is scheduled.
+
 ## Start here
 
 - [PROJECT.md](PROJECT.md): current scope and evidence status.
@@ -22,7 +28,9 @@ Cleanup does not change model behavior or certify old results.
 
 ## Safe checks (no training or artifact regeneration)
 
-These use only the Python standard library and run without CUDA or local data:
+Maintenance tools use the standard library. The test suite skips optional
+numerical checks when dependencies are absent; all checks run without CUDA or
+local research data:
 
 ```bash
 python3 -m unittest discover -s tests -p 'test_*.py'
@@ -30,6 +38,13 @@ python3 scripts/check_archive.py
 python3 scripts/run_legacy.py --list
 python3 scripts/catalog_artifacts.py --output results/manifest.json
 python3 scripts/catalog_artifacts.py --output results/manifest.json --check
+```
+
+To include tiny scientific fixture tests using the numerical environment, with
+CUDA hidden and CPU threads capped:
+
+```bash
+TimeSeries/bin/python scripts/run_cpu_checks.py
 ```
 
 The catalog command inventories existing artifacts; it does not load pickle files,
@@ -45,6 +60,7 @@ can suggest provenance but cannot prove it.
 | `data_generation/` | Simulator and preprocessing; ID/OOD differences remain under audit |
 | `analysis/` | Existing evaluation and comparative figure code |
 | `scripts/` | Maintenance tools and historical training queues |
+| `configs/` | Proposed controlled-study contract; not an executable training schedule |
 | `tests/` | Lightweight automated tests plus separately named legacy checks |
 | `results/` | Artifact catalog and result-family documentation |
 | `results/legacy/` | Historical metrics and generated summaries; active legacy scripts use these paths |

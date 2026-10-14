@@ -1,6 +1,11 @@
 import torch
 import torch.nn as nn
 
+from .scale_contract import (
+    LEGACY_SCALE_CONTRACT, SPECIES_SCALE_CONTRACT, decode_scale_predictions,
+    scale_contract_from_config, scale_output_dim, validate_scale_targets,
+)
+
 # You can keep the activation consistent with your other models
 ACTIVATION = nn.SiLU()
 
@@ -15,20 +20,29 @@ class LSTM_VAE(nn.Module):
     curve in the sequence directly from the latent vector `z`. This helps the
     latent space learn structurally important features of the time series.
     """
+    supported_scale_contracts = (LEGACY_SCALE_CONTRACT, SPECIES_SCALE_CONTRACT)
+
     def __init__(self, config: dict) -> None:
         super().__init__()
-        self.config = config
+        self.config = dict(config)
+        self.scale_contract = scale_contract_from_config(config)
+        if self.scale_contract not in self.supported_scale_contracts:
+            raise ValueError(f"{type(self).__name__} does not support {self.scale_contract}")
+        self.config["scale_contract"] = self.scale_contract
+        self.config["scale_loss"] = "centered_log_ratio_mse" if self.scale_contract == SPECIES_SCALE_CONTRACT else "legacy_linear_mse"
 
         # --- Core model parameters from config ---
         self.n_curves = config.get('n_curves', 7)
         self.seq_len = config.get('seq_len', 65)
         self.latent_dim = config['latent_dim']
-        # The number of max values we want to predict
-        # NOTE: Curve 0's max is always 1.0 (normalization artifact), so we only predict curves 1-6
-        self.max_value_dim = self.n_curves - 1  # Predict 6 values instead of 7
+        # Only the explicit historical contract fixes species 0's factor to 1.
+        self.max_value_dim = scale_output_dim(self.n_curves, self.scale_contract)
 
         # Scale prediction mode: 'linear', 'log', or 'exp'
         self.scale_prediction_mode = config.get('scale_prediction_mode', 'linear')
+        self.scale_log_floor = config.get('scale_log_floor', 1e-8)
+        self.config["scale_prediction_mode"] = self.scale_prediction_mode
+        self.config["scale_log_floor"] = self.scale_log_floor
 
         # NEW: Scale conditioning flag
         self.use_scale_conditioning = config.get('use_scale_conditioning', False)
@@ -79,8 +93,7 @@ class LSTM_VAE(nn.Module):
 
         # --- NEW: MLP to predict max values from the latent space ---
         # Note: Output is in transformed space (log or exp) depending on scale_prediction_mode
-        # When conditioning is enabled, this operates on z_shape (before scale conditioning)
-        # When disabled, this operates on z (after sampling)
+        # This head always operates on sampled z, with or without conditioning.
         self.max_value_predictor = nn.Sequential(
             nn.Linear(self.latent_dim, self.latent_dim//2),
             nn.Dropout(0.2),
@@ -133,6 +146,11 @@ class LSTM_VAE(nn.Module):
         eps = torch.randn_like(std)
         return mu + eps * std
 
+    def _predict_max_vals(self, z):
+        return decode_scale_predictions(
+            self.max_value_predictor(z), self.scale_contract, self.scale_prediction_mode,
+        )
+
     def forward(self, X: torch.Tensor, max_vals: torch.Tensor = None, teacher_forcing_ratio=0.5) -> tuple:
         """
         Args:
@@ -164,6 +182,8 @@ class LSTM_VAE(nn.Module):
             # Check that max_vals is provided
             if max_vals is None:
                 raise ValueError("max_vals must be provided when use_scale_conditioning=True")
+            if self.scale_contract == SPECIES_SCALE_CONTRACT:
+                validate_scale_targets(max_vals, self.scale_contract, self.n_curves)
 
             # Project BiLSTM output to z_shape
             z_shape = self.shape_projector(encoded_summary)  # (N, latent_dim)
@@ -186,18 +206,7 @@ class LSTM_VAE(nn.Module):
         # ALWAYS predict from z (the latent space) - proper VAE structure!
         # During training: z ~ q(z|X, max_vals) - contains scale information
         # During generation: z ~ p(z) = N(0,I) - sampled from prior
-        max_vals_pred_transformed_partial = self.max_value_predictor(z)
-
-        # Convert back to original scale
-        max_vals_pred_partial = self.inverse_transform_max_values(max_vals_pred_transformed_partial)  # Shape: (N, 6)
-
-        # Prepend curve 0's max value (always 1.0)
-        ones = torch.ones(batch_size, 1, device=z.device)
-        max_vals_pred = torch.cat([ones, max_vals_pred_partial], dim=1)  # Shape: (N, 7)
-
-        # For transformed space (used in loss computation)
-        ones_transformed = self.transform_max_values(ones)
-        max_vals_pred_transformed = torch.cat([ones_transformed, max_vals_pred_transformed_partial], dim=1)
+        max_vals_pred, max_vals_pred_transformed = self._predict_max_vals(z)
         
         # --- Decoding ---
         # 1. Initialize Decoder State from latent vector z
@@ -261,13 +270,7 @@ class LSTM_VAE(nn.Module):
             # Sample latent vectors from standard normal prior
             z = torch.randn(num_samples, self.latent_dim, device=device)
 
-            # Predict max values from z (curves 1-6; curve 0 is always 1.0)
-            predicted_max_vals_transformed_partial = self.max_value_predictor(z)  # Shape: (N, 6)
-            predicted_max_vals_partial = self.inverse_transform_max_values(predicted_max_vals_transformed_partial)
-
-            # Prepend curve 0's max value (always 1.0)
-            ones = torch.ones(num_samples, 1, device=device)
-            predicted_max_vals = torch.cat([ones, predicted_max_vals_partial], dim=1)  # Shape: (N, 7)
+            predicted_max_vals, _ = self._predict_max_vals(z)
 
             # --- Initialize Decoder State from z ---
             h_0 = self.latent_to_hidden(z).view(self.rnn_num_layers, num_samples, self.rnn_hidden_size).contiguous()
@@ -317,13 +320,7 @@ class LSTM_VAE(nn.Module):
         device = z.device
 
         with torch.no_grad():
-            # Predict max values for curves 1-6 from z (curve 0 is always 1.0)
-            predicted_max_vals_transformed_partial = self.max_value_predictor(z)  # Shape: (N, 6)
-            predicted_max_vals_partial = self.inverse_transform_max_values(predicted_max_vals_transformed_partial)
-
-            # Prepend curve 0's max value (always 1.0)
-            ones = torch.ones(num_samples, 1, device=device)
-            predicted_max_vals = torch.cat([ones, predicted_max_vals_partial], dim=1)  # Shape: (N, 7)
+            predicted_max_vals, _ = self._predict_max_vals(z)
 
             # --- Initialize Decoder State from z ---
             h_0 = self.latent_to_hidden(z).view(self.rnn_num_layers, num_samples, self.rnn_hidden_size).contiguous()

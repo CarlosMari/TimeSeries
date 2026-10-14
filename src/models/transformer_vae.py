@@ -23,6 +23,11 @@ import math
 import torch
 import torch.nn as nn
 
+from .scale_contract import (
+    SPECIES_SCALE_CONTRACT, decode_scale_predictions, scale_contract_from_config,
+    scale_output_dim, validate_scale_targets,
+)
+
 ACTIVATION = nn.SiLU()
 
 
@@ -46,13 +51,19 @@ class _PositionalEncoding(nn.Module):
 class TransformerVAE(nn.Module):
     def __init__(self, config: dict) -> None:
         super().__init__()
-        self.config = config
+        self.config = dict(config)
+        self.scale_contract = scale_contract_from_config(config)
+        self.config["scale_contract"] = self.scale_contract
+        self.config["scale_loss"] = "centered_log_ratio_mse" if self.scale_contract == SPECIES_SCALE_CONTRACT else "legacy_linear_mse"
 
         self.n_curves = config.get("n_curves", 7)
         self.seq_len = config.get("seq_len", 65)
         self.latent_dim = config["latent_dim"]
-        self.max_value_dim = self.n_curves - 1
+        self.max_value_dim = scale_output_dim(self.n_curves, self.scale_contract)
         self.scale_prediction_mode = config.get("scale_prediction_mode", "log")
+        self.scale_log_floor = config.get("scale_log_floor", 1e-8)
+        self.config["scale_prediction_mode"] = self.scale_prediction_mode
+        self.config["scale_log_floor"] = self.scale_log_floor
         self.use_scale_conditioning = config.get("use_scale_conditioning", True)
 
         self.d_model = config.get("d_model", 128)
@@ -144,6 +155,8 @@ class TransformerVAE(nn.Module):
         if self.use_scale_conditioning:
             if max_vals is None:
                 raise ValueError("max_vals required when use_scale_conditioning=True")
+            if self.scale_contract == SPECIES_SCALE_CONTRACT:
+                validate_scale_targets(max_vals, self.scale_contract, self.n_curves)
             z_shape = self.shape_projector(pooled)
             z_scale = self.scale_encoder(max_vals)
             bottleneck_input = torch.cat([z_shape, z_scale], dim=1)
@@ -172,14 +185,9 @@ class TransformerVAE(nn.Module):
         return X_hat
 
     def _predict_max_vals(self, z):
-        N = z.size(0)
-        mvtp = self.max_value_predictor(z)
-        mvp = self.inverse_transform_max_values(mvtp)
-        ones = torch.ones(N, 1, device=z.device)
-        max_vals_pred = torch.cat([ones, mvp], dim=1)
-        ones_t = self.transform_max_values(ones)
-        max_vals_pred_t = torch.cat([ones_t, mvtp], dim=1)
-        return max_vals_pred, max_vals_pred_t
+        return decode_scale_predictions(
+            self.max_value_predictor(z), self.scale_contract, self.scale_prediction_mode,
+        )
 
     def forward(self, X, max_vals=None, teacher_forcing_ratio=0.5):
         mu, log_var = self._encode(X, max_vals)

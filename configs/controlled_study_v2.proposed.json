@@ -1,0 +1,52 @@
+{
+  "status": "proposed_contract_not_a_training_configuration",
+  "execution_policy": {
+    "gpu_allowed": false,
+    "production_training_scheduled": false,
+    "production_data_generation_scheduled": false
+  },
+  "simulator": {
+    "species": 7,
+    "tmax": 20.0,
+    "n_points": 65,
+    "r_scale": 2.0,
+    "diagonal_scale": 2.0,
+    "offdiag_mean": 0.0,
+    "offdiag_std": 1.0,
+    "x0_scale": 0.1,
+    "solver_rtol": 0.000001,
+    "solver_atol": 0.000000001,
+    "solver_max_step": 0.5,
+    "observation_lognormal_sigma": 0.01,
+    "max_parameter_attempts": 500,
+    "max_rhs_evaluations": 100000,
+    "selection": "clean",
+    "max_abundance": 3.0,
+    "min_species_peak": 0.1,
+    "min_overshoot_species": 3,
+    "overshoot_factor": 1.2,
+    "steady_state_points": 10
+  },
+  "splits": {
+    "group_key": "parameter_seed",
+    "split_seed": 20261014,
+    "fractions": {"train": 0.8, "validation": 0.1, "test": 0.1},
+    "fraction_semantics": "hash-assignment probabilities, not exact quotas"
+  },
+  "selected_models": ["cvae", "transformer-vae", "cvae-heteroscedastic"],
+  "scale": {
+    "scale_contract": "species_v2",
+    "scale_prediction_mode": "log",
+    "scale_loss": "centered_log_ratio_mse",
+    "scale_log_floor": 0.00000001,
+    "conditioning_input": "linear relative species peaks",
+    "absolute_family_scale": "separate component; training-only empirical sampler proposed",
+    "scale_loss_weight_status": "requires validation; historical linear-MSE weight is not calibrated"
+  },
+  "remaining_decisions": [
+    "dataset size and compute cap",
+    "M8 observation-only versus stochastic-feedback protocol",
+    "validation noise calibration and effective KL/scale-head weights",
+    "diagnostic controls, sensitivity settings, and primary effect sizes"
+  ]
+}

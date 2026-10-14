@@ -1,5 +1,8 @@
 """Stochastic-decoder variant of LSTM_VAE.
 
+Historical hypothesis/implementation below, not a validated dynamics cure.
+This variant retains only the legacy scale contract in the current study.
+
 Tests the hypothesis raised by the 3-lens diagnostics in v1 (PROJECT.md §3.9):
 the autoregressive *deterministic* decoder regresses to the mean and discards
 high-frequency content. If we inject Gaussian noise into the decoder's hidden
@@ -20,10 +23,14 @@ import torch
 import torch.nn as nn
 
 from .cvae import LSTM_VAE
+from .scale_contract import LEGACY_SCALE_CONTRACT
 
 
 class StochasticLSTMVAE(LSTM_VAE):
     """LSTM-VAE with Gaussian noise injection in the decoder hidden state."""
+
+    # Its copied scale loops are historical; do not inherit an unimplemented v2.
+    supported_scale_contracts = (LEGACY_SCALE_CONTRACT,)
 
     def __init__(self, config: dict) -> None:
         super().__init__(config)

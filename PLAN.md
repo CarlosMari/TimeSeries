@@ -8,8 +8,14 @@ decisions or verification.
 
 This replaces the earlier parallel-author schedule. Historical plans remain at
 [archive/docs/PLAN_2026-05.md](archive/docs/PLAN_2026-05.md). Repository cleanup is
-complete; the scientific fixes below are **not implemented yet**. The immediate
+complete. The initial scale-contract fix is implemented and CPU-tested; corrected
+training and the controlled evaluation are **not** complete. See
+[the implementation boundary](docs/CORRECTED_SCALE_CONTRACT.md). The immediate
 goal is a defensible publication decision, not another open-ended model search.
+
+**Current resource constraint:** GPU use is prohibited while it is reserved for
+the user's urgent work. Only CPU code, tiny fixture checks, and preparatory work
+are authorized in this phase. Do not launch training or process-control queues.
 
 ## 1. The question and scope limit
 
@@ -51,14 +57,14 @@ belong at the repository root.
 
 ### A. Correct the unsorted-species scale contract
 
-- [ ] Update the selected model families to represent all seven relative scales;
+- [x] Update the selected model families to represent all seven relative scales;
   remove the assumption that species 0 is the dominant species.
-- [ ] Update the scale loss, reconstruction path, generation path, and per-species
+- [x] Update the scale loss, reconstruction path, generation path, and per-species
   evaluation consistently. Document how positivity and the family-scale reference
   are represented; do not silently change normalization semantics.
-- [ ] Version the model/configuration so old six-output checkpoints cannot load as
+- [x] Version the model/configuration so old six-output checkpoints cannot load as
   corrected models without an explicit legacy path.
-- [ ] Test every possible dominant-species index, normalization round trips, output
+- [x] Test every possible dominant-species index, normalization round trips, output
   shapes, all-seven-species loss/scoring, and checkpoint/configuration compatibility.
 
 **Likely files:** `src/models/cvae.py`, `src/models/cvae_heteroscedastic.py`,
@@ -70,7 +76,20 @@ refactored in this phase, but must not be labeled corrected.
 the same scale contract, and the selected models pass a tiny forward/backward/
 generation smoke test. A high R² is not the acceptance criterion.
 
+**CPU implementation complete:** explicit `species_v2` versus `legacy_sorted_v1`,
+all-species centered log-ratio loss/scoring, versioned corrected checkpoints, and
+legacy-unsorted training guards are tested. This changes scale-loss units, so
+effective weights still need validation. No old checkpoint was upgraded, no model
+was fitted, and CUDA/AMP behavior has not been exercised.
+
 ### B. Make the data-generating process explicit and reproducible
+
+The tested single-system foundation now exists in
+`data_generation/controlled_glv.py`: physical time, paired clean/noisy outputs,
+explicit seeds/selection/failures, and grouped splits. The existing generators
+remain historical; integration into a versioned dataset builder is still pending.
+`configs/controlled_study_v2.proposed.json` records the proposed contract and open
+decisions; it does not schedule data generation or training.
 
 - [ ] Share one simulator implementation/configuration between ID and any future
   parameter-shift experiment. Record exponential **scale**, not ambiguous rate labels.
@@ -214,7 +233,8 @@ three-distribution matrix merely because those files already exist.
 
 ## Immediate next task
 
-**Start with the all-seven-species scale-contract regression tests and the matching
-fix in the selected LSTM path.** Do not launch a retraining queue yet. In parallel
-with that first implementation session, send the short scope/audit note to the
-advisors so their review does not become a late-stage surprise.
+**Next CPU task: turn the tested paired simulator into a small versioned dataset
+builder with retained failure/split metadata, then persist diagnostic-control
+checks.** Keep model fitting and large dataset generation on hold. Send the proposed
+contract and implementation note to the advisors before fixing the remaining
+sampling and loss-weight choices. Do not launch a retraining queue.
