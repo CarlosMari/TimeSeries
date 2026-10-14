@@ -11,6 +11,12 @@ generation of Generalized Lotka–Volterra trajectories (7 species, 65 observati
 A candidate framing is separating observation-noise fidelity from underlying
 trajectory fidelity. This is a research question, not a confirmed publication claim.
 
+**Clarified original objective:** controlled generation of Lotka–Volterra-like
+curves from latent sampling. Useful targeting need not produce visually sorted
+latent axes. A CPU pilot on the original sorted checkpoint shows promising control
+of community overshoot and relative late-time level; physical validity, diversity,
+and simulator baselines remain open. See [the pilot record](docs/LATENT_CONTROL_PILOT.md).
+
 Implemented variants include scale-conditioned and unconditioned LSTM-VAEs,
 hidden-state-noise variants, latent-ODE, Transformer-VAE, KAN-VAE, and a learned
 variance-head LSTM-VAE (M8). The GLV-regression experiment has known integration
@@ -35,6 +41,9 @@ setup issues and is not a validated reference baseline.
   training provenance. There is no designated final paper result set.
 - A matched single-system simulator and grouped split utilities are CPU-tested;
   no new production dataset or final evaluation has been generated.
+- An exploratory control pilot used the existing sorted model, not newly fitted
+  species_v2 weights. Target attainment is not proof of true equilibrium or GLV
+  adherence, and the noisy real overlay is context rather than a fidelity test.
 
 The detailed issues and required controls are in
 [docs/SCIENTIFIC_AUDIT.md](docs/SCIENTIFIC_AUDIT.md). Do not promote historical

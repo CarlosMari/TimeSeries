@@ -100,8 +100,9 @@ Tests cover every dominant-species index, normalization round trips, gauge and
 permutation consistency of the scale helper (not equivariance of the whole model),
 wrong-dominant gradients, legacy formulas, dataset guards, CPU forward/backward and
 generation, all-species scoring, checkpoint round trips, and adapter loading.
-The current full numerical environment passes 79 checks; a stdlib-only run passes
-the maintenance checks and explicitly skips 44 optional numerical tests.
+The initial scale-contract block passed 79 checks. The CPU runner also includes
+subsequently added control-pilot fixtures; a stdlib-only run explicitly skips
+optional numerical tests rather than treating missing packages as success.
 
 A separate tiny CPU comparison against pre-change commit `a5cce18` verified exact
 legacy state keys/shapes, forward/generation outputs for all three selected

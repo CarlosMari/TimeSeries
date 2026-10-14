@@ -21,6 +21,8 @@ The GPU is reserved for other work; no training is scheduled.
 - [PROJECT.md](PROJECT.md): current scope and evidence status.
 - [PLAN.md](PLAN.md): bounded next steps and publication decision gate.
 - [docs/SCIENTIFIC_AUDIT.md](docs/SCIENTIFIC_AUDIT.md): concrete scientific blockers.
+- [docs/LATENT_CONTROL_PILOT.md](docs/LATENT_CONTROL_PILOT.md): CPU-only retry of the
+  original controlled-generation objective, with results and limitations.
 - [docs/REPRODUCING.md](docs/REPRODUCING.md): environment, safe checks, and explicit
   historical reproduction commands.
 - [docs/CLEANUP.md](docs/CLEANUP.md): what moved, what was preserved, and why.

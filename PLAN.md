@@ -19,14 +19,25 @@ are authorized in this phase. Do not launch training or process-control queues.
 
 ## 1. The question and scope limit
 
-> After matching the observation-noise model and correcting the data pipeline,
-> do generated GLV trajectories still have meaningful structural discrepancies
-> that reconstruction scores miss?
+> Can we request meaningful trajectory properties and generate diverse,
+> dynamically valid Lotka–Volterra-like curves by targeting a learned latent space?
+
+This is the clarified original objective. Matching observation noise and validating
+dynamical diagnostics support that objective; they should not replace it with an
+evaluation-method paper by default. A visibly sorted latent projection is not a
+requirement for useful target-guided generation.
 
 Start with an ID case study and at most three trained configurations: corrected
 LSTM-VAE, Transformer-VAE, and the LSTM learned-variance variant (M8). Historical
 models are context, not corrected evidence. Do not make architectural superiority,
 mode-collapse, or chaos-recovery claims the condition for success.
+
+**New CPU feasibility evidence:** the original sorted v1 checkpoint can target
+community overshoot and relative tail level through bank-guided local search.
+See [the pilot record](docs/LATENT_CONTROL_PILOT.md). This is not physical GLV
+validation, and it does not mandate training all three configurations. First
+establish whether the existing model can support the original controlled-generation
+claim with appropriate validity/diversity/simulator baselines.
 
 **Default exclusions:** no KAN/latent-ODE retraining, new architecture, latent-space
 interpretability campaign, real-world dataset, long-horizon extension, or full OOD
@@ -153,6 +164,12 @@ not a reason to promise novelty or a particular venue.
 
 ## 5. Minimum decisive experiment — pilot first, then replicate
 
+The first CPU-only target-control pilot is complete. The next decisive experiment
+should test **requested controls, GLV validity, conditional diversity, and a direct
+simulator baseline**. The noise/architecture comparison below is supporting work
+only if needed to explain a failure or justify a specific model claim. Do not
+automatically launch nine training runs before validating the control result.
+
 ### Evaluation variants
 
 | Variant | Purpose | Extra training? |
@@ -200,9 +217,10 @@ pointwise paired reconstructions of test trajectories.
 
 | Controlled outcome | Next action |
 |---|---|
-| Structural mismatch remains after matching noise | Draft the focused dynamics-fidelity case study |
-| Most mismatch disappears with correct observation sampling | Consider the narrower evaluation-caution paper, only if the literature gap is real |
-| Simple calibrated noise matches or beats M8 | Report the simple baseline honestly; drop the architectural-cure narrative |
+| Requested controls are reliable, outputs are dynamically valid/diverse, and simulator baselines establish practical value | Draft the focused controlled-generation paper |
+| Requested aggregate properties are attained but individual trajectories fail physical validation | Address validity; do not call it controlled GLV generation yet |
+| Bank lookup or direct simulator sampling is sufficient and the learned generator adds no useful benefit | Narrow the contribution honestly rather than inventing latent-order or architectural novelty |
+| Noise matching changes the fidelity verdict | Use it to qualify the control result; an evaluation-caution paper is an alternative only if separately justified |
 | Effects are not robust or no useful distinction from prior work remains | Discuss a smaller technical report/preprint or stop; do not add models by default |
 
 **Advisor checkpoint C:** one decision meeting with the evidence table and a
@@ -233,8 +251,9 @@ three-distribution matrix merely because those files already exist.
 
 ## Immediate next task
 
-**Next CPU task: turn the tested paired simulator into a small versioned dataset
-builder with retained failure/split metadata, then persist diagnostic-control
-checks.** Keep model fitting and large dataset generation on hold. Send the proposed
-contract and implementation note to the advisors before fixing the remaining
-sampling and loss-weight choices. Do not launch a retraining queue.
+**Next CPU task: inspect the targeted outputs per species and establish a
+defensible GLV-validity/diversity comparison against simulator-based controls.**
+The paired simulator/dataset builder and diagnostic controls support that work.
+Keep model fitting and large dataset generation on hold. Send the control-pilot
+record, proposed contract, and claim boundaries to the advisors; do not launch a
+retraining queue merely to seek prettier latent ordering.
